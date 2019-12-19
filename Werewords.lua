@@ -1,0 +1,356 @@
+local games = require("Games")
+local misc = require("Misc")
+
+local werewords = {}
+
+--#############################################################################################################################################
+--# Configurations                                                                                                                            #
+--#############################################################################################################################################
+
+local RULESETS = {
+	WS = {"Werewolf", "Seer"},
+	WSF = {"Werewolf", "Seer", "Fortune Teller"}
+}
+
+local WORDLISTS = {
+	"supereasy", "easy", "medium", "hard", "ridiculous"
+}
+
+--#############################################################################################################################################
+--# Main Functions                                                                                                                            #
+--#############################################################################################################################################
+
+function werewords.startGame(message)
+	--[[Start a new Werewords game]]
+	local args = message.content:split(" ")
+	local state = createGameInstance()
+
+	state["GameChannel"] = message.channel
+	state["Mayor"] = message.author
+	state["Mode"] = args[3]
+	state["PlayerList"] = message.mentionedUsers
+	ruleset = args[4]
+	games.registerGame(message.channel, "Werewords", state, message.mentionedUsers)
+	message.channel:send("Starting game...")
+	-- Start game
+	assignRoles(state["PlayerList"], ruleset, state)
+	sendWordOptions(state)
+	message.channel:send("Roles sent out...")
+end
+
+function werewords.commandHandler(message, state)
+	--[[Handle commands for a Werewords game]]
+	local args = message.content:split(" ")
+	local channel = message.channel
+	local author = message.author
+
+	-- Save the message as the last question, in case the mayor answers it
+	if author ~= state["Mayor"] then
+		state["LastQuestion"] = message
+	end
+
+	-- Anytime commands
+	if args[1] == "!wordlists" then
+		sendWordLists(channel)
+		return
+	elseif args[1] == "!end" then
+		exitGame(channel, state)
+		return
+	elseif args[1] == "!tokens" then
+		tokenStatus(state)
+		return
+	end
+	-- Mayor commands
+	if author == state["Mayor"] then
+		if args[1] == "!yes" then
+			yes(message, state)
+			return
+		elseif args[1] == "!no" then
+			no(message, state)
+			return
+		elseif args[1] == "!what" then
+			what(message, state)
+			return
+		elseif args[1] == "!close" then
+			close(message, state)
+			return
+		elseif args[1] == "!wayoff" then
+			wayoff(message, args[2], state)
+			return
+		elseif args[1] == "!success" then
+			success(message, state)
+			return
+		end
+	end
+end
+
+function werewords.dmHandler(message, state)
+	--[[Handle commands that take place in DMs]]
+	local args = message.content:split(" ")
+	local author = message.author
+	if author == state["Mayor"] then
+		if args[1] == "!pick" then
+			pickWord(state, args[2])
+			return
+		end
+	elseif author == state["Seer"] then
+		if args[1] == "!objection" then
+			--TODO
+		end
+	end		
+end
+
+--#############################################################################################################################################
+--# Utility Functions                                                                                                                         #
+--#############################################################################################################################################
+
+function werewords.loadWordlist(mode)
+	local file = "words/words_" .. mode .. ".csv"
+	if misc.fileExists(file) then
+		return misc.parseCSV(file)
+	else
+		return nil
+	end
+end
+
+function createGameInstance()
+	--[[Returns a new empty game instance]]
+	local instance = {
+		GameChannel = nil,
+		Mayor = nil,
+		Seer = nil,
+		Mode = nil,
+		PlayerList = nil,
+		Word = nil,
+		WordsTemp = nil,
+		BasicToken = 36,
+		QuestionToken = 10,
+		WayOffToken = 1,
+		SoCloseToken = 1,
+		SeerToken = 1,
+		LastQuestion = nil
+	}
+	return instance
+end
+
+function messageGame(string, state)
+	state["GameChannel"]:send(string)
+end
+
+function messagePlayer(player, string)
+	player:send(string)
+end
+
+--#############################################################################################################################################
+--# Game Functions                                                                                                                            #
+--#############################################################################################################################################
+
+function getTellerWord(str)
+	--[[Takes a string and returns a version of it with each letter replaced with a dash, except the first letter of each word.]]
+	local output = ""
+	local first = true
+	for i=1, #str do
+		local char = str:sub(i,i)
+		if first == true then
+			output = output .. char
+			first = false
+		elseif char == " " then
+			output = output .. " "
+			first = true
+		elseif first == false then
+			output = output .. "-"
+		end
+	end
+	return output
+end
+
+
+function assignRoles(players, ruleset, state)
+	--[[Assigns roles to every player in the current game
+		players: a list of players, as generated by message.mentionedUsers when the command to start the game is sent
+		ruleset: the string corresponding to a ruleset (eg "WSF")]]
+	-- Shuffle players
+	-- If ruleset doesn't exist, error
+	if RULESETS[ruleset] == nil then
+		messageGame("Error! Role list does not exist.", state)
+		exitGame(state["GameChannel"], state)
+		return
+	end
+	-- Assign player roles
+	local shuffledPlayers = misc.shuffleTable(misc.shallowCopy(misc.indexifyTable(players)))
+	local playerList = {}
+	local specialRoles = misc.shallowCopy(RULESETS[ruleset])
+	for i, player in pairs(shuffledPlayers) do
+		if specialRoles[i] ~= nil then
+			playerList[i] = {player, specialRoles[i]}
+			-- If special role is Seer, save a reference to the player
+			if specialRoles[i] == "Seer" then
+				state["Seer"] = player
+			end
+		else
+			playerList[i] = {player, "Vanilla Townie"}
+		end
+		messagePlayer(player, "You are: " .. playerList[i][2])
+	end
+	state["PlayerList"] = misc.shuffleTable(playerList)
+end
+
+function sendWordOptions(state)
+	-- If word list doesn't exist, error
+	-- It pains me to do this on every game startup, but it avoids me having to put a werewords-specific global in Games.lua
+	local list = werewords.loadWordlist(state["Mode"])
+	if list == nil then
+		messageGame("Error! Word list does not exist.", state)
+		sendWordLists(state["GameChannel"])
+		exitGame(state["GameChannel"], state)
+	end
+	-- Pick four words at random and send them to the mayor
+	local words = {list[math.random(#list)],list[math.random(#list)],list[math.random(#list)],list[math.random(#list)]}
+	output = "Your word choices are:\n1: " .. words[1] .. "\n2: " .. words[2] .. "\n3: " .. words[3] .. "\n4: " .. words[4]
+	state["WordsTemp"] = words
+	messagePlayer(state["Mayor"], output)
+end
+
+--##########################
+--######## ADD ROLES HERE ##
+--##########################
+function finishNight(state)
+	for idx,playerInfo in pairs(state["PlayerList"]) do
+		local player = playerInfo[1]
+		-- WEREWOLF:
+		if playerInfo[2] == "Werewolf" then
+			-- Inform of word
+			messagePlayer(player, "The word is: " .. state["Word"])
+			-- Inform of all other werewolves
+			for idx2,playerInfo2 in pairs(state["PlayerList"]) do
+				if idx ~= idx2 and playerInfo2[2] == "Werewolf" then
+					messagePlayer(player, playerInfo2[1].name .. " is a werewolf!")
+				end
+			end
+		-- SEER:
+		elseif playerInfo[2] == "Seer" then
+			messagePlayer(player, "The word is: " .. state["Word"])
+		-- APPRENTICE:
+		elseif playerInfo[2] == "Fortune Teller" then
+			local censoredWord = getTellerWord(state["Word"])
+			messagePlayer(player, "The word is: " .. censoredWord)
+		end
+	end
+	messageGame("The game has begun!", state)
+end
+
+function checkForEnd()
+	-- Check for Wolf Win end and if it's the case, have Town vote on wolves
+end
+
+--#############################################################################################################################################
+--# Commands                                                                                                                                  #
+--#############################################################################################################################################
+
+function exitGame(channel, state)
+	messageGame("Quitting game...", state)
+	games.deregisterGame(channel)
+
+end
+
+function sendWordLists(channel)
+	local output = "Currently available wordlists:\n"
+	for idx,name in pairs(WORDLISTS) do
+		output = output .. name .. "\n"
+	end
+	channel:send(output)
+end
+
+function pickWord(state, idx)
+	local tempWords = state["WordsTemp"]
+	local mayor = state["Mayor"]
+	if tempWords == nil then
+		messagePlayer(mayor, "Error: It's not time to pick a word!")
+	elseif idx == "mulligan" then
+		messagePlayer(mayor, "Picking new words...")
+		sendWordOptions()
+		return
+	elseif idx == "1" or idx == "2" or idx == "3" or idx == "4" then
+		state["Word"] = tempWords[tonumber(idx)]
+		state["WordsTemp"] = nil
+		messagePlayer(mayor, "The word is: " .. state["Word"])
+		finishNight(state)
+	else
+		messagePlayer(mayor, "Usage: !pick [1-4 or mulligan]")
+	end
+end
+
+function tokenStatus(state)
+	output = "Yes/No: " .. state["BasicToken"] .. " Maybe: " .. state["QuestionToken"] 
+		.. " So Close: " .. state["SoCloseToken"] .. " Way Off: " .. state["WayOffToken"]
+		.. " Seer: " .. state["SeerToken"]
+	messageGame(output, state)
+end
+
+function yes(message, state)
+	message:delete()
+	state["LastQuestion"]:addReaction("✅")
+	state["BasicToken"] = state["BasicToken"] - 1
+	checkForEnd()
+end
+
+function no(message, state)
+	message:delete()
+	state["LastQuestion"]:addReaction("❌")
+	state["BasicToken"] = state["BasicToken"] - 1
+	checkForEnd()
+end
+
+function what(message, state)
+	message:delete()
+	-- If there's no question toknes left, quietly inform the mayor that they fucked up and hope nobody notices!
+	if state["QuestionToken"] > 0 then
+		state["LastQuestion"]:addReaction("🤔")
+		state["QuestionToken"] = state["QuestionToken"] - 1
+	else
+		messagePlayer(state["Mayor"], "You have no Maybe tokens left! Answer with something else.")
+	end
+end
+
+function close(message, state)
+	message:delete()
+	-- If the token is used up, substitute a yes instead
+	if state["SoCloseToken"] > 0 then
+		state["LastQuestion"]:addReaction("❕")
+		state["SoCloseToken"] = state["SoCloseToken"] - 1
+	else
+		state["LastQuestion"]:addReaction("✅")
+		state["BasicToken"] = state["BasicToken"] - 1
+		checkForEnd()
+	end
+end
+
+function wayoff(message, target, state)
+	message:delete()
+	-- If target is nil, way off is played to the table; otherwise, it's to a specific player
+	if state["WayOffToken"] > 0 then
+		if target == nil then
+			messageGame("Y'all are way off!", state)
+		else
+			messageGame(target .. " is way off!", state)
+		end
+		state["WayOffToken"] = state["WayOffToken"] - 1
+	else
+		messagePlayer(state["Mayor"], "You have already used your Way Off token!")
+	end
+end
+
+function objection(state)
+	if state["SeerToken"] > 0 then
+		messageGame("https://www.clipartmax.com/png/middle/5-52205_clipart-info-phoenix-wright-objection-png.png", state)
+		state["SeerToken"] = state["SeerToken"] - 1
+	else
+		messagePlayer(state["Seer"], "You have no Seer tokens left!")
+	end
+end
+
+function success(message, state)
+	-- Handle Town Win end (have Wolves guess seer/teller)
+end
+
+return werewords
