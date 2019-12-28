@@ -11,6 +11,16 @@ function misc.parseCSV(filename)
 	return tbl
 end
 
+function misc.sumTable(table)
+	-- This function is dedicated to Stack Overflow user katspaugh,
+	-- whose infinite wisdom suggests that including a "primitive and specific"
+	-- table-summing function in the Lua standard libraries would be redundant.
+	local c = 0
+	for key,value in pairs(table) do
+		c = c + value
+	end
+	return c
+end
 
 function misc.printTable(table)
 	for key,value in pairs(table) do
@@ -24,6 +34,21 @@ function misc.shuffleTable(tbl)
 		tbl[i], tbl[j] = tbl[j], tbl[i]
 	end
 	return tbl
+end
+
+function misc.sizeOfTable(tbl)
+	local c = 0
+	for k,v in pairs(tbl) do c = c + 1 end
+	return c
+end
+
+function misc.findNil(tbl)
+	-- Finds the first nil value in a table that indexes from 1 to N
+	c = 1
+	while c > 0 do
+		if tbl[c] == nil then return c end
+		c = c + 1
+	end
 end
 
 function misc.indexifyTable(tbl)
@@ -52,6 +77,24 @@ end
 
 function misc.keyInTable(key, table)
 	return table[key] ~= nil
+end
+
+function misc.valueInList(val, table)
+	-- ONLY WORKS ON TABLES INDEXING FROM 1 TO N
+	for k,v in pairs(table) do
+		if v == val then return true end
+	end
+	return false
+end
+
+function misc.fuseLists(tbl1, tbl2)
+	-- Fuses two tables with the following constraints:
+	-- The tables must be indexed from 1 to N
+	-- The values from tbl2 will be inserted at the end of tbl1
+	-- If any of the values in tbl2 exist in tbl1, they will be skipped
+	for k,v in pairs(tbl2) do
+		if not misc.valueInList(v, tbl1) then tbl1[#tbl1+1] = v end
+	end
 end
 
 function misc.fileExists(name)
