@@ -21,13 +21,14 @@ local currentGhostFriend = nil
 
 local werewords = require("Werewords")
 local tictactoe = require("TicTacToe")
+local medium = require("Medium")
 
 -- {Name : {Description, Rules, StartFunction, CommandHandler}}
 GAME_LIST = {
 	Werewords = {
 		desc = [[A social deduction game for 4-10 players. One player picks a secret word, and the other players ask them yes or no questions 
-		to try to deduce it. Certain players are secretly werewolves, and trying to prevent the word from being guessed."]], 
-		rules = [[TODO: Rules for Werewords]], 
+		to try to deduce it. Certain players are secretly werewolves, and trying to prevent the word from being guessed.]], 
+		rules = [[http://werewords.com/rules.php?ver=2]], 
 		startFunc = werewords.startGame,
 		handler = werewords.commandHandler,
 		dmHandler = werewords.dmHandler
@@ -38,6 +39,14 @@ GAME_LIST = {
 		startFunc = tictactoe.startGame,
 		handler = tictactoe.commandHandler,
 		dmHandler = tictactoe.dmHandler
+	},
+	Medium = {
+		desc = [[A mind reading game for 2-8 players. Players take turns picking two words from a hand of cards, and trying to find a word that 
+		most relates to the two they picked, without communicating at all. Use of ESP is highly encouraged.]],
+		rules = [[https://stormchasergames.files.wordpress.com/2019/06/medium-rulebook-final-reduced-size-1.pdf]],
+		startFunc = medium.startGame,
+		handler = medium.commandHandler,
+		dmHandler = medium.dmHandler
 	}
 }
 
