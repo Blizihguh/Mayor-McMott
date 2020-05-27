@@ -43,18 +43,18 @@ function medium.startGame(message)
 	message.channel:send("Starting game...")
 	local state = nil
 	if #channelList == 1 then
-		state = createGameInstance(message.channel, message.guild:getChannel(channelList[1][1]), playerList, message)
+		state = mediumCreateGameInstance(message.channel, message.guild:getChannel(channelList[1][1]), playerList, message)
 	else
-		state = createGameInstance(message.channel, nil, playerList, message)
+		state = mediumCreateGameInstance(message.channel, nil, playerList, message)
 	end
 	games.registerGame(message.channel, "Medium", state, playerList)
 
 	-- DM players their hands
 	for idx,playerInfo in pairs(state["PlayerList"]) do
-		dmHand(state, idx)
+		mediumDMHand(state, idx)
 	end
 
-	sendStatusMessage(state)
+	mediumSendStatusMessage(state)
 end
 
 function medium.commandHandler(message, state)
@@ -62,15 +62,15 @@ function medium.commandHandler(message, state)
 
 	if args[1] == "!status" then
 		misc.printTable(state)
-		sendStatusMessage(state)
+		mediumSendStatusMessage(state)
 	elseif args[1] == "!score" then
-		sendScoreMessage(state)
+		mediumSendScoreMessage(state)
 	elseif args[1] == "!quit" then
-		quitGame(state)
+		mediumQuitGame(state)
 	elseif args[1] == "!ready" then
-		if isPlayerIdx(state, message.author, state["CurrentPlayer"]) or isPlayerIdx(state, message.author, state["NextPlayer"]) then
+		if mediumIsPlayerIdx(state, message.author, state["CurrentPlayer"]) or mediumIsPlayerIdx(state, message.author, state["NextPlayer"]) then
 			if state["Guess1"] ~= nil and state["Guess2"] ~= nil and state["Revealed"] ~= true then
-				doGuesses(state)
+				mediumDoGuesses(state)
 			elseif state["Revealed"] == true then
 				message.channel.send("You already revealed your guesses! (Use !success or !failure to proceed)")
 			else
@@ -81,13 +81,13 @@ function medium.commandHandler(message, state)
 		end
 	elseif args[1] == "!success" then
 		if state["Revealed"] == true then
-			updatePhase(state, true)
+			mediumUpdatePhase(state, true)
 		else
 			message.channel:send("You have to reveal before you can tell if you succeeded...")
 		end
 	elseif args[1] == "!failure" then
 		if state["Revealed"] == true then
-			updatePhase(state, false)
+			mediumUpdatePhase(state, false)
 		else
 			message.channel:send("You have to reveal before you can tell if you failed...")
 		end
@@ -96,7 +96,7 @@ end
 
 function medium.dmHandler(message, state)
 	local args = message.content:split(" ")
-	local idx = getIdxFromPlayer(state, message.author)
+	local idx = mediumGetIdxFromPlayer(state, message.author)
 
 	-- Anytime commands
 	if args[1] == "!hand" then
@@ -104,28 +104,28 @@ function medium.dmHandler(message, state)
 			misc.printTable(state)
 			message.channel:send("You're... not a player? How did you even get this message?")
 		else
-			dmHand(state, idx)
+			mediumDMHand(state, idx)
 		end
 		return
 	elseif args[1] == "!score" then
-		dmScore(state, idx)
+		mediumDMScore(state, idx)
 		return
 	end
 	-- Phase-specific commands
 	if state["Phase"] == -2 or state["Phase"] == -1 then
 		-- DM author is attempting to pick a card out of their hand
 		if args[1] == "!pick" then
-			pickCard(state, idx, args[2], message.channel)
+			mediumPickCard(state, idx, args[2], message.channel)
 		end
 	elseif state["Phase"] == 1 or state["Phase"] == 2 or state["Phase"] == 3 then
 		-- Melding phase
-		if isPlayerIdx(state, message.author, state["CurrentPlayer"]) then
+		if mediumIsPlayerIdx(state, message.author, state["CurrentPlayer"]) then
 			-- DM author is current player
 			if args[1] == "!pick" then
 				state["Guess1"] = args[2]
 				message.channel:send("Your guess is: " .. state["Guess1"])
 			end
-		elseif isPlayerIdx(state, message.author, state["NextPlayer"]) then
+		elseif mediumIsPlayerIdx(state, message.author, state["NextPlayer"]) then
 			-- DM author is next player
 			if args[1] == "!pick" then
 				state["Guess2"] = args[2]
@@ -143,7 +143,7 @@ end
 --# Game Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function createGameInstance(channel, specChannel, playerList, message)
+function mediumCreateGameInstance(channel, specChannel, playerList, message)
 	local instance = {
 		GameChannel = channel,
 		SpecChannel = specChannel,
@@ -162,7 +162,7 @@ function createGameInstance(channel, specChannel, playerList, message)
 	}
 	-- Create deck
 	-- TODO: Get the decks and pass them in here
-	instance["Deck"] = createDeck(channel, {"supereasy"})
+	instance["Deck"] = mediumCreateDeck(channel, {"supereasy"})
 	-- Create playerlist with individual hands
 	local idx = 1
 	for id,player in pairs(playerList) do
@@ -170,7 +170,7 @@ function createGameInstance(channel, specChannel, playerList, message)
 		-- These are stored as tables instead of ints because the number of chips is public,
 		-- but the value of each chip is private
 		instance["PlayerList"][idx] = {Player = player, Hand = {}, Score = {Left = {}, Right = {}}}
-		drawCards(instance, idx)
+		mediumDrawCards(instance, idx)
 		idx = idx + 1
 	end
 	-- Pick starting player randomly
@@ -181,7 +181,7 @@ function createGameInstance(channel, specChannel, playerList, message)
 	return instance
 end
 
-function createDeck(channel, deckList)
+function mediumCreateDeck(channel, deckList)
 	deck = {}
 
 	for idx,name in pairs(deckList) do
@@ -207,7 +207,7 @@ function createDeck(channel, deckList)
 	return deck
 end
 
-function drawCards(state, idx)
+function mediumDrawCards(state, idx)
 	-- Get the first card. If it's the crystal ball, tell everyone and repeat
 	local deck = state["Deck"]
 	local playerHand = state["PlayerList"][idx]["Hand"]
@@ -224,22 +224,22 @@ function drawCards(state, idx)
 	end
 end
 
-function isPlayerIdx(state, player, idx)
+function mediumIsPlayerIdx(state, player, idx)
 	if state["PlayerList"][idx]["Player"] == player then return true else return false end
 end
 
-function getPlayerFromIdx(state, idx)
+function mediumGetPlayerFromIdx(state, idx)
 	return state["PlayerList"][idx]["Player"]
 end
 
-function getIdxFromPlayer(state, player)
+function mediumGetIdxFromPlayer(state, player)
 	for idx,playerInfo in pairs(state["PlayerList"]) do
-		if getPlayerFromIdx(state, idx) == player then return idx end
+		if mediumGetPlayerFromIdx(state, idx) == player then return idx end
 	end
 	return 0
 end
 
-function pickCard(state, playerIdx, cardIdx, channel)
+function mediumPickCard(state, playerIdx, cardIdx, channel)
 	-- Make sure the player is going this turn
 	local isFirstPlayer = true
 	if state["Phase"] == -2 and state["CurrentPlayer"] == playerIdx then
@@ -266,19 +266,19 @@ function pickCard(state, playerIdx, cardIdx, channel)
 		state["Word2"] = state["PlayerList"][playerIdx]["Hand"][cardIdx]
 	end
 	state["PlayerList"][playerIdx]["Hand"][cardIdx] = nil
-	updatePhase(state, false)
+	mediumUpdatePhase(state, false)
 end
 
-function dmHand(state, idx)
+function mediumDMHand(state, idx)
 	local output = "Your hand is: "
 	for num,card in pairs(state["PlayerList"][idx]["Hand"]) do
 		output = output .. num .. ": " .. card
 		if num ~= #state["PlayerList"][idx]["Hand"] then output = output .. ", " end
 	end
-	dmPlayer(state, idx, output)
+	mediumDMPlayer(state, idx, output)
 end
 
-function dmScore(state, idx)
+function mediumDMScore(state, idx)
 	local scores = state["PlayerList"][idx]["Score"]
 	local leftIdx, rightIdx = 0, 0
 	if idx == 1 then leftIdx = #state["PlayerList"] else leftIdx = idx-1 end
@@ -305,18 +305,18 @@ function dmScore(state, idx)
 	state["PlayerList"][idx]["Player"]:send(leftOutput .. "\n" .. rightOutput .. "\n" .. finalOutput)
 end
 
-function dmPlayer(state, idx, msg)
+function mediumDMPlayer(state, idx, msg)
 	state["PlayerList"][idx]["Player"]:send(msg)
 end
 
-function doGuesses(state)
-	output = getPlayerFromIdx(state, state["CurrentPlayer"]).name .. "'s word: " .. state["Guess1"] .. "\n"
-	output = output .. getPlayerFromIdx(state, state["NextPlayer"]).name .. "'s word: " .. state["Guess2"]
+function mediumDoGuesses(state)
+	output = mediumGetPlayerFromIdx(state, state["CurrentPlayer"]).name .. "'s word: " .. state["Guess1"] .. "\n"
+	output = output .. mediumGetPlayerFromIdx(state, state["NextPlayer"]).name .. "'s word: " .. state["Guess2"]
 	state["GameChannel"]:send(output)
 	state["Revealed"] = true
 end
 
-function updatePhase(state, success)
+function mediumUpdatePhase(state, success)
 	if state["Phase"] == -2 then
 		-- Next player's turn to pick
 		state["Word2"] = nil
@@ -349,17 +349,17 @@ function updatePhase(state, success)
 			state["Guess1"] = nil
 			state["Guess2"] = nil
 			-- Have each player draw up
-			drawCards(state, state["CurrentPlayer"])
-			drawCards(state, state["NextPlayer"])
-			dmHand(state, state["CurrentPlayer"])
-			dmHand(state, state["NextPlayer"])
+			mediumDrawCards(state, state["CurrentPlayer"])
+			mediumDrawCards(state, state["NextPlayer"])
+			mediumDMHand(state, state["CurrentPlayer"])
+			mediumDMHand(state, state["NextPlayer"])
 			-- Update players
 			state["CurrentPlayer"] = state["NextPlayer"]
 			state["NextPlayer"] = state["NextPlayer"] + 1
 			if state["NextPlayer"] > #state["PlayerList"] then state["NextPlayer"] = 1 end
 			-- If we've found three crystal balls already, and are just getting back to the starting player, game is over
 			if state["Balls"] == 3 and state["CurrentPlayer"] == state["StartingPlayer"] then
-				endGame(state)
+				mediumEndGame(state)
 				return
 			end
 			-- Update state
@@ -375,28 +375,28 @@ function updatePhase(state, success)
 	else
 		print("ERROR: Game Phase " .. state["Phase"])
 		misc.printTable(state)
-		sendStatusMessage(state)
+		mediumSendStatusMessage(state)
 		return
 	end
 	state["Revealed"] = false
-	sendStatusMessage(state)
+	mediumSendStatusMessage(state)
 end
 
-function sendStatusMessage(state)
+function mediumSendStatusMessage(state)
 	local output = ""
 	if state["Phase"] == -2 then
 		-- First player picking card
-		output = "It's " .. getPlayerFromIdx(state, state["CurrentPlayer"]).name .. "'s turn to pick a word!"
+		output = "It's " .. mediumGetPlayerFromIdx(state, state["CurrentPlayer"]).name .. "'s turn to pick a word!"
 		state["GameChannel"]:send(output)
 	elseif state["Phase"] == -1 then
 		-- Second player picking card
-		output = getPlayerFromIdx(state, state["CurrentPlayer"]).name .. " picked " .. state["Word1"] .. "!\n"
-		output = output .. "It's " .. getPlayerFromIdx(state, state["NextPlayer"]).name .. "'s turn to pick a word!"
+		output = mediumGetPlayerFromIdx(state, state["CurrentPlayer"]).name .. " picked " .. state["Word1"] .. "!\n"
+		output = output .. "It's " .. mediumGetPlayerFromIdx(state, state["NextPlayer"]).name .. "'s turn to pick a word!"
 		state["GameChannel"]:send(output)
 	elseif state["Phase"] == 1 or state["Phase"] == 2 or state["Phase"] == 3 then
 		-- Melding phase
-		output = "It's the matching phase! " .. getPlayerFromIdx(state, state["CurrentPlayer"]).name .. " and "
-		output = output .. getPlayerFromIdx(state, state["NextPlayer"]).name .. " are attempting to match words!\n"
+		output = "It's the matching phase! " .. mediumGetPlayerFromIdx(state, state["CurrentPlayer"]).name .. " and "
+		output = output .. mediumGetPlayerFromIdx(state, state["NextPlayer"]).name .. " are attempting to match words!\n"
 		output = output .. "The words are: " .. state["Word1"] .. " and " .. state["Word2"] .. "!"
 		state["GameChannel"]:send(output)
 	else
@@ -406,7 +406,7 @@ function sendStatusMessage(state)
 	end
 end
 
-function endGame(state)
+function mediumEndGame(state)
 	state["GameChannel"]:send("The game has ended!")
 
 	-- Acquire individual player scores
@@ -430,12 +430,12 @@ function endGame(state)
 	games.deregisterGame(state["GameChannel"])
 end
 
-function quitGame(state)
+function mediumQuitGame(state)
 	state["GameChannel"]:send("Quitting game...")
 	games.deregisterGame(state["GameChannel"])
 end
 
-function sendScoreMessage(state)
+function mediumSendScoreMessage(state)
 	local output = "Scores:\n"
 	for idx=1,#state["PlayerList"],1 do
 		-- Get index of next player

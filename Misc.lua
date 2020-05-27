@@ -28,6 +28,18 @@ function misc.printTable(table)
 	end
 end
 
+function misc.deepPrintTable(table, indent)
+	indent = indent or 0
+	for key,value in pairs(table) do
+		if type(value) == "table" then
+			misc.deepPrintTable(value, indent+1)
+		else
+			local tabs = string.rep("\t", indent)
+			print(tabs .. tostring(key) .. ":\t" .. tostring(value))
+		end 
+	end
+end
+
 function misc.shuffleTable(tbl)
 	for i = #tbl, 2, -1 do
 		local j = math.random(i)
@@ -79,12 +91,29 @@ function misc.keyInTable(key, table)
 	return table[key] ~= nil
 end
 
+function misc.getKeyInTableInsensitive(key, table)
+	-- Case-insensitive version of keyInTable
+	-- Returns the first key k in the table such that string.upper(key) == string.upper(k)
+	for k,v in pairs(table) do
+		if string.upper(k) == string.upper(key) then return k end
+	end
+	return nil
+end
+
 function misc.valueInList(val, table)
 	-- ONLY WORKS ON TABLES INDEXING FROM 1 TO N
 	for k,v in pairs(table) do
 		if v == val then return true end
 	end
 	return false
+end
+
+function misc.getKey(val, table)
+	-- misc.valueInList but it returns the position
+	for k,v in pairs(table) do
+		if v == val then return k end
+	end
+	return nil
 end
 
 function misc.fuseLists(tbl1, tbl2)

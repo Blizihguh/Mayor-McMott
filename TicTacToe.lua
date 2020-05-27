@@ -23,7 +23,7 @@ function tictactoe.startGame(message)
 	end
 
 	message.channel:send("Starting game...")
-	local state = createGameInstance(message.channel, playerList)
+	local state = tictactoeCreateGameInstance(message.channel, playerList)
 	games.registerGame(message.channel, "TicTacToe", state, playerList)
 	
 	message.channel:send("It's Player One's turn!")
@@ -38,7 +38,7 @@ function tictactoe.commandHandler(message, state)
 	if (state["XTurn"] and player == state["X"]) or (not state["XTurn"] and player == state["O"]) then
 		if args[1] == "!move" then
 			if #args == 3 then
-				local result = move(state, args[2], args[3])
+				local result = tictactoeMove(state, args[2], args[3])
 				if result then
 					return
 				else
@@ -54,9 +54,9 @@ function tictactoe.commandHandler(message, state)
 
 	--!end
 	if args[1] == "!end" then
-		exitGame(state)
+		tictactoeExitGame(state)
 	elseif args[1] == "!board" then
-		board(state)
+		tictactoeBoard(state)
 	end
 end
 
@@ -70,7 +70,7 @@ end
 --# Game Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function createGameInstance(channel, playerList)
+function tictactoeCreateGameInstance(channel, playerList)
 	--[[Create a table containing the game state of the new game]]
 	local instance = {
 		GameChannel = channel,
@@ -83,7 +83,7 @@ function createGameInstance(channel, playerList)
 	return instance
 end
 
-function checkGameOver(state)
+function tictactoeCheckGameOver(state)
 	--[[Checks if the game is over:
 	If the game has been won, return "X" or "O" depending on who won.
 	If the game has been tied, return "T".
@@ -125,10 +125,10 @@ end
 --# Commands                                                                                                                                  #
 --#############################################################################################################################################
 
-function board(state)
+function tictactoeBoard(state)
 	--[[Output the board to game chat]]
 	local channel = state["GameChannel"]
-	local output = "```"
+	local output = "```\n"
 	print("Output\n")
 	for row,tbl in pairs(state["Board"]) do
 		for col,str in pairs(tbl) do
@@ -142,7 +142,7 @@ function board(state)
 	channel:send(output)
 end
 
-function move(state, x, y)
+function tictactoeMove(state, x, y)
 	--[[Make a move on the game board]]
 	local pos = {tonumber(x), tonumber(y)}
 	-- Verify they're both numbers, in range, and that the tile isnt taken
@@ -153,25 +153,25 @@ function move(state, x, y)
 	-- Make the move
 	if state["XTurn"] then state["Board"][pos[2]][pos[1]] = "X" else state["Board"][pos[2]][pos[1]] = "O" end 
 	state["XTurn"] = not state["XTurn"]
-	board(state)
+	tictactoeBoard(state)
 	
 	-- Check for game end
-	local result = checkGameOver(state)
+	local result = tictactoeCheckGameOver(state)
 	print(result, "\n")
 	if result == "X" then 
 		state["GameChannel"]:send("Player One wins!")
-		exitGame(state)
+		tictactoeExitGame(state)
 	elseif result == "O" then
 		state["GameChannel"]:send("Player Two wins!")
-		exitGame(state)
+		tictactoeExitGame(state)
 	elseif result == "T" then
 		state["GameChannel"]:send("Tie game!")
-		exitGame(state)
+		tictactoeExitGame(state)
 	end
 	return true
 end
 
-function exitGame(state)
+function tictactoeExitGame(state)
 	--[[Close the game]]
 	state["GameChannel"]:send("Quitting game...")
 	games.deregisterGame(state["GameChannel"])

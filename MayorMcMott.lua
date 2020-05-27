@@ -22,12 +22,14 @@ local currentGhostFriend = nil
 local werewords = require("Werewords")
 local tictactoe = require("TicTacToe")
 local medium = require("Medium")
+local curios = require("Curios")
+local letterjam = require("LetterJam")
+local fastlength = require("Fastlength")
 
 -- {Name : {Description, Rules, StartFunction, CommandHandler}}
 GAME_LIST = {
 	Werewords = {
-		desc = [[A social deduction game for 4-10 players. One player picks a secret word, and the other players ask them yes or no questions 
-		to try to deduce it. Certain players are secretly werewolves, and trying to prevent the word from being guessed.]], 
+		desc = [[A social deduction game for 4-10 players. One player picks a secret word, and the other players ask them yes or no questions to try to deduce it. Certain players are secretly werewolves, and trying to prevent the word from being guessed.]], 
 		rules = [[http://werewords.com/rules.php?ver=2]], 
 		startFunc = werewords.startGame,
 		handler = werewords.commandHandler,
@@ -41,12 +43,32 @@ GAME_LIST = {
 		dmHandler = tictactoe.dmHandler
 	},
 	Medium = {
-		desc = [[A mind reading game for 2-8 players. Players take turns picking two words from a hand of cards, and trying to find a word that 
-		most relates to the two they picked, without communicating at all. Use of ESP is highly encouraged.]],
+		desc = [[A mind reading game for 2-8 players. Players take turns picking two words from a hand of cards, and trying to find a word that most relates to the two they picked, without communicating at all. Use of ESP is highly encouraged.]],
 		rules = [[https://stormchasergames.files.wordpress.com/2019/06/medium-rulebook-final-reduced-size-1.pdf]],
 		startFunc = medium.startGame,
 		handler = medium.commandHandler,
 		dmHandler = medium.dmHandler
+	},
+	Curios = {
+		desc = [[A bluffing game for 2-5 players. Players are dealt a hand of cards, providing partial information about the value of differently colored gems; each turn, everyone attempts to make the most money placing workers to acquire gems.]],
+		rules = [[https://www.alderac.com/wp-content/uploads/2019/04/Curio_Rulebook_Final-Feb2019.pdf]],
+		startFunc = curios.startGame,
+		handler = curios.commandHandler,
+		dmHandler = curios.dmHandler
+	},
+	LetterJam = {
+		desc = [[A cooperative word game for 2+ players. Players each have a letter that only they can't see. Players take turns spelling words with the letters that they can see, thus helping people guess their own letter.]],
+		rules = [[https://czechgames.com/files/rules/letter-jam-rules-en.pdf]],
+		startFunc = letterjam.startGame,
+		handler = letterjam.commandHandler,
+		dmHandler = letterjam.dmHandler
+	},
+	Fastlength = {
+		desc = [[An implementation of exactly one round of Wavelength. One player is given a card with an axis on it, and a position on that axis, from -10 to 10. Their goal is to say a word that other players will place at roughly that position on the axis.]],
+		rules = [[https://www.ultraboardgames.com/wavelength/game-rules.php but with no scoring]],
+		startFunc = fastlength.startGame,
+		handler = fastlength.commandHandler,
+		dmHandler = fastlength.dmHandler
 	}
 }
 
@@ -79,10 +101,11 @@ function gameCommands(message)
 		end
 	else -- Channel does not have game already
 		if args[1] == "!start" then
-			if misc.keyInTable(args[2], GAME_LIST) then
+			local nameOfGame = misc.getKeyInTableInsensitive(args[2], GAME_LIST)
+			if nameOfGame then
 				-- Call the function associated with the given game
 				-- This is ugly as fuck, but it's all worth it to carve a few extra bytes off the filesize of the lua interpreter(???)
-				GAME_LIST[args[2]].startFunc(message)
+				GAME_LIST[nameOfGame].startFunc(message)
 			else
 				channel:send("Uh-oh! I don't know how to play that game, homie!")
 			end
@@ -151,21 +174,25 @@ end
 function infoCommands(content, channel, author, args)
 	--[[Informational functions]]
 	if args[1] == "!games" then -- Print the list of games the bot can run
+		local output = ""
 		for key,value in pairs(GAME_LIST) do
-			channel:send(key .. ": " .. value[1])
+			output = output .. key .. ": " .. value["desc"] .. "\n"
 		end
+		channel:send(output)
 	elseif args[1] == "!list" then -- Print a list of currently running games
 		local noGames = true -- lua's table size operator is notoriously useless
+		local output = ""
 		for key,value in pairs(games.INSTANCES) do
 			noGames = false
 			local game = value[1] .. ": " .. value[2]
-			channel:send(game)
+			output = output .. game .. "\n"
 		end
-		if noGames then channel:send("No games currently running.") end
+		if noGames then channel:send("No games currently running.") else channel:send(output) end
 	elseif args[1] == "!info" then -- Print info about a specific game
 		for key,value in pairs(GAME_LIST) do
 			if args[2] == key then
-				channel:send(value[2])
+				local msg = value["desc"] .. "\nRules: " .. value["rules"]
+				channel:send(msg)
 			end
 		end
 	end
