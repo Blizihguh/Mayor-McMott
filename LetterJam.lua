@@ -85,12 +85,54 @@ function letterjam.dmHandler(message, state)
 			end
 			letterJamEndGameFlip(message.author, state, args[2])
 		end
+	elseif state["Phase"] == -1 then
+		-- Assign word
+		local playerInfo = nil
+		for idx,p in pairs(state["PlayerList"]) do
+			if p["Player"] == message.author then playerInfo = p end
+		end
+		if playerInfo["Assignment"] then
+			local assignmentInfo = state["PlayerList"][playerInfo["Assignment"]]
+			if args[1] == "!pick" and #args > 1 then
+				local chosenWord = string.upper(args[2])
+				-- Validate that the word doesn't contain J, Q, V, X, or Z, and is alphabetic
+				if letterJamValidateWord(chosenWord) then
+					-- If the word is valid, give it that player and set Assignment to nil
+					assignmentInfo["Intent"] = chosenWord
+					assignmentInfo["Cards"] = misc.shuffleTable(letterJamTableifyWord(chosenWord))
+					playerInfo["Assignment"] = nil
+					message.author:send("You have chosen the word: " .. chosenWord)
+					-- If everyone has given their word, move onto Phase 0
+					local done = true
+					for id,p in pairs(state["PlayerList"]) do
+						if p["Assignment"] ~= nil then done = false end
+					end
+					-- Advance to Phase 0
+					if done then
+						state["Phase"] = 0
+						for id,p in pairs(state["PlayerList"]) do
+							letterJamGetStatus(p["Player"], state)
+						end
+					end
+				else
+					message.author:send("Pick a valid word (ie, a word without J, Q, V, X, or Z)")
+				end
+			else
+				message.author:send("Pick a word with the !pick command, like this: `!pick PINGU`")
+			end
+		else
+			message.author:send("You've already picked a word!")
+		end
 	end
 end
 
 --#############################################################################################################################################
 --# Game Functions                                                                                                                            #
 --#############################################################################################################################################
+
+function letterJamValidateWord(word)
+	if word:match("[^ABCDEFGHIKLMNOPRSTUWY]") then return false else return true end
+end
 
 function letterJamCreateGameInstance(channel, playerList, message)
 	local state = {
@@ -101,7 +143,7 @@ function letterJamCreateGameInstance(channel, playerList, message)
 		Stands = {},
 		BonusLetters = {"*"},
 		CurrentWord = nil,
-		Phase = 0 -- 0 = Someone picks a word, 1 = Everyone decides whether to flip
+		Phase = 0 -- 0 = Someone picks a word, 1 = Everyone decides whether to flip, -1 = start of game word assignment
 	}
 	-- Populate each player reference table
 	local idx = 1
@@ -110,15 +152,34 @@ function letterJamCreateGameInstance(channel, playerList, message)
 		-- Cards: 	A table containing the cards the player has in front of them, in order (not necessarily in an order that spells a word)
 		-- Tokens: 	The number of tokens the player has received
 		-- CardIdx: The index of the current card the player is on
-		state["PlayerList"][idx] = {Player = player, Cards = nil, Tokens = 0, CardIdx = 1, Flip = false, BonusCard = nil}
+		-- Flip:    Do they need to flip or noflip?
+		-- BonusC.: Are they on a bonus card?
+		-- Intent:  What word are they meant to be spelling?
+		-- Assgnm.: Who are they assigning to?
+		-- LOTS of terribly inefficient coding in this file is due to the fact that I chose to id based on user id rather than something useful. Too late to change
+		state["PlayerList"][idx] = {Player = player, Cards = nil, Tokens = 0, CardIdx = 1, Flip = false, BonusCard = nil, Intent = nil, Assignment = nil}
 		idx = idx + 1
 	end
-	-- TODO: Have players assign each other words
-	local wordsTable = misc.parseCSV(wordlist)
-	local idx = 1
-	for id,player in pairs(playerList) do
-		state["PlayerList"][idx]["Cards"] = misc.shuffleTable(letterJamTableifyWord(wordsTable[math.random(#wordsTable)]))
-		idx = idx + 1
+	-- Optionally, the players can assign each other words
+	--TODO: In either case, remove the cards used from the deck
+	local args = message.content:split(" ")
+	if args[3] == "pick" then
+		-- Let players pick words
+		state["Phase"] = -1
+		-- Assign everyone a player to give a word to
+		for i=1,#state["PlayerList"] do
+			if i == #state["PlayerList"] then state["PlayerList"][i]["Assignment"] = 1
+			else state["PlayerList"][i]["Assignment"] = i+1 end
+			state["PlayerList"][i]["Player"]:send("Pick a word for " .. state["PlayerList"][state["PlayerList"][i]["Assignment"]]["Player"].name .. "!")
+		end
+	else
+		local wordsTable = misc.parseCSV(wordlist)
+		local idx = 1
+		for id,player in pairs(playerList) do
+			state["PlayerList"][idx]["Intent"] = wordsTable[math.random(#wordsTable)]
+			state["PlayerList"][idx]["Cards"] = misc.shuffleTable(letterJamTableifyWord(state["PlayerList"][idx]["Intent"]))
+			idx = idx + 1
+		end
 	end
 	-- Populate stands
 	local standCt = 6 - #state["PlayerList"]
@@ -142,8 +203,11 @@ function letterJamCreateGameInstance(channel, playerList, message)
 	end
 	-- Populate tokens
 	state["Tokens"] = misc.shallowCopy(TOKENSCHEMES[#state["PlayerList"]])
-	for id,player in pairs(playerList) do
-		letterJamGetStatus(player, state)
+	-- Only give status if everyone has a word
+	if state["Phase"] ~= -1 then
+		for id,player in pairs(playerList) do
+			letterJamGetStatus(player, state)
+		end
 	end
 	return state
 end
@@ -279,7 +343,7 @@ function letterJamPickWord(user, state, word)
 				else outputWord = outputWord .. lettersTbl[tonumber(word:sub(i,i))] end
 			end
 			--TODO: Get number representation of the word for each player and send it to each player, so that they know which letters are whose
-			info["Player"]:send("The word is: " .. outputWord)
+			info["Player"]:send("The word is: `" .. outputWord .. "`")
 		end
 		-- Advance to next phase
 		letterJamAdvancePhase(state)
@@ -330,7 +394,10 @@ function letterJamFlip(user, state, guess)
 			if info["CardIdx"] > #info["Cards"] then
 				if guess then
 					if string.upper(guess) == info["BonusCard"] then
+						user:send("Your guess was correct!")
 						state["BonusLetters"][#state["BonusLetters"]+1] = info["BonusCard"]
+					else
+						user:send("Your guess was incorrect!")
 					end
 				else
 					user:send("You need to guess a letter, since you're on a bonus card!")
@@ -343,13 +410,16 @@ function letterJamFlip(user, state, guess)
 				info["BonusCard"] = state["Deck"][#state["Deck"]]
 				state["Deck"][#state["Deck"]] = nil
 			end
-			letterJamNoFlip(user, state)
+			user:send("Card flipped!")
+			letterJamNoFlip(user, state, true)
 		end
 	end
 	if not found then user:send("It's not your turn to flip!") end
 end
 
-function letterJamNoFlip(user, state)
+function letterJamNoFlip(user, state, flipped)
+	flipped = flipped or false
+	if not flipped then user:send("Card not flipped!") end
 	-- Update player flip status
 	local unflipped = false
 	for player,info in pairs(state["PlayerList"]) do
@@ -358,6 +428,7 @@ function letterJamNoFlip(user, state)
 		end
 		if info["Flip"] then unflipped = true end
 	end
+	-- Send confirmation message
 	-- If no players left to flip, advance to the next phase
 	if not unflipped then letterJamAdvancePhase(state) end
 end
@@ -378,6 +449,10 @@ function letterJamEndGameFlip(user, state, order)
 	for player, info in pairs(state["PlayerList"]) do
 		if info["Player"] == user then playerInfo = info end
 	end
+	if #order < #playerInfo["Intent"] then
+		user:send("You need to flip at least " .. #playerInfo["Intent"] .. " cards!")
+		return
+	end
 	for i=1, #order do
 		num = tonumber(order:sub(i,i))
 		if num and num > 0 and num <= #playerInfo["Cards"] and not used[num] then
@@ -394,11 +469,10 @@ function letterJamEndGameFlip(user, state, order)
 			return
 		end
 	end
-	state["GameChannel"]:send(user.name .. " flipped their cards and revealed... " .. string.upper(result) .. "!")
 	local bonusString = ""
 	state["BonusLetters"] = bonuses
 	for k,c in pairs(bonuses) do bonusString = bonusString .. c end
-	state["GameChannel"]:send("Remaining bonus letters: " .. bonusString)
+	state["GameChannel"]:send(user.name .. " flipped their cards and revealed... " .. string.upper(result) .. "! (Original word: " .. playerInfo["Intent"] .. ")\nRemaining bonus letters: " .. bonusString)
 	playerInfo["Flip"] = true
 	-- Check if everyone has flipped
 	local done = true
