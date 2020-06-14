@@ -25,6 +25,7 @@ local medium = require("Medium")
 local curios = require("Curios")
 local letterjam = require("LetterJam")
 local fastlength = require("Fastlength")
+local codenames = require("Codenames")
 
 -- {Name : {Description, Rules, StartFunction, CommandHandler}}
 GAME_LIST = {
@@ -69,6 +70,13 @@ GAME_LIST = {
 		startFunc = fastlength.startGame,
 		handler = fastlength.commandHandler,
 		dmHandler = fastlength.dmHandler
+	},
+	Codenames = {
+		desc = [[A team-based word game for 4-8 players. Each team has a secret list of words, and one spymaster, whose goal is to get their teammates to pick their words, without picking the opposing team's words.]],
+		rules = [[https://czechgames.com/files/rules/codenames-rules-en.pdf]],
+		startFunc = codenames.startGame,
+		handler = codenames.commandHandler,
+		dmHandler = codenames.dmHandler
 	}
 }
 

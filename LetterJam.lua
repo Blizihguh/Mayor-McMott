@@ -295,18 +295,27 @@ function letterJamPickWord(user, state, word)
 		idx = idx + 1
 	end
 	-- Validate word is entirely numbers in range and wildcard, and at least one player was used
-	--TODO: Use bonus letters for word
 	local valid = true
+	local bonusesUsed = {}
 	local playerUsed = false
 	for i=1, #word do
 		local c = word:sub(i,i)
 		if c == "*" then goto continue end
 		d = tonumber(c)
-		if d == nil or d > #lettersTbl or d < 1 then
-			user:send("Error: " .. c .. " is not a number!")
+		-- Check for bonus letters
+		if c == "*" then goto continue
+		elseif d == nil then
+			for idx,letter in pairs(state["BonusLetters"]) do
+				if c == letter then bonusesUsed[#bonusesUsed+1]=idx; goto continue end
+			end
+			user:send("Error: " .. c .. " is not a valid number or bonus letter!")
+			valid = false
+			goto end_of_pick_word
+		elseif d > #lettersTbl or d < 1 then
+			user:send("Error: " .. c .. " is not a valid number!")
 			valid = false
 			i = #word
-			goto continue
+			goto end_of_pick_word
 		end
 		if playersTbl[d] ~= nil then playerUsed = true end
 		::continue::
@@ -339,17 +348,22 @@ function letterJamPickWord(user, state, word)
 				if playersTbl[tonumber(word:sub(i,i))] == player then
 					outputWord = outputWord .. "-"
 					info["Flip"] = true
-				elseif word:sub(i,i) == "*" then outputWord = outputWord .. "*"
+				elseif tonumber(word:sub(i,i)) == nil then outputWord = outputWord .. word:sub(i,i)
 				else outputWord = outputWord .. lettersTbl[tonumber(word:sub(i,i))] end
 			end
 			--TODO: Get number representation of the word for each player and send it to each player, so that they know which letters are whose
 			info["Player"]:send("The word is: `" .. outputWord .. "`")
+		end
+		-- Remove bonus letters that were used
+		for _,idx in pairs(bonusesUsed) do
+			table.remove(state["BonusLetters"], idx)
 		end
 		-- Advance to next phase
 		letterJamAdvancePhase(state)
 	else
 		user:send("Invalid word! Did you use at least one player's letter?")
 	end
+	::end_of_pick_word::
 end
 
 function letterJamAdvancePhase(state)
@@ -393,11 +407,19 @@ function letterJamFlip(user, state, guess)
 			found = true
 			if info["CardIdx"] > #info["Cards"] then
 				if guess then
+					local correct = false
 					if string.upper(guess) == info["BonusCard"] then
 						user:send("Your guess was correct!")
+						correct = true
 						state["BonusLetters"][#state["BonusLetters"]+1] = info["BonusCard"]
 					else
 						user:send("Your guess was incorrect!")
+					end
+					for player,info in pairs(state["PlayerList"]) do
+						if info["Player"].id ~= user.id then
+							if correct then info["Player"]:send(user.name .. " correctly guessed " .. string.upper(guess) .. "!")
+							else info["Player"]:send(user.name .. " incorrectly guessed " .. string.upper(guess) .. "!") end
+						end
 					end
 				else
 					user:send("You need to guess a letter, since you're on a bonus card!")
