@@ -131,4 +131,14 @@ function misc.fileExists(name)
    if f~=nil then io.close(f) return true else return false end
 end
 
+function misc.getRandomIndex(t)
+	-- Gets a random non-nil index from the table
+    local keys = {}
+    for key, value in pairs(t) do
+        keys[#keys+1] = key --Store keys in another table
+    end
+    index = keys[math.random(1, #keys)]
+    return index
+end
+
 return misc
