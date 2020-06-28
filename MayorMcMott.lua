@@ -59,7 +59,7 @@ GAME_LIST = {
 		dmHandler = curios.dmHandler
 	},
 	LetterJam = {
-		desc = [[A cooperative word game for 2+ players. Players each have a letter that only they can't see. Players take turns spelling words with the letters that they can see, thus helping people guess their own letter.]],
+		desc = [[A cooperative word game for 2-6 players. Players each have a letter that only they can't see. Players take turns spelling words with the letters that they can see, thus helping people guess their own letter.]],
 		rules = [[https://czechgames.com/files/rules/letter-jam-rules-en.pdf]],
 		startFunc = letterjam.startGame,
 		handler = letterjam.commandHandler,
@@ -242,7 +242,3 @@ end)
 
 
 client:run("Bot NDgzMDk4NjU3OTE5MzM2NDU5.XQxfww.ADyJ_eU5oaITvr_xZRvTcnZcs5s") -- replace BOT_TOKEN with your bot token
-
---TODO:
---success, checkForEnd
---voting

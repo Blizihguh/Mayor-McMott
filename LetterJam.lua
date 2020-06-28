@@ -16,11 +16,14 @@ local LETTERS = {
 
 local TOKENSCHEMES = {
 	nil, -- Letter Jam is not a one-player game
-	{red = 6, green = 2, lockedGreen = 3},
-	{red = 6, green = 2, lockedGreen = 3},
-	{red = 4, green = 6, lockedGreen = 1},
-	{red = 5, green = 5, lockedGreen = 1},
-	{red = 6, green = 4, lockedGreen = 1}
+	{red = 6, green = 2, lockedGreen = 3}, -- 11
+	{red = 6, green = 2, lockedGreen = 3}, -- 11
+	{red = 4, green = 6, lockedGreen = 1}, -- 11
+	{red = 5, green = 5, lockedGreen = 1}, -- 11
+	{red = 6, green = 4, lockedGreen = 1}, -- 11; Everything below this is homebrew
+	{red = 7, green = 3, lockedGreen = 1}, -- 11
+	{red = 8, green = 2, lockedGreen = 1}, -- 11
+	{red = 9, green = 1, lockedGreen = 1}
 }
 
 local wordlist = "words/ae5.csv"
@@ -68,6 +71,8 @@ function letterjam.dmHandler(message, state)
 	if state["Phase"] == 0 then
 		if args[1] == "!pick" then
 			letterJamPickWord(message.author, state, args[2])
+		elseif args[1] == "!preview" then
+			letterJamPreviewWord(message.author, state, args[2])
 		end
 	elseif state["Phase"] == 1 then
 		if args[1] == "!flip" then
@@ -257,6 +262,72 @@ function letterJamGetStatus(user, state)
 	-- The positions of the chips, if any have been doled out (and what the chips spell, with relevant omissions)
 	msg = msg .. "```"
 	user:send(msg)
+end
+
+function letterJamPreviewWord(user, state, word)
+	-- Get letters by number
+	local lettersTbl = {}
+	local playersTbl = {}
+	local standsTbl = {}
+	idx = 1
+	for player,info in pairs(state["PlayerList"]) do
+		if info["Player"] ~= user then
+			local letter = ""
+			if info["CardIdx"] > #info["Cards"] then letter = string.upper(info["BonusCard"])
+			else letter = string.upper(info["Cards"][info["CardIdx"]]) end
+			lettersTbl[idx] = letter
+			playersTbl[idx] = player
+			idx = idx + 1
+		end
+	end
+	for stand,contents in pairs(state["Stands"]) do
+		lettersTbl[idx] = contents["Current"]
+		standsTbl[idx] = stand
+		idx = idx + 1
+	end
+	-- Validate word is entirely numbers in range and wildcard, and at least one player was used
+	local valid = true
+	local bonusesUsed = {}
+	local playerUsed = false
+	for i=1, #word do
+		local c = word:sub(i,i)
+		if c == "*" then goto preview_continue end
+		d = tonumber(c)
+		-- Check for bonus letters
+		if c == "*" then goto preview_continue
+		elseif d == nil then
+			for idx,letter in pairs(state["BonusLetters"]) do
+				if c == letter then bonusesUsed[#bonusesUsed+1]=idx; goto preview_continue end
+			end
+			user:send("Error: " .. c .. " is not a valid number or bonus letter!")
+			valid = false
+			goto preview_end
+		elseif d > #lettersTbl or d < 1 then
+			user:send("Error: " .. c .. " is not a valid number!")
+			valid = false
+			i = #word
+			goto preview_end
+		end
+		if playersTbl[d] ~= nil then playerUsed = true end
+		::preview_continue::
+	end
+	if not playerUsed then user:send("Error: You need to use at least one player's letter!"); goto preview_end end
+	if valid then
+		local output = ""
+		-- Construct word for every player and send the result to the user
+		for player,info in pairs(state["PlayerList"]) do
+			local outputWord = ""
+			for i=1, #word do
+				if playersTbl[tonumber(word:sub(i,i))] == player then
+					outputWord = outputWord .. "-"
+				elseif tonumber(word:sub(i,i)) == nil then outputWord = outputWord .. word:sub(i,i)
+				else outputWord = outputWord .. lettersTbl[tonumber(word:sub(i,i))] end
+			end
+			output = output .. info["Player"].name .. ": `" .. outputWord .. "`\n"
+		end
+		user:send(output)
+	end
+	::preview_end::
 end
 
 function letterJamPickWord(user, state, word)

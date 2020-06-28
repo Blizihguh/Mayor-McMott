@@ -126,6 +126,13 @@ function misc.fuseLists(tbl1, tbl2)
 	end
 end
 
+function misc.fuseDicts(tbl1, tbl2)
+	-- Insert the key-value pairs from tbl2 into tbl1
+	for k,v in pairs(tbl2) do
+		tbl1[k] = v
+	end
+end
+
 function misc.fileExists(name)
    local f=io.open(name,"r")
    if f~=nil then io.close(f) return true else return false end
