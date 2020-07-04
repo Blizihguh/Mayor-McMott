@@ -240,5 +240,12 @@ client:on("messageCreate", function(message)
 	miscCommands(message)
 end)
 
+function getBotString()
+	for line in io.lines("BOT_TOKEN") do return "Bot " .. line end
+end
 
-client:run("Bot NDgzMDk4NjU3OTE5MzM2NDU5.XQxfww.ADyJ_eU5oaITvr_xZRvTcnZcs5s") -- replace BOT_TOKEN with your bot token
+if pcall(getBotString) then
+	client:run(getBotString())
+else
+	print("To run MottBot, create a file named BOT_TOKEN and put your bot token in it!")
+end

@@ -1,0 +1,5 @@
+# Specify filepatterns you want git to ignore.
+
+BOT_TOKEN
+discordia.log
+gateway.json
