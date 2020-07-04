@@ -112,7 +112,6 @@ function chameleon.startGame(message)
 	}
 	-- Custom cards are on by default
 	local args = message.content:split(" ")
-	print(args[3])
 	if args[3] ~= "vanilla" then
 		misc.fuseDicts(WORDLISTS, WORDLISTS_CUSTOM)
 	end
@@ -122,8 +121,9 @@ function chameleon.startGame(message)
 	end
 	-- Server-relevant cards
 	for server,list in pairs(SERVER_LIST) do
-		if message.guild.id == server and args[3] ~= "vanilla" then misc.fuseDicts(WORDLISTS, list)
+		if message.guild.id == server and args[3] ~= "vanilla" then misc.fuseDicts(WORDLISTS, list); misc.printTable(WORDLISTS) end
 	end
+	print(args[3])
 	-- Optionally, pick the card
 	if WORDLISTS[args[3]] ~= nil then
 		state["Wordlist"] = args[3]
