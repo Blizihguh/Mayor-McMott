@@ -91,14 +91,11 @@ local WORDLISTS_CUSTOM = {
 	Letters_of_the_Alphabet = {"A", "B", "C", "E", "G", "H", "I", "J", "K", "M", "O", "Q", "R", "T", "X", "Z"}
 }
 
-local WORDLISTS_FQ = {
-}
-
-local WORDLISTS_RIT = {
-	Steamed_Hams = {"Superintendent Chalmers", "Seymour Skinner", "An Unforgettable Luncheon", "Ruined Roast", "Delightfully Devilish", "Isometric Exercise", "Steamed Clams", "Krustyburger", "A Regional Dialect", "Aurora Borealis", "House On Fire", "Steamed Hams", "Trouble In Town Tonight", "A Good Time Had By All", "Old Family Recipe", "Mouth-Watering Hamburgers"},
-	Friends = {"John", "Owen", "Douglas", "Matt", "Chris", "James", "Daniel", "Jessie", "Vince", "Shayne", "Kenny", "Josh", "Pip", "Alpo", "FOE", "Ben"},
-	Board_Games = {"Deception", "Secret Hitler", "Letter Jam", "Mysterium", "Tragedy Looper", "Chameleon", "Werewords", "Sushi Go", "Corporate America", "Rising Sun", "Finger Guns at High Noon", "Mafia", "Two Rooms and a Boom", "Conspiracy", "Dominion", "Codenames"},
-	Mafia = {"Boros", "Kirby", "Death Miller", "Renfield", "Lynch Janitor", "Boros", "Silencer", "Glitterhoof", "Death Godfather", "Neighborizer", "Acidic Visitor", "Wendy", "Tailor", "Investigunsmith", "Compulsive Paranoid Visitor", "Reflexive Invest Reflector"}
+-- Table definitions for injoke cards that only get pulled up on specific servers can be placed in a separate file
+require("Chameleon-Special-Cards")
+local SERVER_LIST = {
+	["698458922268360714"] = WORDLISTS_FQ,
+	["353359832902008835"] = WORDLISTS_RIT
 }
 
 --#############################################################################################################################################
@@ -123,11 +120,9 @@ function chameleon.startGame(message)
 	if args[3] == "custom" then
 		WORDLISTS = WORDLISTS_CUSTOM
 	end
-	-- FQ-specific cards aren't relevant to people who haven't read FQ...
-	if message.guild.id == "698458922268360714" and args[3] ~= "vanilla" then
-		misc.fuseDicts(WORDLISTS, WORDLISTS_FQ)
-	elseif message.guild.id == "353359832902008835" and args[3] ~= "vanilla" then
-		misc.fuseDicts(WORDLISTS, WORDLISTS_RIT)
+	-- Server-relevant cards
+	for server,list in pairs(SERVER_LIST) do
+		if message.guild.id == server and args[3] ~= "vanilla" then misc.fuseDicts(WORDLISTS, list)
 	end
 	-- Optionally, pick the card
 	if WORDLISTS[args[3]] ~= nil then
