@@ -68,7 +68,7 @@ function medium.commandHandler(message, state)
 	elseif args[1] == "!quit" then
 		mediumQuitGame(state)
 	elseif args[1] == "!ready" then
-		if mediumIsPlayerIdx(state, message.author, state["CurrentPlayer"]) or mediumIsPlayerIdx(state, message.author, state["NextPlayer"]) then
+		if not state["Revealed"] and (mediumIsPlayerIdx(state, message.author, state["CurrentPlayer"]) or mediumIsPlayerIdx(state, message.author, state["NextPlayer"])) then
 			if state["Guess1"] ~= nil and state["Guess2"] ~= nil and state["Revealed"] ~= true then
 				mediumDoGuesses(state)
 			elseif state["Revealed"] == true then
@@ -117,7 +117,7 @@ function medium.dmHandler(message, state)
 		if args[1] == "!pick" then
 			mediumPickCard(state, idx, args[2], message.channel)
 		end
-	elseif state["Phase"] == 1 or state["Phase"] == 2 or state["Phase"] == 3 then
+	elseif (state["Phase"] == 1 or state["Phase"] == 2 or state["Phase"] == 3) and not state["Revealed"] then
 		-- Melding phase
 		if mediumIsPlayerIdx(state, message.author, state["CurrentPlayer"]) then
 			-- DM author is current player
@@ -327,8 +327,10 @@ function mediumUpdatePhase(state, success)
 		state["Guess2"] = nil
 		state["Phase"] = 1
 	elseif state["Phase"] == 1 or state["Phase"] == 2 or state["Phase"] == 3 then
+		print("1")
 		if success or state["Phase"] == 3 then
 			-- If success, award score
+			print("3")
 			if success then
 				-- Get the appropriate token
 				local score = 0
@@ -343,28 +345,34 @@ function mediumUpdatePhase(state, success)
 				table.insert(state["PlayerList"][state["CurrentPlayer"]]["Score"]["Right"], score)
 				table.insert(state["PlayerList"][state["NextPlayer"]]["Score"]["Left"], score)
 			end
+			print("4")
 			-- Clear words
 			state["Word1"] = nil
 			state["Word2"] = nil
 			state["Guess1"] = nil
 			state["Guess2"] = nil
 			-- Have each player draw up
+			print("5")
 			mediumDrawCards(state, state["CurrentPlayer"])
 			mediumDrawCards(state, state["NextPlayer"])
 			mediumDMHand(state, state["CurrentPlayer"])
 			mediumDMHand(state, state["NextPlayer"])
 			-- Update players
+			print("6")
 			state["CurrentPlayer"] = state["NextPlayer"]
 			state["NextPlayer"] = state["NextPlayer"] + 1
+			print("7")
 			if state["NextPlayer"] > #state["PlayerList"] then state["NextPlayer"] = 1 end
 			-- If we've found three crystal balls already, and are just getting back to the starting player, game is over
 			if state["Balls"] == 3 and state["CurrentPlayer"] == state["StartingPlayer"] then
 				mediumEndGame(state)
 				return
 			end
+			print("8")
 			-- Update state
 			state["Phase"] = -2
 		else
+			print("2")
 			-- Continue the round with new words
 			state["Word1"] = state["Guess1"]
 			state["Word2"] = state["Guess2"]

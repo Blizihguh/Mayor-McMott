@@ -55,7 +55,7 @@ local WORDLISTS_CUSTOM = {
 	Pokemon = {"Mewtwo", "Garbodor", "Wailord", "Shedinja", "Marshadow", "Ditto", "Arceus", "Torterra", "Scizor", "Goomy", "Ludicolo", "Tapu Koko", "Klefki", "Slowpoke", "Feraligatr", "Sirfetch'd"},
 	Miscellaneous_Historical_Figures_With_Nothing_Particular_In_Common = {"King Arthur", "Heracles", "Gilgamesh", "Jeanne d'Arc", "Nero", "Astolfo", "Paul Bunyan", "Oda Nobunaga", "Gawain", "Edmond Dantes", "Shuten Douji", "Tamamo-no-Mae", "Cu Chulainn", "Edward Teach", "Caligula", "Hans Christian Anderson"},
 	Completely_Unrelated_Objects = {"Couch", "Ohio", "Squid", "The Sun", "Aspirin", "Pepper", "Ficus", "Elbow", "Skateboard", "Dildo", "Clock", "Stop Sign", "Shopping Cart", "Drill", "Tuxedo", "Cocaine"},
-	Fictional_Lands = {"Middle-Earth", "Westeros", "The Mushroom Kingdom", "Narnia", "Alice's Wonderland", "Never-Never Land", "Atlantis", "Wakanda", "Discworld", "Oz", "The Galaxy From Star Wars", "Hyrules", "Tamriel", "Valhalla", "Earthsea", "Dune"},
+	Fictional_Lands = {"Middle-Earth", "Westeros", "The Mushroom Kingdom", "Narnia", "Alice's Wonderland", "Never-Never Land", "Atlantis", "Wakanda", "Discworld", "Oz", "The Galaxy From Star Wars", "Hyrule", "Tamriel", "Valhalla", "Earthsea", "Dune"},
 	Nineties_Kid_Cartoons = {"Pokemon", "CatDog", "The Angry Beavers", "Captain Planet", "The Powerpuff Girls", "Dragonball Z", "Teen Titans", "Rugrats", "Dexter's Lab", "Doug", "Codename: Kids Next Door", "Yu-Gi-Oh!", "Totally Spies", "Ren & Stimpy", "Rocco's Modern Life", "The Simpsons"},
 	Religion = {"Paganism", "Christianity", "Sikhism", "Scientology", "Judaism", "Hinduism", "Zoroastrianism", "Islam", "Confucianism", "Wicca", "Buddhism", "Atheism", "Shinto", "Baha'i", "Taoism", "Satanism"},
 	Chemical_Elements = {"Tungsten", "Bismuth", "Phosphorus", "Sodium", "Neon", "Oxygen", "Zinc", "Uranium", "Calcium", "Hydrogen", "Nitrogen", "Carbon", "Plutonium", "Lead", "Iron", "Chlorine"},
@@ -64,17 +64,41 @@ local WORDLISTS_CUSTOM = {
 	Superheroes = {"Batman", "Superman", "Spider-Man", "Thor", "Wonder Woman", "The Incredible Hulk", "Iron Man", "Aquaman", "Wovlerine", "Dr. Manhattan", "Doctor Strange", "Captain America", "Squirrel Girl", "Green Lantern", "The Flash", "Radioactive Man"},
 	Swiss_Army_Knife = {"Knife", "Scissors", "Awl", "Toothpick", "Flashlight", "Bottle Opener", "Screwdriver", "Can Opener", "Magnifying Glass", "Keyring", "Nail File", "Pliers", "Tweezers", "Compass", "Laser Pointer", "Corkscrew"},
 	Alcoholic_Beverages = {"Beer", "Sake", "Vodka", "Tequila", "Wine", "Rum", "Whiskey", "Schnapps", "Absinthe", "Mead", "Brandy", "Moonshine", "Champagne", "Soju", "Mike's Hard Lemonade", "Mouthwash"},
-	Oops_All_Pikachu = {"Pikachu", "Partner Pikachu", "Rock Star Pikachu", "Belle Pikachu", "Pop Star Pikachu", "PhD Pikachu", "Pikachu Libre", "Ditto", "Pikachu In A Cap", "Gigantamax Pikachu", "Ash's Pikachu", "Ash Pikachu", "Mimikyu", "Festive Pikachu", "Detective Pikachu", "Fat Pikachu"},
+	Oops_All_Pikachu = {"Surfing Pikachu", "Partner Pikachu", "Rock Star Pikachu", "Belle Pikachu", "Pop Star Pikachu", "PhD Pikachu", "Pikachu Libre", "Ditto", "Pikachu In A Cap", "Gigantamax Pikachu", "Ash's Pikachu", "Ash Pikachu", "Mimikyu", "Festive Pikachu", "Detective Pikachu", "Fat Pikachu"},
 	Anatomy = {"Feet", "Nose", "Heart", "Brain", "Lungs", "Skin", "Ears", "Liver", "Spine", "Vocal Chords", "Fingers", "Teeth", "Tongue", "Hair", "Genitalia", "Spleen"},
 	Colors = {"Black", "White", "Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Pink", "Brown", "Gray", "Teal", "Cyan", "Magenta", "Gold", "Silver"},
-	Monster Trucks = {"Grave Digger", "Bakugan Dragonoid", "Donkey Kong", "Megalodon", "Scooby-Doo", "Bigfoot", "Hot Wheels", "Iron Outlaw", "Outback Thunda", "Maximum Destruction", "Avenger", "El Toro Loco", "Black Stallion", "Blue Thunder", "Batman", "Monster Energy Nitro Menace"},
+	Monster_Trucks = {"Grave Digger", "Bakugan Dragonoid", "Donkey Kong", "Megalodon", "Scooby-Doo", "Bigfoot", "Hot Wheels", "Iron Outlaw", "Outback Thunda", "Maximum Destruction", "Avenger", "El Toro Loco", "Black Stallion", "Blue Thunder", "Batman", "Monster Energy Nitro Menace"},
 	Critically_Acclaimed_Games = {"Big Rigs: Over the Road Racing", "Superman 64", "Bubsy 3D", "Hong Kong '97", "Daikatana", "The WarZ", "No Man's Sky", "Fallout 76", "Link: The Faces of Evil", "E.T.", "Shaq Fu", "Action 52", "Sonic 2006", "Custer's Revenge", "Mario is Missing", "The Last of Us: Part II"},
 	Things_Snoop_Dogg_Was_In = {"Scary Movie 5", "Mac & Devin Go to High School", "Racing Stripes", "Soul Plane", "Starsky & Hutch", "Beef", "Beef II", "Beef IV", "Futurama: Into the Wild Green Yonder", "Turbo", "King of the Hill", "The Boondocks", "Epic Rap Battles of History", "Tekken Tag Tournament 2", "Call of Duty: Ghosts", "Peter J. Pitchess Detention Center"},
 	Obsolete_Tech = {"VCR", "Telegraph", "Floppy Disk", "Rotary Phone", "Typewriter", "DVD", "Vinyl Records", "Pager", "Fax", "Cassette", "Sundial", "Musket", "Payphone", "Abacus", "Sword", "CRT TV"},
-	Captain = {"Kirk", "Ahab", "Hook", "Beefheart", "America", "& Tenille", "Picard", "Crunch", "Nemo", "Morgan", "Underpants", "Toad", "Planet", "Phillips", "Falcon", "Jack Sparrow"}
+	Captain = {"Kirk", "Ahab", "Hook", "Beefheart", "America", "& Tenille", "Picard", "Crunch", "Nemo", "Morgan", "Underpants", "Toad", "Planet", "Phillips", "Falcon", "Jack Sparrow"},
+	Sitcoms = {"Seinfeld", "Friends", "It's Always Sunny In Philadelphia", "Everybody Hates Chris", "How I Met Your Mother", "Parks and Recreation", "The Office", "The Fresh Prince of Bel Air", "The Simpsons", "The Big Bang Theory", "Modern Family", "Family Guy", "Arrested Development", "Community", "Full House", "Curb Your Enthusiasm"},
+	Birds = {"Penguin", "Robin", "Blue Jay", "Canary", "Parrot", "Shoebill", "Chicken", "Emu", "Vulture", "Eagle", "Hummingbird", "Owl", "Flamingo", "Dodo", "Swan", "Duck"},
+	Australians = {"Harold Holt", "Rupert Murdoch", "Clive Palmer", "Steve Irwin", "Julian Assange", "Scott Morrison", "Anthony Albanese", "Tony Abbott", "Saxton Hale", "Bob Hawke", "Kylie Minogue", "Steve", "Robert Menzies", "Mel Gibson", "Karl Stefanovic", "Kyle Sandilands"},
+	Bullshit = {"Ghosts", "Psychics", "Tarot", "MBTI", "Homeopathy", "UFOs", "Astrology", "Witchcraft", "Phrenology", "Chiropractic", "Feng Shui", "Hypnosis", "Creation Science", "Fan Death", "Flat Earth", "Acupuncture"},
+	Appliances = {"Oven", "Washer", "Dishwasher", "Refrigerator", "Toaster", "Dryer", "Electric Fan", "Water Heater", "Coffee Maker", "Blowdryer", "Vacuum Cleaner", "Air Conditioner", "Microwave", "Space Heater", "Garbage Disposal", "Blender"},
+	Disasters = {"Flood", "Hurricane", "Wildfire", "Earthquake", "Nuclear War", "Tornado", "Tsunami", "Plague", "Volcanic Eruption", "Blizzard", "Drought", "Avalanche", "Riot", "Blackout", "Hailstorm", "Terror Attack"},
+	Comics = {"Peanuts", "XKCD", "Penny Arcade", "Dilbert", "Garfield", "Ctrl+Alt+Del", "The Far Side", "Marmaduke", "SMBC", "Calvin and Hobbes", "Oglaf", "Achewood", "Cyanide & Happiness", "Ziggy", "Dennis the Menace", "Hark! A Vagrant"},
+	Retro_Games = {"Pac-Man", "Contra", "Metroid", "Super Mario Bros.", "Gauntlet", "Excitebike", "Pong", "Punch-Out!!", "Zork", "Ghosts 'n Goblins", "Tetris", "Paperboy", "Castlevania", "Ninja Gaiden", "Donkey Kong", "Battletoads"},
+	Meme_Songs = {"Running in the 90s", "Caramelldansen", "You Spin Me Right Round", "Astronomia (Coffin Dance)", "Never Gonna Give You Up", "Shooting Stars", "Sanctuary Guardian - Earthbound", "Friday", "Numa Numa", "What is Love?", "Marisa Stole the Precious Thing", "Space Jam Theme", "All Star", "Megalovania", "Big Enough (Screaming Cowboy)", "Crab Rave"},
+	Pokemon_That_Nobody_Cares_About = {"Silcoon", "Gothita", "Eelektrik", "Yungoos", "Exeggcute", "Baltoy", "Skorupi", "Patrat", "Sewaddle", "Trumbeak", "Cosmoem", "Barboach", "Phione", "Binacle", "Wimpod", "Skiploom"},
+	Fantasy_Monsters = {"Slime", "Succubus", "Dragon", "Chimera", "Manticore", "Orc", "Halfling", "Fairy", "Mermaid", "Kappa", "Tengu", "Beholder", "Unicorn", "Lich", "Wyvern", "Golem"},
+	Fruits = {"Coconut", "Cherry", "Pear", "Apple", "Peach", "Orange", "Banana", "Watermelon", "Grape", "Kiwi", "Cucumber", "Mango", "Pineapple", "Lemon", "Tomato", "Durian"},
+	Kentucky_Derby_Winners = {"Country House", "Always Dreaming", "American Pharoah", "Orb", "Super Saver", "War Emblem", "Real Quiet", "Sea Hero", "Spend a Buck", "Genuine Risk", "Spectacular Bid", "Burgoo King", "Black Gold", "Behave Yourself", "Pink Star", "Jet Pilot"},
+	Methods_of_Execution = {"Electric Chair", "Hanging", "Firing Squad", "Lethal Injection", "Gas Chamber", "Stoning", "Impalement", "Burning at Stake", "Brazen Bull", "Immurement", "Drawn and Quartered", "Walk the Plank", "Guillotine", "Lingchi", "Crucifixion", "Snu Snu"},
+	Vegetables = {"Celery", "Eggplant", "Onion", "Potato", "Carrot", "Broccoli", "Spinach", "Lettuce", "Brussels Sprout", "Cabbage", "Beet", "Zucchini", "Pea", "Corn", "Radish", "Asparagus"},
+	Only_The_Best_Smash_Bros_Stages = {"75m", "Dream Land GB", "Gaur Plain", "The Great Cave Offensive", "Great Plateau Tower (Hazards Off)", "Hanenbow", "Icicle Mountain", "Mushroomy Kingdom", "Pac-Land", "Wrecking Crew", "Mario Bros.", "The Scoop", "Baby Park 200cc", "Samus x Ridley", "Switch Zone", "Shaq's Hot Wing"},
+	Letters_of_the_Alphabet = {"A", "B", "C", "E", "G", "H", "I", "J", "K", "M", "O", "Q", "R", "T", "X", "Z"}
 }
 
 local WORDLISTS_FQ = {
+}
+
+local WORDLISTS_RIT = {
+	Steamed_Hams = {"Superintendent Chalmers", "Seymour Skinner", "An Unforgettable Luncheon", "Ruined Roast", "Delightfully Devilish", "Isometric Exercise", "Steamed Clams", "Krustyburger", "A Regional Dialect", "Aurora Borealis", "House On Fire", "Steamed Hams", "Trouble In Town Tonight", "A Good Time Had By All", "Old Family Recipe", "Mouth-Watering Hamburgers"},
+	Friends = {"John", "Owen", "Douglas", "Matt", "Chris", "James", "Daniel", "Jessie", "Vince", "Shayne", "Kenny", "Josh", "Pip", "Alpo", "FOE", "Ben"},
+	Board_Games = {"Deception", "Secret Hitler", "Letter Jam", "Mysterium", "Tragedy Looper", "Chameleon", "Werewords", "Sushi Go", "Corporate America", "Rising Sun", "Finger Guns at High Noon", "Mafia", "Two Rooms and a Boom", "Conspiracy", "Dominion", "Codenames"},
+	Mafia = {"Boros", "Kirby", "Death Miller", "Renfield", "Lynch Janitor", "Boros", "Silencer", "Glitterhoof", "Death Godfather", "Neighborizer", "Acidic Visitor", "Wendy", "Tailor", "Investigunsmith", "Compulsive Paranoid Visitor", "Reflexive Invest Reflector"}
 }
 
 --#############################################################################################################################################
@@ -102,6 +126,8 @@ function chameleon.startGame(message)
 	-- FQ-specific cards aren't relevant to people who haven't read FQ...
 	if message.guild.id == "698458922268360714" and args[3] ~= "vanilla" then
 		misc.fuseDicts(WORDLISTS, WORDLISTS_FQ)
+	elseif message.guild.id == "353359832902008835" and args[3] ~= "vanilla" then
+		misc.fuseDicts(WORDLISTS, WORDLISTS_RIT)
 	end
 	-- Optionally, pick the card
 	if WORDLISTS[args[3]] ~= nil then
