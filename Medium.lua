@@ -3,6 +3,9 @@ local misc = require("Misc")
 
 local medium = {}
 
+local mediumCreateGameInstance, mediumCreateDeck, mediumDrawCards, mediumDMHand, mediumDMScore, mediumDMPlayer, mediumUpdatePhase, mediumQuitGame
+local mediumDoGuesses, mediumPickCard, mediumEndGame, mediumIsPlayerIdx, mediumSendStatusMessage, mediumSendScoreMessage, mediumGetPlayerFromIdx, mediumGetIdxFromPlayer
+
 --#############################################################################################################################################
 --# Configurations                                                                                                                            #
 --#############################################################################################################################################

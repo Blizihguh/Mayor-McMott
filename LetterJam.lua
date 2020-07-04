@@ -3,6 +3,9 @@ local misc = require("Misc")
 
 local letterjam = {}
 
+local letterJamValidateWord, letterJamCreateGameInstance, letterJamTableifyWord, letterJamGetStatus, letterJamPreviewWord, letterJamPickWord
+local letterJamAdvancePhase, letterJamFlip, letterJamNoFlip, letterJamDoEndGame, letterJamEndGameFlip, letterJamQuitGame
+
 --#############################################################################################################################################
 --# Configurations                                                                                                                            #
 --#############################################################################################################################################

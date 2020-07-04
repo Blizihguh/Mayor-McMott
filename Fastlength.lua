@@ -3,6 +3,8 @@ local misc = require("Misc")
 
 local fastlength = {}
 
+local getAxisString
+
 --#############################################################################################################################################
 --# Configurations                                                                                                                            #
 --#############################################################################################################################################
@@ -41,11 +43,11 @@ function fastlength.startGame(message)
 		-- Two axes
 		local valuesMsg = "Your target values are: " .. state["Value"] .. " and " .. state["Value2"] .. "\n"
 		local axesMsg = "The axes are: " .. state["Axis"] .. " and " .. state["Axis2"] .. "\n"
-		local axesGraph = fastlengthGetAxisString(state["Value"], state["Axis"]) .. "\n" .. fastlengthGetAxisString(state["Value2"], state["Axis2"])
+		local axesGraph = getAxisString(state["Value"], state["Axis"]) .. "\n" .. getAxisString(state["Value2"], state["Axis2"])
 		message.author:send(valuesMsg .. axesMsg .. axesGraph)
 		message.channel:send(axesMsg)
 	else
-		message.author:send("Your target value is: " .. state["Value"] .. "\n" .. "The axis is: " .. state["Axis"] .. "\n" .. fastlengthGetAxisString(state["Value"], state["Axis"]))
+		message.author:send("Your target value is: " .. state["Value"] .. "\n" .. "The axis is: " .. state["Axis"] .. "\n" .. getAxisString(state["Value"], state["Axis"]))
 		message.channel:send("The axis is: " .. state["Axis"])
 	end
 
@@ -59,10 +61,10 @@ function fastlength.commandHandler(message, state)
 	if args[1] == "!reveal" then
 		if state["HardMode"] then
 			local outputMsg = "The target values are: " .. state["Value"] .. " and " .. state["Value2"] .. "\n"
-			outputMsg = outputMsg .. fastlengthGetAxisString(state["Value"], state["Axis"]) .. "\n" .. fastlengthGetAxisString(state["Value2"], state["Axis2"])
+			outputMsg = outputMsg .. getAxisString(state["Value"], state["Axis"]) .. "\n" .. getAxisString(state["Value2"], state["Axis2"])
 			message.channel:send(outputMsg)
 		else
-			message.channel:send("The target value is... " .. state["Value"] .. "\n" .. fastlengthGetAxisString(state["Value"], state["Axis"]))
+			message.channel:send("The target value is... " .. state["Value"] .. "\n" .. getAxisString(state["Value"], state["Axis"]))
 		end
 		games.deregisterGame(state["GameChannel"])
 	end
@@ -77,7 +79,7 @@ end
 --# Game Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function fastlengthGetAxisString(pos, axis)
+function getAxisString(pos, axis)
 	local orPos = axis:find("or")
 	local words = {axis:sub(1,orPos-2), "or", axis:sub(orPos+3,-1)}
 	local output = words[1] .. " <"

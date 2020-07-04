@@ -3,6 +3,10 @@ local misc = require("Misc")
 
 local werewords = {}
 
+local werewordsLoadWordlist, werewordsCreateGameInstance, werewordsMessageGame, werewordsMessagePlayer, werewordsGetTellerWord, werewordsAssignRoles
+local werewordsSendWordOptions, werewordsFinishNight, werewordsCheckForEnd, werewordsExitGame, werewordsSendWordLists, werewordsPickWord, werewordsTokenStatus
+local werewordsYes, werewordsNo, werewordsWhat, werewordsClose, werewordsWayOff, werewordsObjection, werewordsSuccess
+
 --#############################################################################################################################################
 --# Configurations                                                                                                                            #
 --#############################################################################################################################################
@@ -104,7 +108,7 @@ end
 --# Utility Functions                                                                                                                         #
 --#############################################################################################################################################
 
-function werewords.loadWordlist(mode)
+function werewordsLoadWordlist(mode)
 	local file = "words/words_" .. mode .. ".csv"
 	if misc.fileExists(file) then
 		return misc.parseCSV(file)
@@ -198,7 +202,7 @@ end
 function werewordsSendWordOptions(state)
 	-- If word list doesn't exist, error
 	-- It pains me to do this on every game startup, but it avoids me having to put a werewords-specific global in Games.lua
-	local list = werewords.loadWordlist(state["Mode"])
+	local list = werewordsLoadWordlist(state["Mode"])
 	if list == nil then
 		werewordsMessageGame("Error! Word list does not exist.", state)
 		werewordsSendWordLists(state["GameChannel"])

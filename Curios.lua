@@ -5,6 +5,8 @@ local curios = {}
 local GEM_COUNTS = {0, 8, 10, 12, 14}
 local HAND_SIZE = {0, 4, 4, 3, 2}
 
+local curiosCreateGameInstance, curiosDrawSiteValue, curiosDrawCardsToHand, curiosDMHand
+
 --[[--------------------------------------------------------
 	Main Functions                                         |
 --]]--------------------------------------------------------
@@ -33,11 +35,9 @@ function curios.startGame(message)
 end
 
 function curios.commandHandler(message, state)
-
 end
 
 function curiosDMHandler(message, state)
-
 end
 
 --[[--------------------------------------------------------

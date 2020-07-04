@@ -3,6 +3,8 @@ local misc = require("Misc")
 
 local wavelength = {}
 
+local createGameInstance
+
 --#############################################################################################################################################
 --# Configurations                                                                                                                            #
 --#############################################################################################################################################
@@ -24,7 +26,7 @@ function wavelength.startGame(message)
 
 	-- Create a new game and register it
 	message.channel:send("Starting game...")
-	local state = wavelengthCreateGameInstance(message.channel, playerList, message)
+	local state = createGameInstance(message.channel, playerList, message)
 	games.registerGame(message.channel, "Wavelength", state, playerList)
 end
 
@@ -40,6 +42,6 @@ end
 --# Game Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function wavelengthCreateGameInstance(channel, playerList, message)
+function createGameInstance(channel, playerList, message)
 	--
 end
