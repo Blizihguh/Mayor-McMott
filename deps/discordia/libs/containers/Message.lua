@@ -173,6 +173,15 @@ function Message:setContent(content)
 	return self:_modify({content = content or null})
 end
 
+-- Sneakily added by Blizihguh for MayorMcMott!
+function Message:localSetContent(new_content)
+	rawset(self, "content", new_content)
+end
+
+-- Sneakily added by Blizihguh for MayorMcMott!
+function Message:localSetMentionedUsers(new_table)
+	rawset(self, "mentionedUsers", new_table)
+end
 --[=[
 @m setEmbed
 @p embed table

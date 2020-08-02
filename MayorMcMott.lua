@@ -1,4 +1,5 @@
 local discordia = require("discordia")
+local messageClass = require("discordia/libs/containers/Message")
 local games = require("Games")
 local misc = require("Misc")
 local client = discordia.Client()
@@ -6,8 +7,10 @@ local client = discordia.Client()
 discordia.extensions() -- load all helpful extensions
 
 --#############################################################################################################################################
---# Settings                                                                                                                                  #
+--# Globals                                                                                                                                   #
 --#############################################################################################################################################
+
+SERVER_VC_TABLE = {}
 
 LOG_MOTTBOT_MESSAGES = true
 
@@ -27,6 +30,7 @@ local letterjam = require("LetterJam")
 local fastlength = require("Fastlength")
 local codenames = require("Codenames")
 local chameleon = require("Chameleon")
+local loveletter = require("LoveLetter")
 
 -- {Name : {Description, Rules, StartFunction, CommandHandler}}
 GAME_LIST = {
@@ -85,6 +89,13 @@ GAME_LIST = {
 		startFunc = chameleon.startGame,
 		handler = chameleon.commandHandler,
 		dmHandler = chameleon.dmHandler
+	},
+	LoveLetter = {
+		desc = [[A card game for 2-8 players.]],
+		rules = [[http://alderac.com/wp-content/uploads/2017/11/Love-Letter-Premium_Rulebook.pdf]],
+		startFunc = loveletter.startGame,
+		handler = loveletter.commandHandler,
+		dmHandler = loveletter.dmHandler
 	}
 }
 
@@ -116,11 +127,16 @@ function gameCommands(message)
 			end
 		end
 	else -- Channel does not have game already
-		if args[1] == "!start" then
+		if args[1] == "!start" or args[1] == "!vc" then
 			local nameOfGame = misc.getKeyInTableInsensitive(args[2], GAME_LIST)
 			if nameOfGame then
 				-- Call the function associated with the given game
 				-- This is ugly as fuck, but it's all worth it to carve a few extra bytes off the filesize of the lua interpreter(???)
+				if args[1] == "!vc" then
+					message:localSetContent(modifyVoiceMessage(message))
+					local channel = message.guild:getChannel(SERVER_VC_TABLE[message.guild.id])
+					message:localSetMentionedUsers(channel.connectedMembers)
+				end
 				GAME_LIST[nameOfGame].startFunc(message)
 			else
 				channel:send("Uh-oh! I don't know how to play that game, homie!")
@@ -133,8 +149,64 @@ end
 --# Command Handlers                                                                                                                          #
 --#############################################################################################################################################
 
+function initServers()
+	--[[Initializes server voice channels for !vc]]
+	local file = io.open("server_vc_table", "r")
+	local c = 0
+	if file ~= nil then
+		for line in file:lines() do
+			local info = line:split(" ")
+			if tonumber(info[1]) ~= nil then
+				SERVER_VC_TABLE[info[1]] = info[2]
+				c = c + 1
+			end
+		end
+	end
+	print("Loaded " .. tostring(c) .. " server voice channel settings")
+	file:close()
+end
+
+function setVoiceChannel(guild, channel)
+	--[[Sets a server's voice channel for !vc]]
+	-- Set vc in current session
+	print("Set channel for !vc to: " .. channel)
+	SERVER_VC_TABLE[guild] = channel
+	-- Set vc forever
+	local file = io.open("server_vc_table", "w")
+	for guild,channel in pairs(SERVER_VC_TABLE) do
+		file:write(tostring(guild) .. " " .. tostring(channel) .. "\n")
+	end
+	file:close()
+end
+
+function modifyVoiceMessage(message)
+	--[[Takes a message that mentions a voice channel, and modifies it into one with a list of players, for !vc]]
+	if SERVER_VC_TABLE[message.guild.id] == nil then
+		message.channel:send("According to all known laws of aviation, you need to set a channel with !setvc before you can use !vc (but only once!)")
+		return nil
+	else
+		local newMessage = "!start"
+		-- Add all args to message
+		local args = message.content:split(" ")
+		for idx,arg in pairs(args) do
+			if idx ~= 1 then newMessage = newMessage .. " " .. arg end
+		end
+		-- Get this server's designated game channel
+		local channel = message.guild:getChannel(SERVER_VC_TABLE[message.guild.id])
+		-- Add voice channel users to message
+		for id,user in pairs(channel.connectedMembers) do
+			newMessage = newMessage .. " " .. "<@!" .. user.id .. ">"
+		end
+		return newMessage
+	end
+end
+
 function miscCommands(message)
 	--[[Miscellaneous functionality goes here]]
+	args = message.content:split(" ")
+	if args[1] == "!setvc" then
+		setVoiceChannel(message.guild.id, args[2])
+	end
 	if string.match(message.content, "( ͡° ͜ʖ ͡°)") then
 		if string.match(string.lower(message.content), "fast") then
 			message.channel:send("( ͡° ͜ʖ ͡°)")
@@ -221,6 +293,7 @@ end
 -- Login
 client:on("ready", function()
 	print("Logged in as " .. client.user.username)
+	initServers()
 	initGames()
 end)
 

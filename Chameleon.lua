@@ -2,7 +2,7 @@ local games = require("Games")
 local misc = require("Misc")
 local chameleon = {}
 
-local displayWords, dmStatus, easterEggStatus, removeUnderscores
+local displayWords, dmStatus, oopsAllChameleons, removeUnderscores
 
 local WORDLISTS = {
 	Presidents = {"Bill Clinton", "Ronald Reagan", "Franklin Roosevelt", "Dwight Eisenhower", "George W. Bush", "George Bush (Sr.)", "Barack Obama", "Donald Trump", "John Kennedy", "Abraham Lincoln", "George Washington", "Richard Nixon", "Theodore Roosevelt", "Thomas Jefferson", "John Adams (Sr.)", "Jimmy Carter"},
@@ -61,7 +61,7 @@ local WORDLISTS_CUSTOM = {
 	Chemical_Elements = {"Tungsten", "Bismuth", "Phosphorus", "Sodium", "Neon", "Oxygen", "Zinc", "Uranium", "Calcium", "Hydrogen", "Nitrogen", "Carbon", "Plutonium", "Lead", "Iron", "Chlorine"},
 	Smash_Bros_Memes = {"Final Destination", "Mew2King", "Items", "Bayonetta", "Clacking", "Wavedashing", "Mashed Potato", "Soccer Guys", "Fox", "Hungrybox", "Too Big", "Falcon Punch", "Meta Knight", "Gamecube", "Waluigi", "Personal Hygiene"},
 	Games_Of_Luck = {"Poker", "Roulette", "Russian Roulette", "Coin Toss", "Slots", "Bingo", "Lottery", "Craps", "Blackjack", "Rock-Paper-Scissors", "Pachinko", "Candyland", "The Royal Game of Ur", "War", "Backgammon", "Gacha"},
-	Superheroes = {"Batman", "Superman", "Spider-Man", "Thor", "Wonder Woman", "The Incredible Hulk", "Iron Man", "Aquaman", "Wovlerine", "Dr. Manhattan", "Doctor Strange", "Captain America", "Squirrel Girl", "Green Lantern", "The Flash", "Radioactive Man"},
+	Superheroes = {"Batman", "Superman", "Spider-Man", "Thor", "Wonder Woman", "The Incredible Hulk", "Iron Man", "Aquaman", "Wolverine", "Dr. Manhattan", "Doctor Strange", "Captain America", "Squirrel Girl", "Green Lantern", "The Flash", "Radioactive Man"},
 	Swiss_Army_Knife = {"Knife", "Scissors", "Awl", "Toothpick", "Flashlight", "Bottle Opener", "Screwdriver", "Can Opener", "Magnifying Glass", "Keyring", "Nail File", "Pliers", "Tweezers", "Compass", "Laser Pointer", "Corkscrew"},
 	Alcoholic_Beverages = {"Beer", "Sake", "Vodka", "Tequila", "Wine", "Rum", "Whiskey", "Schnapps", "Absinthe", "Mead", "Brandy", "Moonshine", "Champagne", "Soju", "Mike's Hard Lemonade", "Mouthwash"},
 	Oops_All_Pikachu = {"Surfing Pikachu", "Partner Pikachu", "Rock Star Pikachu", "Belle Pikachu", "Pop Star Pikachu", "PhD Pikachu", "Pikachu Libre", "Ditto", "Pikachu In A Cap", "Gigantamax Pikachu", "Ash's Pikachu", "Ash Pikachu", "Mimikyu", "Festive Pikachu", "Detective Pikachu", "Fat Pikachu"},
@@ -88,7 +88,8 @@ local WORDLISTS_CUSTOM = {
 	Methods_of_Execution = {"Electric Chair", "Hanging", "Firing Squad", "Lethal Injection", "Gas Chamber", "Stoning", "Impalement", "Burning at Stake", "Brazen Bull", "Immurement", "Drawn and Quartered", "Walk the Plank", "Guillotine", "Lingchi", "Crucifixion", "Snu Snu"},
 	Vegetables = {"Celery", "Eggplant", "Onion", "Potato", "Carrot", "Broccoli", "Spinach", "Lettuce", "Brussels Sprout", "Cabbage", "Beet", "Zucchini", "Pea", "Corn", "Radish", "Asparagus"},
 	Only_The_Best_Smash_Bros_Stages = {"75m", "Dream Land GB", "Gaur Plain", "The Great Cave Offensive", "Great Plateau Tower (Hazards Off)", "Hanenbow", "Icicle Mountain", "Mushroomy Kingdom", "Pac-Land", "Wrecking Crew", "Mario Bros.", "The Scoop", "Baby Park 200cc", "Samus x Ridley", "Switch Zone", "Shaq's Hot Wing"},
-	Letters_of_the_Alphabet = {"A", "B", "C", "E", "G", "H", "I", "J", "K", "M", "O", "Q", "R", "T", "X", "Z"}
+	Letters_of_the_Alphabet = {"A", "B", "C", "E", "G", "H", "I", "J", "K", "M", "O", "Q", "R", "T", "X", "Z"},
+	Angelic_Pretty_Products = {"Space Lollipop Special", "Dreamy Lyrical Bunny", "Shanghai Doll", "Sweet Cherry Margaret Chou Chou", "Neon Star Diner Sailor", "Candy-chan On A Walk", "Bunny College Summer", "Whip Ribbon", "Dream Cat Go Round", "Lovely Bathroom", "Fruity Lemon", "Mysterious Rose Fairy", "Constellation Aurora Dreams", "Jewelry Aquarium", "Original Lunch Bag", "Sleeping Deep Sea Stars"}
 }
 
 -- Table definitions for injoke cards that only get pulled up on specific servers can be placed in a separate file
@@ -103,6 +104,7 @@ local SERVER_LIST = {
 --#############################################################################################################################################
 
 function chameleon.startGame(message)
+	for i,v in pairs(message.mentionedUsers) do print(i); print(v); end
 	local state = {
 		GameChannel = message.channel,
 		Wordlist = nil,
@@ -130,7 +132,14 @@ function chameleon.startGame(message)
 		state["Wordlist"] = misc.getRandomIndex(WORDLISTS)
 	end
 	state["Chameleon"] = misc.getRandomIndex(message.mentionedUsers)
-	if math.random(100) == 1 then easterEggStatus(state) else dmStatus(state) end
+	local roll = math.random(1000)
+	if roll < 15 then
+		oopsAllChameleons(state) -- 0.015% chance; if you're Chameleon, there is a ~5.5% chance it's this easter egg
+	elseif roll < 35 then
+		oopsAlmostAllChameleons(state) -- 0.02% chance; if you're Chameleon, there is a ~5.5% chance it's this easter egg
+	else
+		dmStatus(state) -- If you're Chameleon, there is an ~11.0% chance it's an easter egg, and an ~89% chance it's normal
+	end
 	--games.registerGame(message.channel, "Chameleon", state, message.mentionedUsers)
 end
 
@@ -161,7 +170,7 @@ end
 function displayWords(state, bold)
 	local output = "Category: " .. removeUnderscores(state["Wordlist"]) .. "\nWords: "
 	for idx,word in pairs(WORDLISTS[state["Wordlist"]]) do
-		if bold and idx == state["WordIdx"] then output = output .. "**" .. word .. "**, "
+		if bold and idx == state["WordIdx"] then output = output .. "**__[" .. word .. "]__**, "
 		else output = output .. word .. ", " end
 	end
 	output = output:sub(1,-3)
@@ -175,7 +184,21 @@ function dmStatus(state)
 	end
 end
 
-function easterEggStatus(state)
+function oopsAllDifferentWords(state)
+	words = {}
+	for id,player in pairs(state["PlayerList"]) do
+		-- Get random word that hasn't been picked yet
+		-- 
+	end
+end
+
+function oopsAlmostAllChameleons(state)
+	for id,player in pairs(state["PlayerList"]) do
+		player:send(displayWords(state, (id == state["Chameleon"])))
+	end
+end
+
+function oopsAllChameleons(state)
 	for id,player in pairs(state["PlayerList"]) do
 		player:send(displayWords(state, false))
 	end

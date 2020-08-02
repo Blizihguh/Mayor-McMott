@@ -2,6 +2,13 @@ local csv = require("deps/csv")
 
 local misc = {}
 
+function startsWith(str, pattern)
+	for i = 1, #pattern do
+		if str:sub(i,i) ~= pattern:sub(i,i) then return false end
+	end
+	return true
+end
+
 function misc.parseCSV(filename)
 	local tbl = {}
 	local f = csv.open(filename)
