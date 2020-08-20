@@ -94,8 +94,12 @@ local WORDLISTS_CUSTOM = {
 	Cubes = {"Ice", "Game", "Time", "Nissan", "Rubik's", "The", "Data", "Gelatinous", "Cosmic", "Lambda", "Borg", "Companion", "Sugar", "Hyper", "Unit", "Doubling"},
 	Inferior_Knock_Offs = {"SimCoaster", "Cheese Nips", "Mega Blocks", "RoseArt", "Pepsi", "Mr. Pibb", "DC Cinematic Universe", "MadCatz", "Powerade", "Flavor-Aid", "Zune", "Waluigi", "Miracle Whip", "Burger King", "New Zealand", "Oreos"},
 	TF2_Paint_Colors = {"A Color Similar to Slate", "Balaclavas Are Forever", "Waterlogged Lab Coat", "Color No. 216-190-216", "A Deep Commitment to Purple", "The Color of a Gentlemann's Business Pants", "Dark Salmon Injustice", "The Bitter Taste of Defeat and Lime", "Pink as Hell", "Muskelmannbraun", "Noble Hatter's Violet", "An Extraordinary Abundance of Tinge", "A Distinctive Lack of Hue", "Aged Moustache Grey", "Ye Olde Rustic Colour", "The Value of Teamwork"},
-	States = {"Ohio", "New South Wales", "Solid", "Plasma", "Denial", "Ground", "Fail", "Chaos", "Panic", "Bose-Einstein Condensate", "Save", "Steady", "Deep", "W", "Free", "Emergency"},
-	Squares = {"Meal", "Deal", "Space", "Rim", "Hole", "Root", "Enix", "Feet", "Meter", "Tire", "Knot", "Wave", "Number", "Lattice", "Screw", "Matrix"}
+	More_States = {"Ohio", "New South Wales", "Solid", "Plasma", "Denial", "Ground", "Fail", "Chaos", "Panic", "Bose-Einstein Condensate", "Save", "Steady", "Deep", "W", "Free", "Emergency"},
+	Squares = {"Meal", "Deal", "Space", "Rim", "Hole", "Root", "Enix", "Feet", "Meter", "Tire", "Knot", "Wave", "Number", "Lattice", "Screw", "Matrix"},
+	Man_Versus = {"Man", "Nature", "Machine", "Woman", "God", "Self", "Society", "Reality", "Food", "Reader", "Author", "Time", "Wild", "Computer", "Government", "Luvdisc"},
+	High_School_Lit = {"1984","Wuthering Heights","The Great Gatsby","Romeo and Juliet","Great Expectations","Catcher in the Rye","The Adventures of Huckleberry Finn","Lord of the Flies","Frankenstein","The Scarlet Letter","Pride and Prejudice","To Kill a Mockingbird","Fahrenheit 451", "Of Mice and Men", "Their Eyes Were Watching God", "A Streetcar Named Desire"},
+	Laws = {"Common", "International", "Maritime", "Thermodynamics", "Copyright", "Averages", "Attraction", "Newton’s", "Moore’s", "Murphy’s", "Godwin’s", "Sharia", "Family", "Martial", "Bird", "Unthinkable Natural"},
+	Oops_All_Luvdisc = {"Luvdisc is All You Need", "Compact Luvdisc", "Luvdisc thy Neighbor", "Luvdisc Golf", "Luvdiscworld", "Luvdisc and Hate", "rCSIDVULution", "HP Luvdiscraft", "Floppy Luvdisc", "Luvdiscord", "P.S. I Luvdisc You", "Tainted Luvdisc", "Crazy Little Thing Called Luvdisc", "Luvdisc in the Time of Cholera", "Luvdisc Galaxy", "Dr. Strangeluvdisc, or, How I Learned to Stop Worrying and Luv the Disc"}
 }
 
 -- Table definitions for injoke cards that only get pulled up on specific servers can be placed in a separate file
