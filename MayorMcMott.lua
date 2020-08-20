@@ -133,9 +133,17 @@ function gameCommands(message)
 				-- Call the function associated with the given game
 				-- This is ugly as fuck, but it's all worth it to carve a few extra bytes off the filesize of the lua interpreter(???)
 				if args[1] == "!vc" then
-					message:localSetContent(modifyVoiceMessage(message))
 					local channel = message.guild:getChannel(SERVER_VC_TABLE[message.guild.id])
-					message:localSetMentionedUsers(channel.connectedMembers)
+					local memberTbl = channel.connectedMembers
+					-- memberTbl is a table of Members, but message.mentionedUsers is a table of Users, so we need to convert
+					local userTbl = {}
+					for key,val in pairs(memberTbl) do
+						userTbl[key] = val.user
+						misc.setn(userTbl, #userTbl+1)
+					end
+					-- Modify the message object(!) so that it contains new text and a new mentionedUsers table
+					message:localSetContent(modifyVoiceMessage(message))
+					message:localSetMentionedUsers(userTbl)
 				end
 				GAME_LIST[nameOfGame].startFunc(message)
 			else

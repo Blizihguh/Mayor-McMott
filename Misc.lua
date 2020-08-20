@@ -155,4 +155,11 @@ function misc.getRandomIndex(t)
     return index
 end
 
+function misc.setn(tbl,n)
+	-- setn was deprecated in 5.2 but not replaced, and lua does not update table size when you do tbl[idx] = val
+	-- Therefore, if you want to use that syntax, you need to this horribly ugly thing
+	-- As far as I can tell, this is the best/only way to instantiate a new table with nonconsecutive indices(?????)
+	setmetatable(tbl,{__len=function() return n end})
+end
+
 return misc
