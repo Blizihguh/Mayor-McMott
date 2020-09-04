@@ -442,8 +442,8 @@ function mediumEndGame(state)
 end
 
 function mediumQuitGame(state)
-	state["GameChannel"]:send("Quitting game...")
-	games.deregisterGame(state["GameChannel"])
+	-- idk why this exists but this whole game needs an overhaul frankly
+	mediumEndGame(state)
 end
 
 function mediumSendScoreMessage(state)

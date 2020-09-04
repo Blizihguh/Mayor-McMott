@@ -31,6 +31,8 @@ local fastlength = require("Fastlength")
 local codenames = require("Codenames")
 local chameleon = require("Chameleon")
 local loveletter = require("LoveLetter")
+local decrypto = require("Decrypto")
+local twopeople = require("TwoPeople")
 
 -- {Name : {Description, Rules, StartFunction, CommandHandler}}
 GAME_LIST = {
@@ -96,6 +98,20 @@ GAME_LIST = {
 		startFunc = loveletter.startGame,
 		handler = loveletter.commandHandler,
 		dmHandler = loveletter.dmHandler
+	},
+	Decrypto = {
+		desc = [[TODO]],
+		rules = [[TODO]],
+		startFunc = decrypto.startGame,
+		handler = decrypto.commandHandler,
+		dmHandler = decrypto.dmHandler
+	},
+	Trickipedia = {
+		desc = [[A discord adaptation of the panel game Two of These People Are Lying.]],
+		rules = [[https://www.youtube.com/watch?v=3UAOs9B9UH8&list=PLfx61sxf1Yz2I-c7eMRk9wBUUDCJkU7H0&index=2]],
+		startFunc = twopeople.startGame,
+		handler = twopeople.commandHandler,
+		dmHandler = twopeople.dmHandler
 	}
 }
 
