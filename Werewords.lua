@@ -13,7 +13,9 @@ local werewordsYes, werewordsNo, werewordsWhat, werewordsClose, werewordsWayOff,
 
 local RULESETS = {
 	WS = {"Werewolf", "Seer"},
-	WSF = {"Werewolf", "Seer", "Fortune Teller"}
+	WSF = {"Werewolf", "Seer", "Fortune Teller"},
+	WWS = {"Werewolf", "Werewolf", "Seer"},
+	WWSF = {"Werewolf", "Werewolf", "Seer", "Fortune Teller"}
 }
 
 local WORDLISTS = {
