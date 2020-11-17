@@ -40,7 +40,11 @@ end
 --#############################################################################################################################################
 
 function pickArticle(state, message)
-	state.PlayerList[message.author.id][2] = string.sub(message.content, 7)
+	print(message.author.id)
+	print(message.content)
+	misc.printTable(state.PlayerList)
+	state.PlayerList[message.author.id][2] = string.sub(message.content, 7) --TODO: Patch this crashing if host tries to submit an article
+	message.author:send("Chosen article: " .. state.PlayerList[message.author.id][2])
 end
 
 function doReveal(state)

@@ -4,7 +4,7 @@ local chameleon = {}
 
 local displayWords, dmStatus, oopsAllChameleons, removeUnderscores
 
-local WORDLISTS = {
+local WORDLISTS_VANILLA = {
 	Presidents = {"Bill Clinton", "Ronald Reagan", "Franklin Roosevelt", "Dwight Eisenhower", "George W. Bush", "George Bush (Sr.)", "Barack Obama", "Donald Trump", "John Kennedy", "Abraham Lincoln", "George Washington", "Richard Nixon", "Theodore Roosevelt", "Thomas Jefferson", "John Adams (Sr.)", "Jimmy Carter"},
 	Fairy_Tales = {"Cinderella", "Goldilocks", "Jack and the Beanstalk", "The Tortoise and the Hare", "Snow White", "Rapunzel", "Aladdin", "The Princess and the Pea", "Peter Pan", "Little Red Riding Hood", "Pinocchio", "Beauty and the Beast", "Sleeping Beauty", "Hansel and Gretel", "Gingerbread Man", "The Three Little Pigs"},
 	Countries = {"The UK", "Spain", "Japan", "Brazil", "France", "The United States", "Italy", "Australia", "Germany", "Mexico", "India", "Israel", "Canada", "China", "Russia", "Egypt"},
@@ -112,17 +112,14 @@ local WORDLISTS_CUSTOM = {
 	Google_Autocomplete_For_Why_Is = { "the sky blue?","it called Covid-19?","my eye twitching?","my period late?","biodiversity important?","420 Weed Day?","Pluto not a planet?","Australia in Eurovision?","everything made in China?","Ferrari so slow?","Jesus important?","Shakespeare relevant?","Vancouver so liveable?","Xbox download speed slow?","yawning contagious?","73 the best number?"},
 	Touhou_Spell_Cards = {'\nTalisman "Exorcism of the Newspaper Subscription Solicitors"', '\nNative God "Froggy Braves the Wind and Rain"', '\nHeart Flower "Camera-Shy Rose"', '\nNew Impossible Request "Seamless Ceiling of Kinkaku-ji"', '\nLove Sign "Master Spark"', '\nIce Sign "Icicle Fall"', '\nSecret Barrage "And Then Will There Be None?"', '\nKappa "Exteeeending Aaaaarm"', '\n"Resurrection Butterfly -30% Reflowering-"', '\nWill-o\'-Wisp "Superdense Phosphorus Disaster Art"', '\n"Apollo Hoax Theory"', '\nCatfish "All-Electrical for Ecology!"', '\nAtomic Fire "Uncontainable Nuclear Reaction"', '\nThunderous Yell "A Scolding from a Traditional Old Man"', '\nInchling "One-Inch Samurai with a Half-Inch Soul"', '\nGun Sign "3D Printer Gun"'},
 	Race_Horses = {"Potoooooooo", "Hoof Hearted", "Arrrrrrrrrrrrrrrr", "Bofa Deez Nuts", "Fiftyshadesofhay", "Flat Fleet Feet", "Luv Gov", "Notacatbutallama", "Panty Raid", "Citation", "The Last Sarami", "That's What She Said", "Definitly Red", "Whatamichoppedliver", "Atswhatimtalknbout", "Cat Thief"},
-	Palindromes = {"Was it a car or a cat I saw?","Murder for a jar of red rum","A nut for a jar of tuna","A man, a plan, a canal - Panama","Too hot to hoot","He Goddam Mad Dog, eh?","Sh! Tom sees moths.","Madam, in Eden I'm Adam!","A slut nixes sex in Tulsa","No lemons, no melon.","A Toyota's a Toyota","Nurse, I spy gypsies! Run!","Roy, am I mayor?","Yawn a more Roman way","Step on no pets!","Yo, banana boy!"},
 	Simpsons_Gags = {"Old Man Yells at Cloud", "Boo-urns", "Cromulent", "Works on contingency? No, money down!", "Lousy Smarch weather", "Steamed hams", "Lisa needs braces", "Stupid sexy Flanders", "TRAMAMPOLINE! TRABAPOLINE!", "Die Bart Die", "The goggles do nothing!", "Abortions for some, miniature American flags for others!", "Alf is back. In Pog form!", "My son's name is also Bort.", "You need to do some *serious* boning.", "Worst day of your life *so far*."},
-	Wikipedia_Articles_Singable_To_The_TMNT_Theme = {"Legal Status of Alaska","San Francisco AIDS Foundation","Legends of the Hidden Temple","Texas Tax Reform Commission","Bridge Disasters in Palau","Stony Range Botanic Garden","Ace Venture: Pet Detective","Women Science Fiction Authors","Six Degrees of Kevin Bacon","Maple Syrup Urine Syndrome","Places Named for Adolf Hitler","Edgar Allan Poe Museum","List of Turkish Film Directors","Journal of Mundane Behaviour","Global Climate Action Summit","List of Postal Codes in Sweden"}
+	Wikipedia_Articles_Singable_To_The_TMNT_Theme = {"Legal Status of Alaska","San Francisco AIDS Foundation","Legends of the Hidden Temple","Texas Tax Reform Commission","Bridge Disasters in Palau","Stony Range Botanic Garden","Ace Venture: Pet Detective","Women Science Fiction Authors","Six Degrees of Kevin Bacon","Maple Syrup Urine Syndrome","Places Named for Adolf Hitler","Edgar Allan Poe Museum","List of Turkish Film Directors","Journal of Mundane Behaviour","Global Climate Action Summit","List of Postal Codes in Sweden"},
+	Smash_Bros_Characters = {"Minecraft Steve", "Cloud Strife", "Ryu", "Ken", "Banjo & Kazooie", "Solid Snake", "Ridley", "King K. Rool", "Joker", "Simon Belmont", "Richter Belmont", "Bayonetta", "Pac Man", "Mega Man", "Sans Undertale", "Mario"},
+	Nic_Cage_Films = {"National Treasure", "Face/Off", "The Wicker Man", "World Trade Center", "Kick-Ass", "Left Behind", "Con Air", "The Rock", "Honeymoon in Vegas", "Matchstick Men", "Lord of War", "Drive Angry", "Snake Eyes", "Vampire's Kiss", "Inonceivable", "The Unbearable Weight of Massive Talent"}
 }
 
 -- Table definitions for injoke cards that only get pulled up on specific servers can be placed in a separate file
-require("Chameleon-Special-Cards")
-local SERVER_LIST = {
-	["698458922268360714"] = WORDLISTS_FQ,
-	["353359832902008835"] = WORDLISTS_RIT
-}
+local SERVER_LIST = require("Chameleon-Special-Cards")
 
 --#############################################################################################################################################
 --# Main Functions                                                                                                                            #
@@ -135,27 +132,32 @@ function chameleon.startGame(message)
 		Wordlist = nil,
 		WordIdx = math.random(16),
 		PlayerList = message.mentionedUsers,
-		Chameleon = nil
+		Chameleon = nil,
+		Words = {}
 	}
-	-- Custom cards are on by default
+
+	local wordlistsForThisGame = {}
+	-- Do we want custom cards?
 	local args = message.content:split(" ")
 	if args[3] ~= "vanilla" then
-		misc.fuseDicts(WORDLISTS, WORDLISTS_CUSTOM)
+		misc.fuseDicts(wordlistsForThisGame, WORDLISTS_CUSTOM)
+		-- If so, do we have server cards?
+		for server,list in pairs(SERVER_LIST) do
+			if message.guild.id == server then misc.fuseDicts(wordlistsForThisGame, list) end
+		end
 	end
-	-- Or maybe we only want customs?
-	if args[3] == "custom" then
-		WORDLISTS = WORDLISTS_CUSTOM
+	-- Do we want vanilla cards?
+	if args[3] ~= "custom" then
+		misc.fuseDicts(wordlistsForThisGame, WORDLISTS_VANILLA)
 	end
-	-- Server-relevant cards
-	for server,list in pairs(SERVER_LIST) do
-		if message.guild.id == server and args[3] ~= "vanilla" then misc.fuseDicts(WORDLISTS, list) end
-	end
-	-- Optionally, pick the card
-	if WORDLISTS[args[3]] ~= nil then
+	-- Do we want to just pick the card?
+	if wordlistsForThisGame[args[3]] ~= nil then
 		state["Wordlist"] = args[3]
 	else
-		state["Wordlist"] = misc.getRandomIndex(WORDLISTS)
+		state["Wordlist"] = misc.getRandomIndex(wordlistsForThisGame)
 	end
+	state["Words"] = wordlistsForThisGame[state["Wordlist"]]
+
 	state["Chameleon"] = misc.getRandomIndex(message.mentionedUsers)
 	local roll = math.random(1000)
 	if roll < 15 then
@@ -194,7 +196,7 @@ end
 
 function displayWords(state, bold)
 	local output = "Category: " .. removeUnderscores(state["Wordlist"]) .. "\nWords: "
-	for idx,word in pairs(WORDLISTS[state["Wordlist"]]) do
+	for idx,word in pairs(state["Words"]) do
 		if bold and idx == state["WordIdx"] then output = output .. "**__[" .. word .. "]__**, "
 		else output = output .. word .. ", " end
 	end
