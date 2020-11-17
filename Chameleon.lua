@@ -126,7 +126,6 @@ local SERVER_LIST = require("Chameleon-Special-Cards")
 --#############################################################################################################################################
 
 function chameleon.startGame(message)
-	for i,v in pairs(message.mentionedUsers) do print(i); print(v); end
 	local state = {
 		GameChannel = message.channel,
 		Wordlist = nil,

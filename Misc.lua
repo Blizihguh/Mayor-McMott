@@ -47,6 +47,20 @@ function misc.deepPrintTable(table, indent)
 	end
 end
 
+function misc.printTableToLayer(table, indent, max)
+	indent = indent or 0
+	for key,value in pairs(table) do
+		if (type(value) == "table") and (indent < max) then
+			local tabs = string.rep("\t", indent)
+			print(tabs .. tostring(key) .. ":")
+			misc.printTableToLayer(value, indent+1, max)
+		else
+			local tabs = string.rep("\t", indent)
+			print(tabs .. tostring(key) .. ":\t" .. tostring(value))
+		end 
+	end
+end
+
 function misc.shuffleTable(tbl)
 	for i = #tbl, 2, -1 do
 		local j = math.random(i)

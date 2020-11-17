@@ -30,9 +30,9 @@ local letterjam = require("LetterJam")
 local fastlength = require("Fastlength")
 local codenames = require("Codenames")
 local chameleon = require("Chameleon")
-local loveletter = require("LoveLetter")
 local decrypto = require("Decrypto")
 local twopeople = require("TwoPeople")
+local conspiracy = require("Conspiracy")
 
 -- {Name : {Description, Rules, StartFunction, CommandHandler}}
 GAME_LIST = {
@@ -87,17 +87,10 @@ GAME_LIST = {
 	},
 	Chameleon = {
 		desc = [[A social deduction word game for 3+ players. All players are given the same word in secret, except for the Chameleon, who must try to blend in -- at least until they figure out what the word is.]],
-		rules = [[https://bigpotato.com/blog/how-to-play-the-chameleon-instructions/]],
+		rules = [[https://bigpotato.com/blog/how-to-play-the-chameleon-instructions/ (see also: https://github.com/Blizihguh/Mayor-McMott/wiki/Chameleon)]],
 		startFunc = chameleon.startGame,
 		handler = chameleon.commandHandler,
 		dmHandler = chameleon.dmHandler
-	},
-	LoveLetter = {
-		desc = [[A card game for 2-8 players.]],
-		rules = [[http://alderac.com/wp-content/uploads/2017/11/Love-Letter-Premium_Rulebook.pdf]],
-		startFunc = loveletter.startGame,
-		handler = loveletter.commandHandler,
-		dmHandler = loveletter.dmHandler
 	},
 	Decrypto = {
 		desc = [[TODO]],
@@ -112,6 +105,13 @@ GAME_LIST = {
 		startFunc = twopeople.startGame,
 		handler = twopeople.commandHandler,
 		dmHandler = twopeople.dmHandler
+	},
+	Conspiracy = {
+		desc = [[A lying game where everything's made up and the roles don't matter.]],
+		rules = [[https://github.com/Blizihguh/Mayor-McMott/wiki/Conspiracy]],
+		startFunc = conspiracy.startGame,
+		handler = conspiracy.commandHandler,
+		dmHandler = conspiracy.dmHandler
 	}
 }
 

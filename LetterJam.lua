@@ -36,7 +36,6 @@ local wordlist = "words/ae5.csv"
 --#############################################################################################################################################
 
 function letterjam.startGame(message)
-	local i = 1/0
 	local playerList = message.mentionedUsers
 
 	-- Check for errors
