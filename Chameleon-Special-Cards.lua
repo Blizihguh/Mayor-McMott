@@ -1,0 +1,8 @@
+-- In order to have server-specific cards, return a table associating the server ID (as a string) with the cards table for that server
+-- For instance, you could do something like:
+
+-- local WORDLISTS_FRIENDS = {insert friend-specific wordlists here}
+-- return {"1234567890" = {WORDLISTS_FRIENDS}}
+
+-- When playing in a server that's on the list, its respective wordlist will be shuffled in with the custom cards that already exist in MottBot.
+return {}
