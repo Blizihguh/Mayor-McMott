@@ -33,12 +33,13 @@ local chameleon = require("Chameleon")
 local decrypto = require("Decrypto")
 local twopeople = require("TwoPeople")
 local conspiracy = require("Conspiracy")
+local madness = require("Madness")
 
 -- {Name : {Description, Rules, StartFunction, CommandHandler}}
 GAME_LIST = {
 	Werewords = {
-		desc = [[A social deduction game for 4-10 players. One player picks a secret word, and the other players ask them yes or no questions to try to deduce it. Certain players are secretly werewolves, and trying to prevent the word from being guessed.]], 
-		rules = [[http://werewords.com/rules.php?ver=2]], 
+		desc = [[A social deduction game for 4-10 players. One player picks a secret word, and the other players ask them yes or no questions to try to deduce it. Certain players are secretly werewolves, and trying to prevent the word from being guessed.]],
+		rules = [[http://werewords.com/rules.php?ver=2]],
 		startFunc = werewords.startGame,
 		handler = werewords.commandHandler,
 		dmHandler = werewords.dmHandler
@@ -112,12 +113,19 @@ GAME_LIST = {
 		startFunc = conspiracy.startGame,
 		handler = conspiracy.commandHandler,
 		dmHandler = conspiracy.dmHandler
+	},
+	Madness = {
+		desc = [[A card game themed around deception and madness.]],
+		rules = [[https://docs.google.com/document/d/e/2PACX-1vTJP8VRGUJ8TfChFd1uFYkaLkAxxXjwjp-6T88hHcQbzA6JLJ--NoE2ns7Aiu0zfHPhhzsYjdMUoF8u/pub]],
+		startFunc = madness.startGame,
+		handler = madness.commandHandler,
+		dmHandler = madness.dmHandler
 	}
 }
 
 function initGames()
 	--[[Called when the bot initializes]]
-	-- Currently empty; werewords.loadWordlists() was originally called here, but that made it inaccessible to Werewords.lua, for reasons I don't 
+	-- Currently empty; werewords.loadWordlists() was originally called here, but that made it inaccessible to Werewords.lua, for reasons I don't
 	-- fully understand
 end
 
@@ -247,9 +255,9 @@ end
 
 function logDMs(content, channel, author, args)
 	--[[Logs private messages to console (messages from MottBot can be excluded, optionally)]]
-	if channel.type == 1 then 
+	if channel.type == 1 then
 		if args[1] ~= "!echo" and args[1] ~= "!setchannel" then
-			if author.name ~= "MottBot" or LOG_MOTTBOT_MESSAGES == true then 
+			if author.name ~= "MottBot" or LOG_MOTTBOT_MESSAGES == true then
 				print(author.name .. ": " .. content)
 			end
 		end
