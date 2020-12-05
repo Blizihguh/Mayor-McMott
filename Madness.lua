@@ -75,6 +75,17 @@ function madness.dmHandler(message, state)
 						madnessNextTurn(state)
 					end
 					madnessEmptyMessageQueue(state)
+					local madCount = 0
+					for id,player in pairs(state["PlayerList"]) do
+						if player["Lives"] > 0 and player["Mad"] then
+							madCount = madCount + 1
+						end
+					end
+					if state["PlayersLeft"] <= 1 then
+						madnessLastOneStanding(state)
+					elseif state["MadnessCount"] == 0 and madCount == 0 then
+						madnessCompleted(state)
+					end
                 end
             end
         end
