@@ -1,9 +1,10 @@
 --[=[
 @c UserPresence x Container
-@d Abstract base class that defines the base methods and/or properties for
-classes that represent a user's current presence information. Note that any
-method or property that exists for the User class is also available in the
-UserPresence class and its subclasses.
+@t abc
+@d Defines the base methods and/or properties for classes that represent a
+user's current presence information. Note that any method or property that
+exists for the User class is also available in the UserPresence class and its
+subclasses.
 ]=]
 
 local null = require('json').null
@@ -31,10 +32,24 @@ local activities = setmetatable({}, {__mode = 'v'})
 
 function UserPresence:_loadPresence(presence)
 	self._status = presence.status
+	local status = presence.client_status
+	if status then
+		self._web_status = status.web
+		self._mobile_status = status.mobile
+		self._desktop_status = status.desktop
+	end
 	local game = presence.game
 	if game == null then
 		self._activity = nil
 	elseif game then
+		local arr = presence.activities
+		if arr and arr[2] then
+			for i = 2, #arr do
+				for k, v in pairs(arr[i]) do
+					game[k] = v
+				end
+			end
+		end
 		if self._activity then
 			self._activity:_load(game)
 		else
@@ -65,9 +80,24 @@ function get.gameURL(self)
 	return self._activity and self._activity._url
 end
 
---[=[@p status string The user's online status (online, dnd, idle, offline).]=]
+--[=[@p status string The user's overall status (online, dnd, idle, offline).]=]
 function get.status(self)
 	return self._status or 'offline'
+end
+
+--[=[@p webStatus string The user's web status (online, dnd, idle, offline).]=]
+function get.webStatus(self)
+	return self._web_status or 'offline'
+end
+
+--[=[@p mobileStatus string The user's mobile status (online, dnd, idle, offline).]=]
+function get.mobileStatus(self)
+	return self._mobile_status or 'offline'
+end
+
+--[=[@p desktopStatus string The user's desktop status (online, dnd, idle, offline).]=]
+function get.desktopStatus(self)
+	return self._desktop_status or 'offline'
 end
 
 --[=[@p user User The user that this presence represents.]=]
@@ -75,7 +105,7 @@ function get.user(self)
 	return self._user
 end
 
---[=[@p activity Activity The Activity that this presence represents.]=]
+--[=[@p activity Activity/nil The Activity that this presence represents.]=]
 function get.activity(self)
 	return self._activity
 end

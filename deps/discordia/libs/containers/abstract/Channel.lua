@@ -1,7 +1,7 @@
 --[=[
 @c Channel x Snowflake
-@d Abstract base class that defines the base methods and/or properties for all
-Discord channel types.
+@t abc
+@d Defines the base methods and properties for all Discord channel types.
 ]=]
 
 local Snowflake = require('containers/abstract/Snowflake')
@@ -31,7 +31,7 @@ function Channel:_delete()
 	if data then
 		local cache
 		local t = self._type
-		if t == channelType.text then
+		if t == channelType.text or t == channelType.news then
 			cache = self._parent._text_channels
 		elseif t == channelType.private then
 			cache = self._parent._private_channels

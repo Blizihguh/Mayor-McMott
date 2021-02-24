@@ -1,7 +1,7 @@
 --[=[
 @c TextChannel x Channel
-@d Abstract base class that defines the base methods and/or properties for all
-Discord text channels.
+@t abc
+@d Defines the base methods and properties for all Discord text channels.
 ]=]
 
 local pathjoin = require('pathjoin')
@@ -26,6 +26,7 @@ end
 
 --[=[
 @m getMessage
+@t http
 @p id Message-ID-Resolvable
 @r Message
 @d Gets a message object by ID. If the object is already cached, then the cached
@@ -48,6 +49,7 @@ end
 
 --[=[
 @m getFirstMessage
+@t http
 @r Message
 @d Returns the first message found in the channel, if any exist. This is not a
 cache shortcut; an HTTP request is made each time this method is called.
@@ -67,6 +69,7 @@ end
 
 --[=[
 @m getLastMessage
+@t http
 @r Message
 @d Returns the last message found in the channel, if any exist. This is not a
 cache shortcut; an HTTP request is made each time this method is called.
@@ -95,6 +98,7 @@ end
 
 --[=[
 @m getMessages
+@t http
 @op limit number
 @r SecondaryCache
 @d Returns a newly constructed cache of between 1 and 100 (default = 50) message
@@ -107,11 +111,12 @@ end
 
 --[=[
 @m getMessagesAfter
+@t http
 @p id Message-ID-Resolvable
 @op limit number
 @r SecondaryCache
 @d Returns a newly constructed cache of between 1 and 100 (default = 50) message
-objects found in the channel after a specific point. While the cache will never
+objects found in the channel after a specific id. While the cache will never
 automatically gain or lose objects, the objects that it contains may be updated
 by gateway events.
 ]=]
@@ -122,11 +127,12 @@ end
 
 --[=[
 @m getMessagesBefore
+@t http
 @p id Message-ID-Resolvable
 @op limit number
 @r SecondaryCache
 @d Returns a newly constructed cache of between 1 and 100 (default = 50) message
-objects found in the channel before a specific point. While the cache will never
+objects found in the channel before a specific id. While the cache will never
 automatically gain or lose objects, the objects that it contains may be updated
 by gateway events.
 ]=]
@@ -137,6 +143,7 @@ end
 
 --[=[
 @m getMessagesAround
+@t http
 @p id Message-ID-Resolvable
 @op limit number
 @r SecondaryCache
@@ -152,6 +159,7 @@ end
 
 --[=[
 @m getPinnedMessages
+@t http
 @r SecondaryCache
 @d Returns a newly constructed cache of up to 50 messages that are pinned in the
 channel. While the cache will never automatically gain or lose objects, the
@@ -168,6 +176,7 @@ end
 
 --[=[
 @m broadcastTyping
+@t http
 @r boolean
 @d Indicates in the channel that the client's user "is typing".
 ]=]
@@ -209,6 +218,7 @@ end
 
 --[=[
 @m send
+@t http
 @p content string/table
 @r Message
 @d Sends a message to the channel. If `content` is a string, then this is simply
@@ -290,6 +300,7 @@ end
 
 --[=[
 @m sendf
+@t http
 @p content string
 @p ... *
 @r Message

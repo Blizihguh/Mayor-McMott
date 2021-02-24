@@ -1,6 +1,7 @@
 --[=[
 @c Cache x Iterable
-@d description
+@mt mem
+@d Iterable class that holds references to Discordia Class objects in no particular order.
 ]=]
 
 local json = require('json')
@@ -9,6 +10,8 @@ local Iterable = require('iterables/Iterable')
 local null = json.null
 
 local Cache = require('class')('Cache', Iterable)
+
+local meta = {__mode = 'v'}
 
 function Cache:__init(array, constructor, parent)
 	local objects = {}
@@ -20,6 +23,7 @@ function Cache:__init(array, constructor, parent)
 	self._objects = objects
 	self._constructor = constructor
 	self._parent = parent
+	self._deleted = setmetatable({}, meta)
 end
 
 function Cache:__pairs()
@@ -38,6 +42,7 @@ end
 
 local function remove(self, k, obj)
 	self._objects[k] = nil
+	self._deleted[k] = obj
 	self._count = self._count - 1
 	return obj
 end
@@ -64,6 +69,8 @@ function Cache:_insert(data)
 	if old then
 		old:_load(data)
 		return old
+	elseif self._deleted[k] then
+		return insert(self, k, self._deleted[k])
 	else
 		local obj = self._constructor(data, self._parent)
 		return insert(self, k, obj)
@@ -76,6 +83,8 @@ function Cache:_remove(data)
 	if old then
 		old:_load(data)
 		return remove(self, k, old)
+	elseif self._deleted[k] then
+		return self._deleted[k]
 	else
 		return self._constructor(data, self._parent)
 	end
@@ -85,6 +94,8 @@ function Cache:_delete(k)
 	local old = self._objects[k]
 	if old then
 		return remove(self, k, old)
+	elseif self._deleted[k] then
+		return self._deleted[k]
 	else
 		return nil
 	end

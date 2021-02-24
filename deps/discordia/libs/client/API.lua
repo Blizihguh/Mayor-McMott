@@ -2,7 +2,6 @@ local json = require('json')
 local timer = require('timer')
 local http = require('coro-http')
 local package = require('../../package.lua')
-local Date = require('utils/Date')
 local Mutex = require('utils/Mutex')
 local endpoints = require('endpoints')
 
@@ -11,24 +10,18 @@ local f, gsub, byte = string.format, string.gsub, string.byte
 local max, random = math.max, math.random
 local encode, decode, null = json.encode, json.decode, json.null
 local insert, concat = table.insert, table.concat
-local difftime = os.difftime
 local sleep = timer.sleep
 local running = coroutine.running
 
-local BASE_URL = "https://discordapp.com/api/v7"
-
-local BOUNDARY1 = 'Discordia' .. os.time()
-local BOUNDARY2 = '--' .. BOUNDARY1
-local BOUNDARY3 = BOUNDARY2 .. '--'
+local BASE_URL = "https://discord.com/api/v7"
 
 local JSON = 'application/json'
-local MULTIPART = f('multipart/form-data;boundary=%s', BOUNDARY1)
+local PRECISION = 'millisecond'
+local MULTIPART = 'multipart/form-data;boundary='
 local USER_AGENT = f('DiscordBot (%s, %s)', package.homepage, package.version)
 
 local majorRoutes = {guilds = true, channels = true, webhooks = true}
 local payloadRequired = {PUT = true, PATCH = true, POST = true}
-
-local parseDate = Date.parseHeader
 
 local function parseErrors(ret, errors, key)
 	for k, v in pairs(errors) do
@@ -73,21 +66,32 @@ local function route(method, endpoint)
 
 end
 
+local function generateBoundary(files, boundary)
+	boundary = boundary or tostring(random(0, 9))
+	for _, v in ipairs(files) do
+		if v[2]:find(boundary, 1, true) then
+			return generateBoundary(files, boundary .. random(0, 9))
+		end
+	end
+	return boundary
+end
+
 local function attachFiles(payload, files)
+	local boundary = generateBoundary(files)
 	local ret = {
-		BOUNDARY2,
+		'--' .. boundary,
 		'Content-Disposition:form-data;name="payload_json"',
 		'Content-Type:application/json\r\n',
 		payload,
 	}
 	for i, v in ipairs(files) do
-		insert(ret, BOUNDARY2)
+		insert(ret, '--' .. boundary)
 		insert(ret, f('Content-Disposition:form-data;name="file%i";filename=%q', i, v[1]))
 		insert(ret, 'Content-Type:application/octet-stream\r\n')
 		insert(ret, v[2])
 	end
-	insert(ret, BOUNDARY3)
-	return concat(ret, '\r\n')
+	insert(ret, '--' .. boundary .. '--')
+	return concat(ret, '\r\n'), boundary
 end
 
 local mutexMeta = {
@@ -110,17 +114,11 @@ local API = require('class')('API')
 
 function API:__init(client)
 	self._client = client
-	self._headers = {
-		{'User-Agent', USER_AGENT}
-	}
 	self._mutexes = setmetatable({}, mutexMeta)
 end
 
 function API:authenticate(token)
-	self._headers = {
-		{'Authorization', token},
-		{'User-Agent', USER_AGENT},
-	}
+	self._token = token
 	return self:getCurrentUser()
 end
 
@@ -144,22 +142,22 @@ function API:request(method, endpoint, payload, query, files)
 		url = concat(url)
 	end
 
-	local req
+	local req = {
+		{'User-Agent', USER_AGENT},
+		{'X-RateLimit-Precision', PRECISION},
+		{'Authorization', self._token},
+	}
+
 	if payloadRequired[method] then
 		payload = payload and encode(payload) or '{}'
-		req = {}
-		for i, v in ipairs(self._headers) do
-			req[i] = v
-		end
 		if files and next(files) then
-			payload = attachFiles(payload, files)
-			insert(req, {'Content-Type', MULTIPART})
+			local boundary
+			payload, boundary = attachFiles(payload, files)
+			insert(req, {'Content-Type', MULTIPART .. boundary})
 		else
 			insert(req, {'Content-Type', JSON})
 		end
 		insert(req, {'Content-Length', #payload})
-	else
-		req = self._headers
 	end
 
 	local mutex = self._mutexes[route(method, endpoint)]
@@ -189,19 +187,15 @@ function API:commit(method, url, req, payload, retries)
 	end
 
 	for i, v in ipairs(res) do
-		res[v[1]] = v[2]
+		res[v[1]:lower()] = v[2]
 		res[i] = nil
 	end
 
-	local reset = res['X-RateLimit-Reset']
-	local remaining = res['X-RateLimit-Remaining']
-
-	if reset and remaining == '0' then
-		local dt = difftime(reset, parseDate(res['Date']))
-		delay = max(1000 * dt, delay)
+	if res['x-ratelimit-remaining'] == '0' then
+		delay = max(1000 * res['x-ratelimit-reset-after'], delay)
 	end
 
-	local data = res['Content-Type'] == JSON and decode(msg, 1, null) or msg
+	local data = res['content-type'] == JSON and decode(msg, 1, null) or msg
 
 	if res.code < 300 then
 
@@ -283,22 +277,22 @@ function API:createMessage(channel_id, payload, files) -- TextChannel:send
 end
 
 function API:createReaction(channel_id, message_id, emoji, payload) -- Message:addReaction
-	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION_ME, channel_id, message_id, emoji)
+	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION_ME, channel_id, message_id, urlencode(emoji))
 	return self:request("PUT", endpoint, payload)
 end
 
 function API:deleteOwnReaction(channel_id, message_id, emoji) -- Message:removeReaction
-	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION_ME, channel_id, message_id, emoji)
+	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION_ME, channel_id, message_id, urlencode(emoji))
 	return self:request("DELETE", endpoint)
 end
 
 function API:deleteUserReaction(channel_id, message_id, emoji, user_id) -- Message:removeReaction
-	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION_USER, channel_id, message_id, emoji, user_id)
+	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION_USER, channel_id, message_id, urlencode(emoji), user_id)
 	return self:request("DELETE", endpoint)
 end
 
 function API:getReactions(channel_id, message_id, emoji, query) -- Reaction:getUsers
-	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION, channel_id, message_id, emoji)
+	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION, channel_id, message_id, urlencode(emoji))
 	return self:request("GET", endpoint, nil, query)
 end
 

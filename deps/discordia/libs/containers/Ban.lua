@@ -24,8 +24,9 @@ end
 
 --[=[
 @m delete
+@t http
 @r boolean
-@d Deletes the ban object, essentially unbanning the corresponding user.
+@d Deletes the ban object, unbanning the corresponding user.
 Equivalent to `Ban.guild:unbanUser(Ban.user)`.
 ]=]
 function Ban:delete()

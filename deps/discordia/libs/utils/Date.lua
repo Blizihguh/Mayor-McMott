@@ -1,5 +1,7 @@
 --[=[
-@ic Date
+@c Date
+@t ui
+@mt mem
 @op seconds number
 @op microseconds number
 @d Represents a single moment in time and provides utilities for converting to
@@ -72,11 +74,16 @@ end
 
 --[=[
 @m toString
+@op fmt string
 @r string
-@d Returns a string from this Date object in human-readable form.
+@d Returns a string from this Date object via Lua's `os.date`.
+If no format string is provided, the default is '%a %b %d %Y %T GMT%z (%Z)'.
 ]=]
-function Date:toString()
-	return date('%a %b %d %Y %T GMT%z (%Z)', self._s)
+function Date:toString(fmt)
+	if not fmt or fmt == '*t' or fmt == '!*t' then
+		fmt = '%a %b %d %Y %T GMT%z (%Z)'
+	end
+	return date(fmt, self._s)
 end
 
 function Date:__eq(other) check(self, other)
@@ -116,7 +123,8 @@ function Date:__sub(other)
 end
 
 --[=[
-@sm parseISO
+@m parseISO
+@t static
 @p str string
 @r number
 @r number
@@ -136,7 +144,8 @@ function Date.parseISO(str)
 end
 
 --[=[
-@sm parseHeader
+@m parseHeader
+@t static
 @p str string
 @r number
 @d Converts an RFC 2822 string (an HTTP Date header) into a Unix time in seconds.
@@ -152,8 +161,9 @@ function Date.parseHeader(str)
 end
 
 --[=[
-@sm parseSnowflake
-@p str string
+@m parseSnowflake
+@t static
+@p id string
 @r number
 @d Converts a Discord Snowflake ID into a Unix time in seconds. Additional
 decimal points may be present, though only the first 3 (milliseconds) should be
@@ -164,8 +174,9 @@ function Date.parseSnowflake(id)
 end
 
 --[=[
-@sm parseTable
-@p str string
+@m parseTable
+@t static
+@p tbl table
 @r number
 @d Interprets a Lua date table as a local time and converts it to a Unix time in
 seconds. Equivalent to `os.time(tbl)`.
@@ -175,8 +186,9 @@ function Date.parseTable(tbl)
 end
 
 --[=[
-@sm parseTableUTC
-@p str string
+@m parseTableUTC
+@t static
+@p tbl table
 @r number
 @d Interprets a Lua date table as a UTC time and converts it to a Unix time in
 seconds. Equivalent to `os.time(tbl)` with a correction for UTC.
@@ -186,7 +198,8 @@ function Date.parseTableUTC(tbl)
 end
 
 --[=[
-@sm fromISO
+@m fromISO
+@t static
 @p str string
 @r Date
 @d Constructs a new Date object from an ISO 8601 string. Equivalent to
@@ -197,7 +210,8 @@ function Date.fromISO(str)
 end
 
 --[=[
-@sm fromHeader
+@m fromHeader
+@t static
 @p str string
 @r Date
 @d Constructs a new Date object from an RFC 2822 string. Equivalent to
@@ -208,8 +222,9 @@ function Date.fromHeader(str)
 end
 
 --[=[
-@sm fromSnowflake
-@p str string
+@m fromSnowflake
+@t static
+@p id string
 @r Date
 @d Constructs a new Date object from a Discord/Twitter Snowflake ID. Equivalent to
 `Date(Date.parseSnowflake(id))`.
@@ -219,7 +234,8 @@ function Date.fromSnowflake(id)
 end
 
 --[=[
-@sm fromTable
+@m fromTable
+@t static
 @p tbl table
 @r Date
 @d Constructs a new Date object from a Lua date table interpreted as a local time.
@@ -230,7 +246,8 @@ function Date.fromTable(tbl)
 end
 
 --[=[
-@sm fromTableUTC
+@m fromTableUTC
+@t static
 @p tbl table
 @r Date
 @d Constructs a new Date object from a Lua date table interpreted as a UTC time.
@@ -241,33 +258,36 @@ function Date.fromTableUTC(tbl)
 end
 
 --[=[
-@sm fromSeconds
-@p t number
+@m fromSeconds
+@t static
+@p s number
 @r Date
 @d Constructs a new Date object from a Unix time in seconds.
 ]=]
-function Date.fromSeconds(t)
-	return Date(t)
+function Date.fromSeconds(s)
+	return Date(s)
 end
 
 --[=[
-@sm fromMilliseconds
-@p t number
+@m fromMilliseconds
+@t static
+@p ms number
 @r Date
 @d Constructs a new Date object from a Unix time in milliseconds.
 ]=]
-function Date.fromMilliseconds(t)
-	return Date(t / MS_PER_S)
+function Date.fromMilliseconds(ms)
+	return Date(ms / MS_PER_S)
 end
 
 --[=[
-@sm fromMicroseconds
-@p t number
+@m fromMicroseconds
+@t static
+@p us number
 @r Date
 @d Constructs a new Date object from a Unix time in microseconds.
 ]=]
-function Date.fromMicroseconds(t)
-	return Date(0, t)
+function Date.fromMicroseconds(us)
+	return Date(0, us)
 end
 
 --[=[
@@ -294,7 +314,7 @@ function Date:toISO(sep, tz)
 end
 
 --[=[
-@m toSnowflake
+@m toHeader
 @r string
 @d Returns an RFC 2822 string that represents the stored date and time.
 ]=]
@@ -306,10 +326,12 @@ end
 @m toSnowflake
 @r string
 @d Returns a synthetic Discord Snowflake ID based on the stored date and time.
-Note that `Date.fromSnowflake(id):toSnowflake()` may not return the original Snowflake.
+Due to the lack of native 64-bit support, the result may lack precision.
+In other words, `Date.fromSnowflake(id):toSnowflake() == id` may be `false`.
 ]=]
 function Date:toSnowflake()
-	return format('%i', (self:toMilliseconds() - DISCORD_EPOCH) * 2^22)
+	local n = (self:toMilliseconds() - DISCORD_EPOCH) * 2^22
+	return format('%f', n):match('%d*')
 end
 
 --[=[

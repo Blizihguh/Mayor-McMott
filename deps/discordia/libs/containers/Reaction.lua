@@ -16,8 +16,12 @@ local Reaction, get = require('class')('Reaction', Container)
 
 function Reaction:__init(data, parent)
 	Container.__init(self, data, parent)
-	self._emoji_id = data.emoji.id ~= null and data.emoji.id or nil
-	self._emoji_name = data.emoji.name
+	local emoji = data.emoji
+	self._emoji_id = emoji.id ~= null and emoji.id or nil
+	self._emoji_name = emoji.name
+	if emoji.animated ~= null and emoji.animated ~= nil then -- not always present
+		self._emoji_animated = emoji.animated
+	end
 end
 
 --[=[
@@ -43,6 +47,7 @@ end
 
 --[=[
 @m getUsers
+@t http
 @op limit number
 @r SecondaryCache
 @d Returns a newly constructed cache of all users that have used this reaction in
@@ -56,6 +61,7 @@ end
 
 --[=[
 @m getUsersBefore
+@t http
 @p id User-ID-Resolvable
 @op limit number
 @r SecondaryCache
@@ -71,6 +77,7 @@ end
 
 --[=[
 @m getUsersAfter
+@t http
 @p id User-ID-Resolvable
 @op limit number
 @r SecondaryCache
@@ -86,6 +93,7 @@ end
 
 --[=[
 @m delete
+@t http
 @op id User-ID-Resolvable
 @r boolean
 @d Equivalent to `Reaction.message:removeReaction(Reaction)`
@@ -99,13 +107,14 @@ function get.emojiId(self)
 	return self._emoji_id
 end
 
---[=[@p emojiName string The name of the emoji used in this reaction if it is a custom emoji. Otherwise,
-this will be the raw string for a standard emoji.]=]
+--[=[@p emojiName string The name of the emoji used in this reaction.
+This will be the raw string for a standard emoji.]=]
 function get.emojiName(self)
 	return self._emoji_name
 end
 
---[=[@p emojiHash The discord hash for the emoji, or Unicode string if it is not custom.]=]
+--[=[@p emojiHash string The discord hash for the emoji used in this reaction.
+This will be the raw string for a standard emoji.]=]
 function get.emojiHash(self)
 	if self._emoji_id then
 		return self._emoji_name .. ':' .. self._emoji_id
@@ -114,11 +123,12 @@ function get.emojiHash(self)
 	end
 end
 
---[=[@p emojiURL string/nil string The URL that can be used to view a full version of the emoji used in this
-reaction if it is a custom emoji.]=]
+--[=[@p emojiURL string/nil string The URL that can be used to view a full
+version of the emoji used in this reaction if it is a custom emoji.]=]
 function get.emojiURL(self)
 	local id = self._emoji_id
-	return id and format('https://cdn.discordapp.com/emojis/%s.png', id) or nil
+	local ext = self._emoji_animated and 'gif' or 'png'
+	return id and format('https://cdn.discordapp.com/emojis/%s.%s', id, ext) or nil
 end
 
 --[=[@p me boolean Whether the current user has used this reaction.]=]
