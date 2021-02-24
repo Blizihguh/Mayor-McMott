@@ -5,7 +5,7 @@ local madness = {}
 
 local madnessCreateGameInstance, madnessGetUserIndex, madnessDeckOut, madnessLastOneStanding, madnessCompleted, madnessEndGame, madnessDrawCard
 local madnessNextTurn, madnessTakeDamage, madnessAttack, madnessValidTarget, madnessShowCard, madnessPlayCard, madnessFreeAttack, madnessBecomeMad
-local madnessBroadcast, madnessMessage, madnessName, madnessGetGameState, madnessMessageGameState
+local madnessEmptyMessageQueue, madnessBroadcast, madnessMessage, madnessName, madnessGetGameState, madnessMessageGameState
 
 --#############################################################################################################################################
 --# Configurations                                                                                                                            #
@@ -71,6 +71,21 @@ function madness.dmHandler(message, state)
                 if #args == 2 then
                     madnessFreeAttack(state, id, args)
 					did = true
+					if state["PlayerList"][id]["Lives"] <= 0 then
+						madnessNextTurn(state)
+					end
+					madnessEmptyMessageQueue(state)
+					local madCount = 0
+					for id,player in pairs(state["PlayerList"]) do
+						if player["Lives"] > 0 and player["Mad"] then
+							madCount = madCount + 1
+						end
+					end
+					if state["PlayersLeft"] <= 1 then
+						madnessLastOneStanding(state)
+					elseif state["MadnessCount"] == 0 and madCount == 0 then
+						madnessCompleted(state)
+					end
                 end
             end
         end
@@ -96,6 +111,7 @@ function madness.dmHandler(message, state)
 			end
 		end
     end
+	madnessEmptyMessageQueue(state)
 end
 --#############################################################################################################################################
 --# Game Functions                                                                                                                            #
@@ -147,7 +163,8 @@ function madnessCreateGameInstance(channel, playerList, message)
             Blind = false,
 			Lethargic = false,
             Mad = false,
-			DiedInnocent = false
+			DiedInnocent = false,
+			MessageQueue = ""
         }
         idx = idx + 1
     end
@@ -172,6 +189,7 @@ function madnessCreateGameInstance(channel, playerList, message)
 	for id,player in pairs(state["PlayerList"]) do
 		madnessMessageGameState(state, id)
 	end
+	madnessEmptyMessageQueue(state)
 
     return state
 end
@@ -189,10 +207,12 @@ function madnessDeckOut(state)
 	madnessBroadcast(state, "The deck is empty and no living players are mad, so the game is over.")
 	for id,player in pairs(state["PlayerList"]) do
 		if player["Lives"] > 0 then
-			local card = player["Hand"][1]
-			madnessBroadcast(state, madnessName(state, id) .. " held " .. card .. ".")
-			if (card == "Wrath" or card == "Lethargy" or card == "Blindness") then
-				madnessBroadcast(state, madnessName(state, id) .. " has won!")
+			if #player["Hand"] > 0 then
+				local card = player["Hand"][1]
+				madnessBroadcast(state, madnessName(state, id) .. " held " .. card .. ".")
+				if (card == "Wrath" or card == "Lethargy" or card == "Blindness") then
+					madnessBroadcast(state, madnessName(state, id) .. " has won!")
+				end
 			end
 		end
 	end
@@ -213,8 +233,10 @@ function madnessCompleted(state)
 	madnessBroadcast(state, "All of the evil cards have been eliminated and no living players are mad, so the game is over.")
 	for id,player in pairs(state["PlayerList"]) do
 		if player["Lives"] > 0 then
-			local card = player["Hand"][1]
-			madnessBroadcast(state, madnessName(state, id) .. " held " .. card .. ".")
+			if #player["Hand"] > 0 then
+				local card = player["Hand"][1]
+				madnessBroadcast(state, madnessName(state, id) .. " held " .. card .. ".")
+			end
 			madnessBroadcast(state, madnessName(state, id) .. " has won!")
 		elseif player["DiedInnocent"] then
 			madnessBroadcast(state, madnessName(state, id) .. " has won posthumously!")
@@ -248,7 +270,7 @@ function madnessNextTurn(state)
 	end
 	if state["PlayersLeft"] <= 1 then
 		madnessLastOneStanding(state)
-	elseif state["MadnessCount"] == 0 and not state["Deathmatch"] and madCount == 0 then
+	elseif state["MadnessCount"] == 0 and madCount == 0 then
 		madnessCompleted(state)
 	else
 		local turn = state["Turn"]
@@ -285,6 +307,7 @@ function madnessNextTurn(state)
 		end
 		madnessMessageGameState(state, turn)
 	end
+	madnessEmptyMessageQueue(state)
 end
 
 function madnessTakeDamage(state, id, amount)
@@ -297,21 +320,51 @@ function madnessTakeDamage(state, id, amount)
 		end
 		state["PlayersLeft"] = state["PlayersLeft"] - 1
 		state["PlayerList"][id]["Lives"] = 0
-		card = state["PlayerList"][id]["Hand"][1]
-		state["PlayerList"][id]["Hand"][1] = nil
-		madnessBroadcast(state, madnessName(state, id) .. " dies and discards " .. card .. ".")
-		if card == "Wrath" or card == "Blindness" or card == "Lethargy" or card == "Madness" then
-			state["MadnessCount"] = state["MadnessCount"] - 1
-		elseif not state["PlayerList"][id]["Mad"] then
-			state["PlayerList"][id]["DiedInnocent"] = true
-		end
-		if card == "Madness" then
-			for idx,player in pairs(state["PlayerList"]) do
-				if player["Mad"] and idx ~= id and player["Lives"] > 0 then
-					madnessTakeDamage(state, idx, 1)
+		if #state["PlayerList"][id]["Hand"] > 1 then
+			card1 = state["PlayerList"][id]["Hand"][1]
+			card2 = state["PlayerList"][id]["Hand"][2]
+			state["PlayerList"][id]["Hand"][1] = nil
+			state["PlayerList"][id]["Hand"][2] = nil
+			madnessBroadcast(state, madnessName(state, id) .. " dies and discards " .. card1 .. " and " .. card2 .. ".")
+			if card1 == "Wrath" or card1 == "Blindness" or card1 == "Lethargy" or card1 == "Madness" then
+				state["MadnessCount"] = state["MadnessCount"] - 1
+			elseif not state["PlayerList"][id]["Mad"] then
+				state["PlayerList"][id]["DiedInnocent"] = true
+			end
+			if card2 == "Wrath" or card2 == "Blindness" or card2 == "Lethargy" or card2 == "Madness" then
+				state["MadnessCount"] = state["MadnessCount"] - 1
+				state["PlayerList"][id]["DiedInnocent"] = false
+			elseif not state["PlayerList"][id]["Mad"] then
+				state["PlayerList"][id]["DiedInnocent"] = true
+			end
+			if card1 == "Madness" or card2 == "Madness" then
+				for idx,player in pairs(state["PlayerList"]) do
+					if player["Mad"] and idx ~= id and player["Lives"] > 0 then
+						madnessTakeDamage(state, idx, 1)
+					end
 				end
 			end
+		elseif #state["PlayerList"][id]["Hand"] > 0 then
+			card = state["PlayerList"][id]["Hand"][1]
+			state["PlayerList"][id]["Hand"][1] = nil
+			madnessBroadcast(state, madnessName(state, id) .. " dies and discards " .. card .. ".")
+			if card == "Wrath" or card == "Blindness" or card == "Lethargy" or card == "Madness" then
+				state["MadnessCount"] = state["MadnessCount"] - 1
+			elseif not state["PlayerList"][id]["Mad"] then
+				state["PlayerList"][id]["DiedInnocent"] = true
+			end
+			if card == "Madness" then
+				for idx,player in pairs(state["PlayerList"]) do
+					if player["Mad"] and idx ~= id and player["Lives"] > 0 then
+						madnessTakeDamage(state, idx, 1)
+					end
+				end
+			end
+		else
+			madnessBroadcast(state, madnessName(state, id) .. " dies.")
+			state["PlayerList"][id]["DiedInnocent"] = true
 		end
+
 	else
 		state["PlayerList"][id]["Lives"] = health - amount
 		if amount == 1 then
@@ -375,8 +428,8 @@ function madnessPlayCard(state, id, cardIndex, args)
 		else
 			madnessAttack(state, id, t1)
 			madnessAttack(state, id, t2)
-			madnessNextTurn(state)
 		end
+		madnessNextTurn(state)
 	elseif #args == 2 and madnessValidTarget(state, id, args[2]) and (card == "Attack" or card == "Vision" or card == "Chaos" or card == "Madness" or (card == "Slash" and state["PlayersLeft"] == 2)) then
 		table.remove(state["PlayerList"][id]["Hand"], cardIndex)
 		local target = tonumber(args[2])
@@ -491,7 +544,9 @@ function madnessFreeAttack(state, id, args)
 		madnessBroadcast(state, madnessName(state, id) .. " uses their free attack on " .. madnessName(state, target) .. ".")
 		madnessAttack(state, id, target)
 		state["PlayerList"][id]["FreeAttack"] = false
-		madnessMessageGameState(state, id)
+		if state["PlayerList"][id]["Lives"] > 0 then
+			madnessMessageGameState(state, id)
+		end
 	end
 end
 
@@ -502,6 +557,15 @@ function madnessBecomeMad(state, id)
 	end
 end
 
+function madnessEmptyMessageQueue(state)
+	for id,player in pairs(state["PlayerList"]) do
+		if player["MessageQueue"] ~= "" then
+			player["Player"]:send(player["MessageQueue"])
+			player["MessageQueue"] = ""
+		end
+	end
+end
+
 function madnessBroadcast(state, message)
 	for id,player in pairs(state["PlayerList"]) do
 		madnessMessage(state, id, message)
@@ -509,7 +573,7 @@ function madnessBroadcast(state, message)
 end
 
 function madnessMessage(state, id, message)
-	state["PlayerList"][id]["Player"]:send(message)
+	state["PlayerList"][id]["MessageQueue"] = state["PlayerList"][id]["MessageQueue"] .. message .. "\n"
 end
 
 function madnessName(state, id)
