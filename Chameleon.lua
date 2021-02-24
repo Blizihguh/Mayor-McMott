@@ -160,9 +160,17 @@ function chameleon.startGame(message)
 	state["Chameleon"] = misc.getRandomIndex(message.mentionedUsers)
 	local roll = math.random(1000)
 	if roll < 15 then
-		oopsAllChameleons(state) -- 0.015% chance; if you're Chameleon, there is a ~5.5% chance it's this easter egg
+		if message.guild.id == "353359832902008835" then
+			dmStatus(state) -- Removed from server by request
+		else
+			oopsAllChameleons(state) -- 0.015% chance; if you're Chameleon, there is a ~5.5% chance it's this easter egg
+		end
 	elseif roll < 35 then
-		oopsAlmostAllChameleons(state) -- 0.02% chance; if you're Chameleon, there is a ~5.5% chance it's this easter egg
+		if message.guild.id == "353359832902008835" then
+			dmStatus(state)
+		else
+			oopsAlmostAllChameleons(state) -- 0.02% chance; if you're Chameleon, there is a ~5.5% chance it's this easter egg
+		end
 	else
 		dmStatus(state) -- If you're Chameleon, there is an ~11.0% chance it's an easter egg, and an ~89% chance it's normal
 	end

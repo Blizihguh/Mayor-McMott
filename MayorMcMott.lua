@@ -34,6 +34,7 @@ local decrypto = require("Decrypto")
 local twopeople = require("TwoPeople")
 local conspiracy = require("Conspiracy")
 local madness = require("Madness")
+local mafia = require("Mafia")
 
 -- {Name : {Description, Rules, StartFunction, CommandHandler}}
 GAME_LIST = {
@@ -120,6 +121,13 @@ GAME_LIST = {
 		startFunc = madness.startGame,
 		handler = madness.commandHandler,
 		dmHandler = madness.dmHandler
+	},
+	Mafia = {
+		desc = [[SS3]],
+		rules = [[none]],
+		startFunc = mafia.startGame,
+		handler = mafia.commandHandler,
+		dmHandler = mafia.dmHandler
 	}
 }
 
@@ -238,6 +246,16 @@ function miscCommands(message)
 	args = message.content:split(" ")
 	if args[1] == "!setvc" then
 		setVoiceChannel(message.guild.id, args[2])
+	end
+	if args[1] == "!hiddenharry" then
+		local order = misc.shuffleTable(misc.indexifyTable(misc.shallowCopy(message.mentionedUsers)))
+		for idx, user in pairs(order) do
+			if idx == #order then
+				order[idx]:send("You're giving a Hidden Hannukah Harry gift to: " .. order[1][10])
+			else
+				order[idx]:send("You're giving a Hidden Hannukah Harry gift to: " .. order[idx+1][10])
+			end
+		end
 	end
 	if string.match(message.content, "( ͡° ͜ʖ ͡°)") then
 		if string.match(string.lower(message.content), "fast") then
