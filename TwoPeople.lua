@@ -24,8 +24,11 @@ function twopeople.startGame(message)
 end
 
 function twopeople.commandHandler(message, state)
-	if message.content:split(" ")[1] == "!reveal" then
+	local arg = message.content:split(" ")[1]
+	if arg == "!reveal" then
 		doReveal(state)
+	elseif arg == "!quit" then
+		quitGame(state)
 	end
 end
 
@@ -38,6 +41,11 @@ end
 --#############################################################################################################################################
 --# Game Functions                                                                                                                            #
 --#############################################################################################################################################
+
+function quitGame(state)
+	state.GameChannel:send("Exiting game.")
+	games.deregisterGame(state.GameChannel)
+end
 
 function pickArticle(state, message)
 	print(message.author.id)
