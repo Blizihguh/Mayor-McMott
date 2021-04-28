@@ -114,8 +114,8 @@ end
 
 function endGame(state, winningTeam)
 	local winStr
-	if team == "red" then winStr = "Red" else winStr = "Green" end
-	state["GameChannel"]:send("The game is over! The " .. winStr .. "team has won!")
+	if winningTeam == "red" then winStr = "Red" else winStr = "Green" end
+	state["GameChannel"]:send("The game is over! The " .. winStr .. " team has won!")
 	quitGame(state)
 end
 
@@ -141,6 +141,8 @@ function pickWord(message, state)
 	-- If the guess is correct, reduce guess counter by one (if not unlimited) and continue
 	if info["Team"] == state["CurrentTeam"] then
 		if state["Guesses"] ~= "unlimited" then state["Guesses"] = state["Guesses"] - 1 end
+		-- Check for end of game
+		--TODO
 	elseif info["Team"] == "black" then
 		-- If the guess is the assassin, the game ends
 		local winTeam
@@ -207,7 +209,7 @@ function displayWordsInColor(state)
 		if word["Flipped"] then
 			if word["Team"] == "blue" then output = output .. string.format(fString, "\"GREEN\"")
 			elseif word["Team"] == "red" then output = output .. string.format(fString, "'RED'")
-			elseif word["Team"] == "white" then output = output .. string.format(fString, "White")
+			elseif word["Team"] == "white" then output = output .. string.format(fString, "white")
 			else output = output .. string.format(fString, "ASSASSIN") end
 		else output = output .. string.format(fString, word["Word"]) end
 		if idx % 5 == 0 then output = output .. "\n" end
