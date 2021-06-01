@@ -162,6 +162,7 @@ function handleGuess(state, user, args)
 	end
 
 	-- If it's valid, handle the guess
+	--TODO: Error handling if the guess isn't a three-digit number composed of unique digits from 1-4
 	if isValid then
 		if
 			guess == nil then player.Player:send("Invalid guess! Format: `!guess 123`")
@@ -287,16 +288,12 @@ function advancePhases(state)
 	end
 
 	-- Advance both teams if they're ready for Phase 4
-	print("h")
 	if state.RedPhase == 3 and state.BluePhase == 3 then
-		print("i")
 		if state.Round == 1 then
 			-- Lowkey think it would be cleaner to just goto down 20 lines here
-			print("j")
 			state.RedPhase = 5
 			state.BluePhase = 5
 		else
-			print("k")
 			-- Update state
 			state.BluePhase = 4
 			state.RedPhase = 4
