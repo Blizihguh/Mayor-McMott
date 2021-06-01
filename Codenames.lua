@@ -33,8 +33,11 @@ function codenames.startGame(message)
 		PlayerList = playerList, -- Player = player object, Team = team color
 		CurrentTeam = first,     -- Which team's turn is it?
 		Phase = 0,               -- 0 = Captain picks a clue, 1 = team picks words
-		Guesses = 0              -- Guesses left
+		Guesses = 0,             -- Guesses left
+		RedWords = 8,            -- Words left to guess
+		BlueWords = 8
 	}
+	if first == "red" then state["RedWords"] = state["RedWords"] + 1 else state["BlueWords"] = state["BlueWords"] + 1 end
 
 	-- Start game
 	message.channel:send("Starting game...")
@@ -115,7 +118,8 @@ end
 function endGame(state, winningTeam)
 	local winStr
 	if winningTeam == "red" then winStr = "Red" else winStr = "Green" end
-	state["GameChannel"]:send("The game is over! The " .. winStr .. " team has won!")
+	state["GameChannel"]:send("**The game is over! The " .. winStr .. " team has won!**")
+	displayWordsInColor(state)
 	quitGame(state)
 end
 
@@ -141,10 +145,16 @@ function pickWord(message, state)
 	-- If the guess is correct, reduce guess counter by one (if not unlimited) and continue
 	if info["Team"] == state["CurrentTeam"] then
 		if state["Guesses"] ~= "unlimited" then state["Guesses"] = state["Guesses"] - 1 end
+		-- Update count of words left
+		if info["Team"] == "red" then state["RedWords"] = state["RedWords"] - 1 else state["BlueWords"] = state["BlueWords"] - 1 end
 		-- Check for end of game
-		--TODO
+		-- TODO: Fix this
+		if state["RedWords"] == 0 then endGame(state, "red")
+		elseif state["BlueWords"] == 0 then endGame(state, "blue")
+		end
 	elseif info["Team"] == "black" then
 		-- If the guess is the assassin, the game ends
+		state["GameChannel"]:send(info["Word"] .. " was the Assassin!")
 		local winTeam
 		if state["CurrentTeam"] == "red" then winTeam = "blue" else winTeam = "red" end
 		endGame(state, winTeam)
