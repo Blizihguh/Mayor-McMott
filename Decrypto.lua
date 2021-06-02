@@ -93,11 +93,21 @@ function handleGimme(state, user)
 		if state.BluePhase == 0 then
 			state.BlueClueGiver = player
 			advancePhases(state)
+			for id,player in pairs(state.PlayerList) do
+				if player.Team == "blue" and player.Player.id ~= state.BlueClueGiver.Player.id then
+					player.Player:send(state.BlueClueGiver.Player.name .. " is preparing the clues!")
+				end
+			end
 		end
 	elseif player.Team == "red" then
 		if state.RedPhase == 0 then
 			state.RedClueGiver = player
 			advancePhases(state)
+			for id,player in pairs(state.PlayerList) do
+				if player.Team == "red" and player.Player.id ~= state.RedClueGiver.Player.id then
+					player.Player:send(state.RedClueGiver.Player.name .. " is preparing the clues!")
+				end
+			end
 		end
 	end
 end
@@ -418,7 +428,7 @@ function dmInfo(state, player)
 	local string_redword = "[ <%i> %s ]\n"
 
 	local string_clue = "\t(%i) %s\n"
-	local string_score = "```asciidoc\n= BLUE TEAM =\nInterceptions: %i\nMiscommunications: %i\n\n[  RED TEAM  ]\nInterceptions: %i\nMiscommunications: %i\n```"
+	local string_score = "```asciidoc\n= BLUE TEAM =\nPlayers: %s\nInterceptions: %i\nMiscommunications: %i\n\n[  RED TEAM  ]\nPlayers: %s\nInterceptions: %i\nMiscommunications: %i\n```"
 
 	local output = ""
 
@@ -466,8 +476,20 @@ function dmInfo(state, player)
 	end
 	output = output .. "```"
 
+	-- Get player lists
+	local bluePlayers = ""
+	local redPlayers = ""
+	for idx,player in pairs(state.PlayerList) do
+		if player.Team == "blue" then bluePlayers = bluePlayers .. ", " .. player.Player.name
+		else redPlayers = redPlayers .. ", " .. player.Player.name
+		end 
+	end
+
+	local bluePlayers = string.sub(bluePlayers, 3)
+	local redPlayers = string.sub(redPlayers, 3)
+
 	-- Display score
-	output = output .. string.format(string_score, state.BlueIntercepts, state.BlueGoofs, state.RedIntercepts, state.RedGoofs)
+	output = output .. string.format(string_score, bluePlayers, state.BlueIntercepts, state.BlueGoofs, redPlayers, state.RedIntercepts, state.RedGoofs)
 
 	player.Player:send(output)
 end
