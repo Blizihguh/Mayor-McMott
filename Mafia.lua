@@ -3,7 +3,7 @@ local misc = require("Misc")
 local mafia = {}
 
 local jester3, chicagoPD, jungle
-local known_setups = "Jester3 (!start Mafia Jester3)\nChicago PD (!start Mafia ChicagoPD)\nJungle of Bullshit (!start Mafia Jungle)\nWin Lose Banana (!start Mafia Banana)"
+local known_setups = "Jester3 (!start Mafia Jester3)\nChicago PD (!start Mafia Chicago)\nJungle of Bullshit (!start Mafia Jungle)\nWin Lose Banana (!start Mafia Banana)"
 
 --#############################################################################################################################################
 --# Main Functions                                                                                                                            #
@@ -15,7 +15,7 @@ function mafia.startGame(message)
     args[3] = string.lower(args[3])
     
     if     args[3] == "jester3" then jester3(message.channel, players)
-    elseif args[3] == "chicagopd" then chicagoPD(message.channel, players)
+    elseif args[3] == "chicago" then chicagoPD(message.channel, players)
     elseif args[3] == "jungle" then jungle(message.channel, players)
     elseif args[3] == "banana" then banana(message.channel, players)
     else message.channel:send("I don't know that setup, homie!\nKnown setups:\n" .. known_setups)
