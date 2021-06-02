@@ -3,7 +3,7 @@ local misc = require("Misc")
 local mafia = {}
 
 local jester3, chicagoPD, jungle
-local known_setups = "Jester3 (!start Mafia Jester3)\nChicago PD (!start Mafia ChicagoPD)\nJungle of Bullshit (!start Mafia Jungle)"
+local known_setups = "Jester3 (!start Mafia Jester3)\nChicago PD (!start Mafia ChicagoPD)\nJungle of Bullshit (!start Mafia Jungle)\nWin Lose Banana (!start Mafia Banana)"
 
 --#############################################################################################################################################
 --# Main Functions                                                                                                                            #
@@ -14,9 +14,10 @@ function mafia.startGame(message)
     local args = message.content:split(" ")
     args[3] = string.lower(args[3])
     
-    if args[3] == "jester3" then jester3(message.channel, players)
+    if     args[3] == "jester3" then jester3(message.channel, players)
     elseif args[3] == "chicagopd" then chicagoPD(message.channel, players)
     elseif args[3] == "jungle" then jungle(message.channel, players)
+    elseif args[3] == "banana" then banana(message.channel, players)
     else message.channel:send("I don't know that setup, homie!\nKnown setups:\n" .. known_setups)
     end
 end
@@ -30,6 +31,16 @@ end
 --#############################################################################################################################################
 --# Game Functions                                                                                                                            #
 --#############################################################################################################################################
+
+function banana(channel, players)
+    if #players ~= 3 then
+        channel:send("Win Lose Banana takes exactly 3 players!")
+        return
+    end
+    players[1]:send("You are the Banana! 🍌")
+    players[2]:send("You are the Loser! 😖")
+    channel:send(players[3].name .. " is the Winner! Try to pick the Banana!")
+end
 
 function jungle(channel, players)
     if #players < 5 then
