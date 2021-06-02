@@ -395,7 +395,7 @@ function checkForEndgame(state)
 			elseif redScore > blueScore then winner = "red"
 			else winner = "tie" end
 		else
-			if state.BlueIntercepts == 2 or state.RedGoofs == true then winner = "blue" else winner = "red" end
+			if state.BlueIntercepts == 2 or state.RedGoofs == 2 then winner = "blue" else winner = "red" end
 		end
 	end
 
