@@ -59,7 +59,7 @@ function werewords.commandHandler(message, state)
 	if args[1] == "!wordlists" then
 		werewordsSendWordLists(channel)
 		return
-	elseif args[1] == "!end" then
+	elseif args[1] == "!end" or args[1] == "!quit" then
 		werewordsExitGame(channel, state)
 		return
 	elseif args[1] == "!tokens" then
