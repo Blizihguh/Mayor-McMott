@@ -35,6 +35,7 @@ local twopeople = require("TwoPeople")
 local conspiracy = require("Conspiracy")
 local madness = require("Madness")
 local mafia = require("Mafia")
+local asshole = require("Asshole")
 
 -- {Name : {Description, Rules, StartFunction, CommandHandler}}
 GAME_LIST = {
@@ -123,11 +124,19 @@ GAME_LIST = {
 		dmHandler = madness.dmHandler
 	},
 	Mafia = {
-		desc = [[SS3]],
+		desc = [[Various mafia setups.]],
 		rules = [[none]],
 		startFunc = mafia.startGame,
 		handler = mafia.commandHandler,
 		dmHandler = mafia.dmHandler
+	},
+	Asshole = {
+		desc = [[The ONLY card game to use the advertisement cards that you get with every deck!]],
+		rules = [[TODO]],
+		startFunc = asshole.startGame,
+		handler = asshole.commandHandler,
+		dmHandler = asshole.dmHandler,
+		reactHandler = asshole.reactHandler
 	}
 }
 
@@ -149,7 +158,7 @@ function gameCommands(message)
 		local gameType = games.INSTANCES[channel][2]
 		local state = games.INSTANCES[channel][3]
 		GAME_LIST[gameType].handler(message, state)
-	elseif games.playerInGame(author) then -- Player is in a game, call relevant handlers
+	elseif games.playerInGame(author) then -- User is in a game, call relevant handlers
 		-- Check every game to see if the player is playing, and call the relevant event handler for that game
 		for channel, game in pairs(games.INSTANCES) do
 			for idx, player in pairs(game[4]) do
@@ -180,6 +189,22 @@ function gameCommands(message)
 				GAME_LIST[nameOfGame].startFunc(message)
 			else
 				channel:send("Uh-oh! I don't know how to play that game, homie!")
+			end
+		end
+	end
+end
+
+function reactionCommands(channel, reaction, user)
+	if games.playerInGame(user) then -- User is in a game, call relevant handlers
+		-- Check every game to see if the player is playing, and call the relevant event handler for that game
+		for channel, game in pairs(games.INSTANCES) do
+			-- Don't bother if the game doesn't have a reactHandler command
+			if GAME_LIST[game[2]].reactHandler ~= nil then
+				for idx, player in pairs(game[4]) do
+					if user == player then
+						GAME_LIST[game[2]].reactHandler(reaction, user, game[3])
+					end
+				end
 			end
 		end
 	end
@@ -361,6 +386,15 @@ client:on("messageCreate", function(message)
 	infoCommands(content, channel, author, args)
 	gameCommands(message) -- Send the entire message, as some games might need additional information (eg mentionedUsers, reactions)
 	miscCommands(message)
+end)
+
+-- Handle reacts too
+client:on("reactionAdd", function(reaction, userId)
+
+	local channel = reaction.message.channel
+	local user = reaction.client._users:get(userId)
+
+	reactionCommands(channel, reaction, user)
 end)
 
 function getBotString()

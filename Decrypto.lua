@@ -45,7 +45,7 @@ function decrypto.startGame(message)
 	}
 
 	-- Get eight random words
-	local deck = misc.shuffleTable(misc.parseCSV("words/codenames-en.csv"))
+	local deck = misc.shuffleTable(misc.parseCSV("words/op_decrypto.csv"))
 	for i=1,4 do table.insert(state.BlueWords, deck[i]) end
 	for i=5,8 do table.insert(state.RedWords, deck[i]) end
 

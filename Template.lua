@@ -15,6 +15,10 @@ end
 function REPLACE_GAME_NAME.dmHandler(message, state)
 end
 
+--OPTIONAL: Do not include this function if you don't need it!
+function REPLACE_GAME_NAME.reactHandler(reaction, user, state)
+end
+
 --#############################################################################################################################################
 --# Game Functions                                                                                                                            #
 --#############################################################################################################################################
