@@ -18,7 +18,7 @@ function asshole.startGame(message)
 	local cards = misc.shuffleTable({"King", "King", "Jack", "Jack", "Asshole", "Asshole", "Jester"})
 	local idx = 1
 	for id,playerObject in pairs(message.mentionedUsers) do
-		playerlist[idx] = {Player = playerObject, Card = cards[idx], Pointed = false, Won = false, StatusID = nil}
+		playerlist[idx] = {Player = playerObject, Card = cards[idx], Pointed = false, Won = false, Status = nil}
 		idx = idx + 1
 	end
 
@@ -27,8 +27,17 @@ function asshole.startGame(message)
 		PlayerList = playerlist
 	}
 
+	-- Send everybody their info
 	for idx,player in pairs(state.PlayerList) do
 		status(state, player)
+	end
+	-- Add reactions to everybody's info message
+	for idx,player in pairs(state.PlayerList) do
+		player.Status:addReaction("0️⃣")
+		player.Status:addReaction("1️⃣")
+		player.Status:addReaction("2️⃣")
+		player.Status:addReaction("3️⃣")
+		player.Status:addReaction("4️⃣")
 	end
 
 	games.registerGame(message.channel, "Asshole", state, message.mentionedUsers)
@@ -46,7 +55,7 @@ function asshole.reactHandler(reaction, user, state)
 	-- Check if the message is the user's status message
 	for idx,playerObject in pairs(state.PlayerList) do
 		-- Check if the reaction was made by the user (not the bot) and is on the status message and the user hasn't pointed yet
-		if playerObject.Pointed == false and playerObject.Player.id == user.id and playerObject.StatusID == reaction.message.id then
+		if playerObject.Pointed == false and playerObject.Player.id == user.id and playerObject.Status.id == reaction.message.id then
 			-- The user has selected a number!
 			point(state, user, reaction.emojiName)
 		end
@@ -181,14 +190,10 @@ function status(state, target)
 	output = output .. border_string
 
 	local message = target.Player:send(output)
-	message:addReaction("0️⃣")
-	message:addReaction("1️⃣")
-	message:addReaction("2️⃣")
-	message:addReaction("3️⃣")
-	message:addReaction("4️⃣")
+
 	for idx,playerObject in pairs(state.PlayerList) do
 		if playerObject.Player.id == target.Player.id then
-			state.PlayerList[idx].StatusID = message.id
+			state.PlayerList[idx].Status = message
 		end
 	end
 end
