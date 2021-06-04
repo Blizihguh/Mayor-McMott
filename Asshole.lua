@@ -94,7 +94,7 @@ function point(state, user, emoji)
 		if state.PlayerList[my_number].Card == "King" or state.PlayerList[my_number].Card == "Jack" then
 			local won = true
 			for idx,playerObject in pairs(state.PlayerList) do
-				if idx ~= my_number and playerObject == state.PlayerList[my_number].Card then
+				if idx ~= my_number and playerObject.Card == state.PlayerList[my_number].Card then
 					won = false
 					break
 				end
