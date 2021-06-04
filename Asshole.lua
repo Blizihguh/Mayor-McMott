@@ -108,8 +108,8 @@ function point(state, user, emoji)
 				state.PlayerList[my_number].Won = true
 			end
 		end
-		-- If target player is an asshole and we lose by pointing at them, they win
-		if state.PlayerList[target_number].Card == "Asshole" and state.PlayerList[my_number].Won == false then
+		-- If target player is an asshole and not us and we lose by pointing at them, they win
+		if my_number ~= target_number and state.PlayerList[target_number].Card == "Asshole" and state.PlayerList[my_number].Won == false then
 			state.PlayerList[target_number].Won = true
 		end
 	end
