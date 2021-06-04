@@ -168,7 +168,7 @@ function gameCommands(message)
 			end
 		end
 	else -- Channel does not have game already
-		if args[1] == "!start" or args[1] == "!vc" then
+		if message.channel.type ~= 1 and (args[1] == "!start" or args[1] == "!vc") then -- Don't allow game starting in DMs!
 			local nameOfGame = misc.getKeyInTableInsensitive(args[2], GAME_LIST)
 			if nameOfGame then
 				-- Call the function associated with the given game

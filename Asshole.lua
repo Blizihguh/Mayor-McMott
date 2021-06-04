@@ -163,7 +163,7 @@ function checkForEnd(state)
 	end
 
 	-- Handle game overs
-	local winStrings = {[0] = "**Game over!** Everybody lost! :clap::clap::clap:", [1] = "**Game over!** %s won!", [2] = "**Game over!** %s and %s won!", [3] = "**Game over!** %s, %s, and %s won!", [4] = "**Game over!** Everybody won! ...wait, what? :flushed:"}
+	local winStrings = {[0] = "**Game over!** Everybody lost! Which means the Assholes win :clap::clap::clap:", [1] = "**Game over!** %s won!", [2] = "**Game over!** %s and %s won!", [3] = "**Game over!** %s, %s, and %s won!", [4] = "**Game over!** Everybody won! ...wait, what? :flushed:"}
 	if jesterWin or pointCount == 4 or winnerCount >= 2 then
 		local output = string.format(winStrings[winnerCount], winningPlayers[1], winningPlayers[2], winningPlayers[3], winningPlayers[4])
 		for idx,playerObject in pairs(state.PlayerList) do
