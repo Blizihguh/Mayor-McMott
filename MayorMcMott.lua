@@ -10,8 +10,6 @@ discordia.extensions() -- load all helpful extensions
 --# Globals                                                                                                                                   #
 --#############################################################################################################################################
 
-SERVER_VC_TABLE = {}
-
 LOG_MOTTBOT_MESSAGES = true
 
 local currentGhostChannel = nil
@@ -172,9 +170,19 @@ function gameCommands(message)
 			local nameOfGame = misc.getKeyInTableInsensitive(args[2], GAME_LIST)
 			if nameOfGame then
 				-- Call the function associated with the given game
-				-- This is ugly as fuck, but it's all worth it to carve a few extra bytes off the filesize of the lua interpreter(???)
 				if args[1] == "!vc" then
-					local channel = message.guild:getChannel(SERVER_VC_TABLE[message.guild.id])
+					-- Figure out what channel the user is in
+					local channel = nil
+					for idx,voicechannel in pairs(message.guild.voiceChannels) do
+						for id,user in pairs(voicechannel.connectedMembers) do
+							if user.id == message.author.id then
+								channel = voicechannel
+								goto vc_found
+							end
+						end
+					end
+					::vc_found::
+					if channel == nil then return end
 					local memberTbl = channel.connectedMembers
 					-- memberTbl is a table of Members, but message.mentionedUsers is a table of Users, so we need to convert
 					local userTbl = {}
@@ -183,7 +191,7 @@ function gameCommands(message)
 						misc.setn(userTbl, #userTbl+1)
 					end
 					-- Modify the message object(!) so that it contains new text and a new mentionedUsers table
-					message:localSetContent(modifyVoiceMessage(message))
+					message:localSetContent(modifyVoiceMessage(message, channel))
 					message:localSetMentionedUsers(userTbl)
 				end
 				GAME_LIST[nameOfGame].startFunc(message)
@@ -214,56 +222,20 @@ end
 --# Command Handlers                                                                                                                          #
 --#############################################################################################################################################
 
-function initServers()
-	--[[Initializes server voice channels for !vc]]
-	local file = io.open("server_vc_table", "r")
-	local c = 0
-	if file ~= nil then
-		for line in file:lines() do
-			local info = line:split(" ")
-			if tonumber(info[1]) ~= nil then
-				SERVER_VC_TABLE[info[1]] = info[2]
-				c = c + 1
-			end
-		end
-	end
-	print("Loaded " .. tostring(c) .. " server voice channel settings")
-	file:close()
-end
-
-function setVoiceChannel(guild, channel)
-	--[[Sets a server's voice channel for !vc]]
-	-- Set vc in current session
-	print("Set channel for !vc to: " .. channel)
-	SERVER_VC_TABLE[guild] = channel
-	-- Set vc forever
-	local file = io.open("server_vc_table", "w")
-	for guild,channel in pairs(SERVER_VC_TABLE) do
-		file:write(tostring(guild) .. " " .. tostring(channel) .. "\n")
-	end
-	file:close()
-end
-
-function modifyVoiceMessage(message)
+function modifyVoiceMessage(message, channel)
 	--[[Takes a message that mentions a voice channel, and modifies it into one with a list of players, for !vc]]
-	if SERVER_VC_TABLE[message.guild.id] == nil then
-		message.channel:send("According to all known laws of aviation, you need to set a channel with !setvc before you can use !vc (but only once!)")
-		return nil
-	else
-		local newMessage = "!start"
-		-- Add all args to message
-		local args = message.content:split(" ")
-		for idx,arg in pairs(args) do
-			if idx ~= 1 then newMessage = newMessage .. " " .. arg end
-		end
-		-- Get this server's designated game channel
-		local channel = message.guild:getChannel(SERVER_VC_TABLE[message.guild.id])
-		-- Add voice channel users to message
-		for id,user in pairs(channel.connectedMembers) do
-			newMessage = newMessage .. " " .. "<@!" .. user.id .. ">"
-		end
-		return newMessage
+	local newMessage = "!start"
+	-- Add all args to message
+	local args = message.content:split(" ")
+	for idx,arg in pairs(args) do
+		if idx ~= 1 then newMessage = newMessage .. " " .. arg end
 	end
+	-- Get this server's designated game channel
+	-- Add voice channel users to message
+	for id,user in pairs(channel.connectedMembers) do
+		newMessage = newMessage .. " " .. "<@!" .. user.id .. ">"
+	end
+	return newMessage
 end
 
 function miscCommands(message)
@@ -368,7 +340,6 @@ end
 -- Login
 client:on("ready", function()
 	print("Logged in as " .. client.user.username)
-	initServers()
 	initGames()
 end)
 
