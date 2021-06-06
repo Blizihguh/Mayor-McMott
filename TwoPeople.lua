@@ -48,11 +48,10 @@ function quitGame(state)
 end
 
 function pickArticle(state, message)
-	print(message.author.id)
-	print(message.content)
-	misc.printTable(state.PlayerList)
-	state.PlayerList[message.author.id][2] = string.sub(message.content, 7) --TODO: Patch this crashing if host tries to submit an article
-	message.author:send("Chosen article: " .. state.PlayerList[message.author.id][2])
+	if message.author.id ~= state.TomScott.id then
+		state.PlayerList[message.author.id][2] = string.sub(message.content, 7)
+		message.author:send("Chosen article: " .. state.PlayerList[message.author.id][2])
+	end
 end
 
 function doReveal(state)
