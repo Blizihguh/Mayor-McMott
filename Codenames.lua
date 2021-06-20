@@ -2,7 +2,7 @@ local games = require("Games")
 local misc = require("Misc")
 local codenames = {}
 
-local getWords, displayWords, displayWordsInColor, displayWordsUnicode, displayWordsCaptain, giveClue, pickWord, endGame, quitGame
+local getWords, displayWords, displayWordsInColor, displayWordsUnicode, displayWordsCondensed, displayWordsCaptain, giveClue, pickWord, endGame, quitGame
 
 --#############################################################################################################################################
 --# Main Functions                                                                                                                            #
@@ -40,7 +40,7 @@ function codenames.startGame(message)
 
 	-- Start game
 	message.channel:send("Starting game...")
-	displayWordsUnicode(state)
+	displayWordsCondensed(state)
 	displayWordsCaptain(state, rCaptain)
 	displayWordsCaptain(state, bCaptain)
 	local startStr
@@ -118,7 +118,7 @@ function endGame(state, winningTeam)
 	local winStr
 	if winningTeam == "red" then winStr = "Red" else winStr = "Green" end
 	state["GameChannel"]:send("**The game is over! The " .. winStr .. " team has won!**")
-	displayWordsUnicode(state)
+	displayWordsCondensed(state)
 	quitGame(state)
 end
 
@@ -141,6 +141,14 @@ function pickWord(message, state)
 	if info == nil then message.channel:send(word .. " is not a word in the game, homie!"); return end
 	-- Flip the chosen word
 	info["Flipped"] = true
+	-- Message the channel what the color of the chosen word is
+	local output = ""
+	if info["Team"] == "red" then output = info["Word"] .. " was a 🟥 Red 🟥 word!" 
+	elseif info["Team"] == "blue" then output = info["Word"] .. " was a 🟩 Green 🟩 word!" 
+	elseif info["Team"] == "white" then output = info["Word"] .. " was a 🟫 Civilian 🟫 word!" 
+	else output = info["Word"] .. " was the 💀 Assassin 💀!" 
+	end
+	state["GameChannel"]:send(output)
 	-- If the guess is correct, reduce guess counter by one (if not unlimited) and continue
 	if info["Team"] == state["CurrentTeam"] then
 		if state["Guesses"] ~= "unlimited" then state["Guesses"] = state["Guesses"] - 1 end
@@ -153,7 +161,6 @@ function pickWord(message, state)
 		end
 	elseif info["Team"] == "black" then
 		-- If the guess is the assassin, the game ends
-		state["GameChannel"]:send(info["Word"] .. " was the Assassin!")
 		local winTeam
 		if state["CurrentTeam"] == "red" then winTeam = "blue" else winTeam = "red" end
 		endGame(state, winTeam)
@@ -170,7 +177,7 @@ function pickWord(message, state)
 		if state["CurrentTeam"] == "red" then nextStr = "Red" else nextStr = "Green" end
 		state["GameChannel"]:send("Turn over! It is now " .. nextStr .. "'s turn!")
 	end
-	displayWordsUnicode(state)
+	displayWordsCondensed(state)
 end
 
 function giveClue(message, state)
@@ -209,6 +216,65 @@ function getWords(first)
 	end
 	misc.shuffleTable(words)
 	return words
+end
+
+function displayWordsCondensed(state)
+	local output = {""}
+	local fString = "%-12s "
+	-- Survey results:
+	-- 59, 47, 43, 41, 41, 31
+	local line_length = 40
+	-- Statistics
+	local redFlipped   = 0
+	local redTotal     = 0
+	local blueFlipped  = 0
+	local blueTotal    = 0
+	local whiteFlipped = 0
+	local assFlipped   = 0
+	-- Get words
+	for idx, word in pairs(state["Words"]) do
+		if word["Flipped"] then
+			-- Get statistics
+			if word["Team"] == "blue" then
+				blueFlipped = blueFlipped + 1
+				blueTotal = blueTotal + 1
+			elseif word["Team"] == "red" then
+				redFlipped = redFlipped + 1
+				redTotal = redTotal + 1
+			elseif word["Team"] == "white" then
+				whiteFlipped = whiteFlipped + 1
+			else
+				assFlipped = assFlipped + 1
+			end
+		else
+			-- Get statistics
+			if word["Team"] == "blue" then blueTotal = blueTotal + 1
+			elseif word["Team"] == "red" then redTotal = redTotal + 1
+			end
+			-- Do output
+			if string.len(output[#output]) + string.len(word["Word"]) > line_length then
+				output[#output] = output[#output] .. "\n"
+				table.insert(output, "")
+			end
+			output[#output] = output[#output] .. string.format(fString, word["Word"])
+		end
+	end
+
+	-- Sort table by line length and add initial line
+	table.sort(output, function(a,b) return #a>#b end)
+	table.insert(output, 1, "```\n")
+
+	-- Output words
+	local outputString = "⬜ Words:\n"
+	for idx,line in ipairs(output) do outputString = outputString .. line end
+	outputString = outputString .. "```"
+
+	-- Output stats
+	outputString = outputString .. "🟥 `Red Words:      " .. redFlipped .. "/" .. redTotal .. "`\n"
+	outputString = outputString .. "🟩 `Green Words:    " .. blueFlipped .. "/" .. blueTotal .. "`\n"
+	outputString = outputString .. "🟫 `Civilians Shot: " .. whiteFlipped .. "/7`"
+
+	state["GameChannel"]:send(outputString)
 end
 
 function displayWordsUnicode(state)
