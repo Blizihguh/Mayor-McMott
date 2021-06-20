@@ -2,7 +2,7 @@ local games = require("Games")
 local misc = require("Misc")
 local codenames = {}
 
-local getWords, displayWords, displayWordsInColor, displayWordsCaptain, giveClue, pickWord, endGame, quitGame
+local getWords, displayWords, displayWordsInColor, displayWordsUnicode, displayWordsCaptain, giveClue, pickWord, endGame, quitGame
 
 --#############################################################################################################################################
 --# Main Functions                                                                                                                            #
@@ -10,7 +10,6 @@ local getWords, displayWords, displayWordsInColor, displayWordsCaptain, giveClue
 
 function codenames.startGame(message)
 	-- Determine which team goes first
-	--TODO: always red?
 	local first
 	if math.random(2) == 1 then first = "red" else first = "blue" end
 	-- Initialize state
@@ -41,7 +40,7 @@ function codenames.startGame(message)
 
 	-- Start game
 	message.channel:send("Starting game...")
-	displayWordsInColor(state)
+	displayWordsUnicode(state)
 	displayWordsCaptain(state, rCaptain)
 	displayWordsCaptain(state, bCaptain)
 	local startStr
@@ -119,7 +118,7 @@ function endGame(state, winningTeam)
 	local winStr
 	if winningTeam == "red" then winStr = "Red" else winStr = "Green" end
 	state["GameChannel"]:send("**The game is over! The " .. winStr .. " team has won!**")
-	displayWordsInColor(state)
+	displayWordsUnicode(state)
 	quitGame(state)
 end
 
@@ -171,7 +170,7 @@ function pickWord(message, state)
 		if state["CurrentTeam"] == "red" then nextStr = "Red" else nextStr = "Green" end
 		state["GameChannel"]:send("Turn over! It is now " .. nextStr .. "'s turn!")
 	end
-	displayWordsInColor(state)
+	displayWordsUnicode(state)
 end
 
 function giveClue(message, state)
@@ -212,19 +211,79 @@ function getWords(first)
 	return words
 end
 
-function displayWordsInColor(state)
-	local output = "Words:\n```ml\n"
+function displayWordsUnicode(state)
+	local output = "Words:\n```\n"
 	local fString = "%-12s "
+	local redFlipped = 0
+	local redTotal = 0
+	local blueFlipped = 0
+	local blueTotal = 0
 	for idx, word in pairs(state["Words"]) do
 		if word["Flipped"] then
-			if word["Team"] == "blue" then output = output .. string.format(fString, "\"GREEN\"")
-			elseif word["Team"] == "red" then output = output .. string.format(fString, "'RED'")
-			elseif word["Team"] == "white" then output = output .. string.format(fString, "white")
-			else output = output .. string.format(fString, "ASSASSIN") end
-		else output = output .. string.format(fString, word["Word"]) end
+			if word["Team"] == "blue" then 
+				output = output .. string.format(fString, "🟩🟩🟩🟩  ")
+				blueFlipped = blueFlipped + 1
+				blueTotal = blueTotal + 1
+			elseif word["Team"] == "red" then 
+				output = output .. string.format(fString, "🟥🟥🟥🟥  ")
+				redFlipped = redFlipped + 1
+				redTotal = redTotal + 1
+			elseif word["Team"] == "white" then 
+				output = output .. string.format(fString, "🟫🟫🟫🟫  ")
+			else 
+				output = output .. string.format(fString, "💀💀💀     ") 
+			end
+		else 
+			output = output .. string.format(fString, word["Word"]) 
+			if word["Team"] == "blue" then blueTotal = blueTotal + 1
+			elseif word["Team"] == "red" then redTotal = redTotal + 1 end
+		end
 		if idx % 5 == 0 then output = output .. "\n" end
 	end
 	output = output .. "```"
+	
+	-- Show remaining word count
+	local ctString = "```🟩 Green: %i/%i 🟩 \t 🟥 Red: %i/%i 🟥```"
+	output = output .. string.format(ctString, blueFlipped, blueTotal, redFlipped, redTotal)
+
+	state["GameChannel"]:send(output)
+end
+
+function displayWordsInColor(state)
+	local output = "Words:\n```ml\n"
+	local fString = "%-12s "
+	local redFlipped = 0
+	local redTotal = 0
+	local blueFlipped = 0
+	local blueTotal = 0
+	for idx, word in pairs(state["Words"]) do
+		if word["Flipped"] then
+			if word["Team"] == "blue" then 
+				output = output .. string.format(fString, "\"GREEN\"")
+				blueFlipped = blueFlipped + 1
+				blueTotal = blueTotal + 1
+			elseif word["Team"] == "red" then 
+				output = output .. string.format(fString, "'RED'")
+				redFlipped = redFlipped + 1
+				redTotal = redTotal + 1
+			elseif word["Team"] == "white" then 
+				output = output .. string.format(fString, "white")
+			else 
+				output = output .. string.format(fString, "ASSASSIN") 
+			end
+		else 
+			output = output .. string.format(fString, word["Word"]) 
+			if word["Team"] == "blue" then blueTotal = blueTotal + 1
+			elseif word["Team"] == "red" then redTotal = redTotal + 1 end
+		end
+		if idx % 5 == 0 then output = output .. "\n" end
+	end
+	output = output .. "```"
+	
+	-- Show remaining word count
+	local ctString = "```Green: %i/%i\tRed: %i/%i```"
+	output = output .. string.format(ctString, blueFlipped, blueTotal, redFlipped, redTotal)
+
 	state["GameChannel"]:send(output)
 end
 
@@ -241,18 +300,18 @@ function displayWords(state)
 end
 
 function displayWordsCaptain(state, user)
-	local bWords = "Green Words:  "
-	local rWords = "Red Words    "
-	local wWords = "White Words: "
-	local aWord  = "Assassin:    "
+	local bWords = "🟩🟩🟩🟩:  "
+	local rWords = "🟥🟥🟥🟥:  "
+	local wWords = "🟫🟫🟫🟫:  "
+	local aWord  = "💀💀💀💀:  "
 	local fString = "%s, "
 	-- Get words
 	for idx, word in pairs(state["Words"]) do
 		if not word["Flipped"] then
-			if word["Team"] == "blue" then bWords = bWords .. string.format(fString, word["Word"])
-			elseif word["Team"] == "red" then rWords = rWords .. string.format(fString, word["Word"])
+			if word["Team"] == "blue" then bWords = bWords .. string.format(fString, "\"" .. word["Word"] .. "\"")
+			elseif word["Team"] == "red" then rWords = rWords .. string.format(fString, "'" .. string.gsub(word["Word"], "%s+", "_") .. "'") --Remove whitespace because ml
 			elseif word["Team"] == "white" then wWords = wWords .. string.format(fString, word["Word"])
-			else aWord = aWord .. string.format(fString, word["Word"]) end
+			else aWord = aWord .. string.format(fString, string.lower(word["Word"])) end
 		end
 	end
 	-- Trim last comma
@@ -260,7 +319,7 @@ function displayWordsCaptain(state, user)
 	rWords = rWords:sub(1, -3)
 	wWords = wWords:sub(1, -3)
 	aWord  = aWord:sub(1, -3)
-	user:send("```\n" .. bWords .. "\n" .. rWords .. "\n" .. wWords .. "\n" .. aWord .. "```")
+	user:send("```ml\n" .. bWords .. "\n" .. rWords .. "\n" .. wWords .. "\n" .. aWord .. "```")
 end
 
 return codenames
