@@ -241,9 +241,6 @@ end
 function miscCommands(message)
 	--[[Miscellaneous functionality goes here]]
 	args = message.content:split(" ")
-	if args[1] == "!setvc" then
-		setVoiceChannel(message.guild.id, args[2])
-	end
 	if args[1] == "!hiddenharry" then
 		local order = misc.shuffleTable(misc.indexifyTable(misc.shallowCopy(message.mentionedUsers)))
 		for idx, user in pairs(order) do
