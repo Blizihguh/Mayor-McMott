@@ -155,9 +155,12 @@ function pickWord(message, state)
 		-- Update count of words left
 		if info["Team"] == "red" then state["RedWords"] = state["RedWords"] - 1 else state["BlueWords"] = state["BlueWords"] - 1 end
 		-- Check for end of game
-		-- TODO: Fix this
-		if state["RedWords"] == 0 then endGame(state, "red")
-		elseif state["BlueWords"] == 0 then endGame(state, "blue")
+		if state["RedWords"] == 0 then 
+			endGame(state, "red")
+			return
+		elseif state["BlueWords"] == 0 then
+			endGame(state, "blue")
+			return
 		end
 	elseif info["Team"] == "black" then
 		-- If the guess is the assassin, the game ends
@@ -222,7 +225,7 @@ function displayWordsCondensed(state)
 	local output = {""}
 	local fString = "%-12s "
 	-- Survey results:
-	-- 59, 47, 43, 41, 41, 31
+	-- 61, 59, 47, 43, 41, 41, 41, 31
 	local line_length = 40
 	-- Statistics
 	local redFlipped   = 0
