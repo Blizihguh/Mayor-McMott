@@ -117,7 +117,7 @@ function handleClue(state, user, text)
 	local isValid = false
 
 	-- If the user is the cluegiver and their team is on Phase 1, set clues and advance state
-	if (player.Team == "blue" and state.BlueClueGiver.Player.id == user.id and state.BluePhase == 1) or (player.Team == "red" and state.RedClueGiver.Player.id == user.id and state.RedPhase == 1) then
+	if (player.Team == "blue" and state.BlueClueGiver and state.BlueClueGiver.Player.id == user.id and state.BluePhase == 1) or (player.Team == "red" and state.RedClueGiver and state.RedClueGiver.Player.id == user.id and state.RedPhase == 1) then
 		isValid = true
 	end
 
