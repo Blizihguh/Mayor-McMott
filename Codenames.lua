@@ -275,7 +275,7 @@ function displayWordsCondensed(state)
 	-- Output stats
 	outputString = outputString .. "🟥 `Red Words:      " .. redFlipped .. "/" .. redTotal .. "`\n"
 	outputString = outputString .. "🟩 `Green Words:    " .. blueFlipped .. "/" .. blueTotal .. "`\n"
-	outputString = outputString .. "🟫 `Civilians Shot: " .. whiteFlipped .. "/7`"
+	outputString = outputString .. "🟫 `Civilians Baffled: " .. whiteFlipped .. "/7`"
 
 	state["GameChannel"]:send(outputString)
 end
