@@ -412,9 +412,9 @@ function checkForEndgame(state)
 		end
 		quitGame(state)
 	elseif winner == "tie" then
-		state.GameChannel:send("**The game is over, but it's a tie! For the ultimate tiebreaker, each team can take a stab at guessing the other's words!")
+		state.GameChannel:send("**The game is over, but it's a tie! For the ultimate tiebreaker, each team can take a stab at guessing the other's words!**")
 		for idx,player in pairs(state.PlayerList) do
-			player.Player:send("**The game is over, but it's a tie! For the ultimate tiebreaker, each team can take a stab at guessing the other's words!")
+			player.Player:send("**The game is over, but it's a tie! For the ultimate tiebreaker, each team can take a stab at guessing the other's words!**")
 		end
 		quitGame(state)
 	end
