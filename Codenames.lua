@@ -118,7 +118,7 @@ function endGame(state, winningTeam)
 	local winStr
 	if winningTeam == "red" then winStr = "Red" else winStr = "Green" end
 	state["GameChannel"]:send("**The game is over! The " .. winStr .. " team has won!**")
-	displayWordsCondensed(state)
+	--displayWordsCondensed(state)
 	quitGame(state)
 end
 
@@ -149,29 +149,34 @@ function pickWord(message, state)
 	else output = info["Word"] .. " was the 💀 Assassin 💀!" 
 	end
 	state["GameChannel"]:send(output)
-	-- If the guess is correct, reduce guess counter by one (if not unlimited) and continue
+	
+	-- Update words left for the team whose card was just flipped
+	if info["Team"] == "red" then state["RedWords"] = state["RedWords"] - 1
+	elseif info["Team"] == "blue" then state["BlueWords"] = state["BlueWords"] - 1
+	end
+
+	-- Update guesses left
 	if info["Team"] == state["CurrentTeam"] then
+		-- If the guess is correct, reduce guess counter by one (if not unlimited) and continue
 		if state["Guesses"] ~= "unlimited" then state["Guesses"] = state["Guesses"] - 1 end
-		-- Update count of words left
-		if info["Team"] == "red" then state["RedWords"] = state["RedWords"] - 1 else state["BlueWords"] = state["BlueWords"] - 1 end
-		-- Check for end of game
-		if state["RedWords"] == 0 then 
-			endGame(state, "red")
-			return
-		elseif state["BlueWords"] == 0 then
-			endGame(state, "blue")
-			return
-		end
-	elseif info["Team"] == "black" then
-		-- If the guess is the assassin, the game ends
-		local winTeam
-		if state["CurrentTeam"] == "red" then winTeam = "blue" else winTeam = "red" end
-		endGame(state, winTeam)
-		return
 	else
 		-- If the guess is incorrect, set guess counter to 0 and continue
 		state["Guesses"] = 0
 	end
+
+	-- Check for end of game
+	if info["Team"] == "black" then
+		-- Card was the assassin
+		endGame(state, state["CurrentTeam"] == "red" and "blue" or "red")
+		return
+	elseif state["RedWords"] == 0 then 
+		endGame(state, "red")
+		return
+	elseif state["BlueWords"] == 0 then
+		endGame(state, "blue")
+		return
+	end
+
 	-- If the guess counter is 0, swap phase and current team
 	if state["Guesses"] == 0 then
 		local nextStr
@@ -180,6 +185,7 @@ function pickWord(message, state)
 		if state["CurrentTeam"] == "red" then nextStr = "Red" else nextStr = "Green" end
 		state["GameChannel"]:send("Turn over! It is now " .. nextStr .. "'s turn!")
 	end
+
 	displayWordsCondensed(state)
 end
 
