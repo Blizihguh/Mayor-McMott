@@ -139,6 +139,7 @@ function pickWord(message, state)
 	end
 	::pickWordLoopEnd::
 	if info == nil then message.channel:send(word .. " is not a word in the game, homie!"); return end
+	
 	-- Flip the chosen word
 	info["Flipped"] = true
 	-- Message the channel what the color of the chosen word is
