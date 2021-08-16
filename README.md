@@ -3,7 +3,9 @@
 Mayor McMott (née MottBot) is an extensible board game bot for [Discord](https://discord.com/) using the [Discordia bot framework](https://github.com/SinisterRectus/Discordia) by SinisterRectus. Mayor McMott can emulate various board games so you can play with anyone, anywhere, as long as they have a Discord account and internet access. Additionally, adding new games is as easy as writing a few lua functions, giving you the freedom to add any game you can imagine!
 
 ## How Do I Use It?
-To run Mayor McMott, simply download the repository, create a file named BOT_TOKEN, and put your discord bot's token in it (make sure you don't have a newline at the end of the file). Also, rename Chameleon-Special-Cards.lua.example to remove the .example suffix. Once you're done with all of this, run MayorMcMott.bat to start the bot!
+To run Mayor McMott, simply download the repository, create a file named BOT_TOKEN, and put your discord bot's token in it (make sure you don't have a newline at the end of the file). Once this is done, the bot can be started by running MayorMcMott.bat. 
+
+For some games which support server-specific data (eg Chameleon), you can add your data in plugins/server-specific/. This allows you to add, for instance, Chameleon cards that will only appear when playing in a specific server. Games that support this will have example files in plugins/server-specific/; simply edit them to include your custom data, then rename them to remove the .example prefix.
 
 ## How Do I Add A Game?
 Adding a new game to Mayor McMott is pretty simple. All you have to do is:
