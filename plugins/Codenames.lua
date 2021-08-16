@@ -4,6 +4,17 @@ local codenames = {}
 
 local getWords, displayWords, displayWordsInColor, displayWordsUnicode, displayWordsCondensed, displayWordsCaptain, giveClue, pickWord, endGame, quitGame
 
+local WORD_LISTS = {
+	en = "words/codenames-en.csv", 
+	jp = "words/codenames-jp.csv"
+}
+
+-- Table definitions for injoke lists that only get pulled up on specific servers can be placed in a separate file
+local SERVER_LIST = {}
+if misc.fileExists("plugins/server-specific/Codenames-SP.lua") then
+	SERVER_LIST = require("plugins/server-specific/Codenames-SP")
+end
+
 --#############################################################################################################################################
 --# Main Functions                                                                                                                            #
 --#############################################################################################################################################
@@ -24,11 +35,21 @@ function codenames.startGame(message)
 		if team == "red" then team = "blue" else team = "red" end
 	end
 
+	-- Get custom wordlists
+	for server,list in pairs(SERVER_LIST) do
+		if message.guild.id == server then WORD_LISTS = list end
+	end
+
+	-- If a specific wordlist is requested, get that one
+	local args = message.content:split(" ")
+	local list = "words/codenames-en.csv"
+	if WORD_LISTS[args[3]] ~= nil then list = WORD_LISTS[args[3]] end
+
 	local state = {
 		GameChannel = message.channel,
 		RedCaptain = rCaptain.id,
 		BlueCaptain = bCaptain.id,
-		Words = getWords(first), -- Each word is a table {Word = "word", Team = "blue/red/white/black", Flipped = true/false}
+		Words = getWords(first, list), -- Each word is a table {Word = "word", Team = "blue/red/white/black", Flipped = true/false}
 		PlayerList = playerList, -- Player = player object, Team = team color
 		CurrentTeam = first,     -- Which team's turn is it?
 		Phase = 0,               -- 0 = Captain picks a clue, 1 = team picks words
@@ -212,8 +233,8 @@ function giveClue(message, state)
 	state["GameChannel"]:send("The clue is: " .. clue)
 end
 
-function getWords(first)
-	local deck = misc.shuffleTable(misc.parseCSV("words/codenames-en.csv"))
+function getWords(first, list)
+	local deck = misc.shuffleTable(misc.parseCSV(list))
 	local words = {}
 	local teams = {
 		"blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue",

@@ -20,20 +20,20 @@ local currentGhostFriend = nil
 --# ANYTHING THAT NEEDS TO BE EDITED TO ADD A NEW GAME GOES HERE                                                                              #
 --#############################################################################################################################################
 
-local werewords = require("Werewords")
-local tictactoe = require("TicTacToe")
-local medium = require("Medium")
-local curios = require("Curios")
-local letterjam = require("LetterJam")
-local fastlength = require("Fastlength")
-local codenames = require("Codenames")
-local chameleon = require("Chameleon")
-local decrypto = require("Decrypto")
-local twopeople = require("TwoPeople")
-local conspiracy = require("Conspiracy")
-local madness = require("Madness")
-local mafia = require("Mafia")
-local asshole = require("Asshole")
+local werewords = require("plugins/Werewords")
+local tictactoe = require("plugins/TicTacToe")
+local medium = require("plugins/Medium")
+local curios = require("plugins/Curios")
+local letterjam = require("plugins/LetterJam")
+local fastlength = require("plugins/Fastlength")
+local codenames = require("plugins/Codenames")
+local chameleon = require("plugins/Chameleon")
+local decrypto = require("plugins/Decrypto")
+local twopeople = require("plugins/TwoPeople")
+local conspiracy = require("plugins/Conspiracy")
+local madness = require("plugins/Madness")
+local mafia = require("plugins/Mafia")
+local asshole = require("plugins/Asshole")
 
 -- {Name : {Description, Rules, StartFunction, CommandHandler}}
 GAME_LIST = {

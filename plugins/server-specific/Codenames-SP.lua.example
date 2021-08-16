@@ -1,0 +1,12 @@
+-- In order to have server-specific word lists, return a table associating the server ID (as a string) with the WORD_LIST table for that server
+-- For instance, you could do something like:
+
+-- local WORD_LIST_FRIENDS = {
+-- 		en = "words/codenames-en.csv", 
+-- 		jp = "words/codenames-jp.csv",
+-- 		foo = "words/server-specific/foo.csv"
+-- }
+-- return {"1234567890" = WORD_LIST_FRIENDS}
+
+-- When playing in a server that's on the list, the WORD_LISTS variable in Codenames.lua will be replaced with the server-specific word list from this file.
+return {}

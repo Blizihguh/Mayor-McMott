@@ -3,5 +3,6 @@
 BOT_TOKEN
 discordia.log
 gateway.json
-words/words_test.csv
-Chameleon-Special-Cards.lua
+words/server-specific/
+plugins/server-specific/Chameleon-SP.lua
+plugins/server-specific/Codenames-SP.lua

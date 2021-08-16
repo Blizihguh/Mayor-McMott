@@ -120,7 +120,10 @@ local WORDLISTS_CUSTOM = {
 }
 
 -- Table definitions for injoke cards that only get pulled up on specific servers can be placed in a separate file
-local SERVER_LIST = require("Chameleon-Special-Cards")
+local SERVER_LIST = {}
+if misc.fileExists("plugins/server-specific/Chameleon-SP.lua") then
+	SERVER_LIST = require("plugins/server-specific/Chameleon-SP")
+end
 
 --#############################################################################################################################################
 --# Main Functions                                                                                                                            #
