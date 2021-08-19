@@ -29,6 +29,17 @@ function misc.sumTable(table)
 	return c
 end
 
+function misc.printList(table)
+	local o = "{"
+
+	for key,value in pairs(table) do
+		o = o .. tostring(value) .. ", "
+	end
+
+	o = o:sub(1,-3)
+	print(o .. "}")
+end
+
 function misc.printTable(table)
 	for key,value in pairs(table) do
 		print(tostring(key) .. "\t" .. tostring(value))

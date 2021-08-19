@@ -6,6 +6,12 @@ local REPLACE_GAME_NAME = {}
 --           If you don't do this, they will be imported as global functions, possibly disrupting other games!
 local quitGame
 
+-- Uncomment this if you want to import server-specific data
+-- local SERVER_LIST = {}
+-- if misc.fileExists("plugins/server-specific/REPLACE_GAME_NAME-SP.lua") then
+-- 	SERVER_LIST = require("plugins/server-specific/REPLACE_GAME_NAME-SP")
+-- end
+
 --#############################################################################################################################################
 --# Main Functions                                                                                                                            #
 --#############################################################################################################################################
