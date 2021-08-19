@@ -34,6 +34,7 @@ local conspiracy = require("plugins/Conspiracy")
 local madness = require("plugins/Madness")
 local mafia = require("plugins/Mafia")
 local asshole = require("plugins/Asshole")
+local goofspiel = require("plugins/Goofspiel")
 
 -- {Name : {Description, Rules, StartFunction, CommandHandler}}
 GAME_LIST = {
@@ -135,6 +136,14 @@ GAME_LIST = {
 		handler = asshole.commandHandler,
 		dmHandler = asshole.dmHandler,
 		reactHandler = asshole.reactHandler
+	},
+	Goofspiel = {
+		desc = [[The Game of Pure Strategy, also known as Psychological Jiu Jitsu]],
+		rules = [[https://en.wikipedia.org/wiki/Goofspiel]],
+		startFunc = goofspiel.startGame,
+		handler = goofspiel.commandHandler,
+		dmHandler = goofspiel.dmHandler,
+		reactHandler = goofspiel.reactHandler
 	}
 }
 
