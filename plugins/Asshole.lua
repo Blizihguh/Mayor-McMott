@@ -32,12 +32,11 @@ function asshole.startGame(message)
 		status(state, player)
 	end
 	-- Add reactions to everybody's info message
-	for idx,player in pairs(state.PlayerList) do
-		player.Status:addReaction("0️⃣")
-		player.Status:addReaction("1️⃣")
-		player.Status:addReaction("2️⃣")
-		player.Status:addReaction("3️⃣")
-		player.Status:addReaction("4️⃣")
+	local emojis = {"0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣"}
+	for idx,emote in pairs(emojis) do
+		for id,player in pairs(state.PlayerList) do
+			player.Status:addReaction(emote)
+		end
 	end
 
 	games.registerGame(message.channel, "Asshole", state, message.mentionedUsers)
