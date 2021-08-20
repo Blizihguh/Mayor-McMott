@@ -99,8 +99,10 @@ function endGame(state)
 	local msg = "**The game is over!**"
 	for playerID, playerInfo in pairs(state.PlayerList) do
 		msg = msg .. "\n" .. playerInfo.Player.name .. ": " .. playerInfo.Points
-		if playerInfo.LastBid ~= nil and playerInfo.HighBid then msg = msg .. " (**__Last Bid: " .. playerInfo.LastBid .. "__**)"
-		elseif playerInfo.LastBid ~= nil then msg = msg .. " (Last Bid: " .. playerInfo.LastBid ..")" end
+		local last = playerInfo.LastBid
+		if CARD_NAMES[last] ~= nil then last = CARD_NAMES[last] end
+		if playerInfo.LastBid ~= nil and playerInfo.HighBid then msg = msg .. " (**__Last Bid: " .. last .. "__**)"
+		elseif playerInfo.LastBid ~= nil then msg = msg .. " (Last Bid: " .. last ..")" end
 	end
 	msg = msg .. "\n----------"
 
