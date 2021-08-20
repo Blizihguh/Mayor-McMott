@@ -14,7 +14,6 @@ local CARD_NAMES = {
 	Q = "Queen",
 	K = "King"
 }
---TODO: wait until all emojis are sent to display first auction
 --TODO: three difficulties: other players' hands are public, memory mode, and blind bidding
 --TODO: handle user removal of reactions/user pressing multiple reactions at once
 
@@ -25,13 +24,13 @@ local CARD_NAMES = {
 function goofspiel.startGame(message)
 	local playerList = {}
 	for playerID,playerObj in pairs(message.mentionedUsers) do
-		playerList[playerID] = {Player = playerObj, Hand = misc.shallowCopy(CARDS), Points = 0, Bid = nil, LastBid = nil, Status = nil}
+		playerList[playerID] = {Player = playerObj, Hand = misc.shallowCopy(CARDS), Points = 0, Bid = nil, LastBid = nil, Status = nil, HighBid = nil}
 	end
 
 	local args = message.content:split(" ")
 	local tiebreak = "discard"
 	args[3] = args[3]:lower()
-	if misc.valueInList(args[3], TIEBREAKS) ~= nil then tiebreak = args[3] end
+	if misc.valueInList(args[3], TIEBREAKS) then tiebreak = args[3] end
 
 	local state = {
 		GameChannel = message.channel,
@@ -100,8 +99,10 @@ function endGame(state)
 	local msg = "**The game is over!**"
 	for playerID, playerInfo in pairs(state.PlayerList) do
 		msg = msg .. "\n" .. playerInfo.Player.name .. ": " .. playerInfo.Points
-		if playerInfo.LastBid ~= nil then msg = msg .. " (Last Bid: " .. playerInfo.LastBid .. ")" end
+		if playerInfo.LastBid ~= nil and playerInfo.HighBid then msg = msg .. " (**__Last Bid: " .. playerInfo.LastBid .. "__**)"
+		elseif playerInfo.LastBid ~= nil then msg = msg .. " (Last Bid: " .. playerInfo.LastBid ..")" end
 	end
+	msg = msg .. "\n----------"
 
 	for playerID, playerInfo in pairs(state.PlayerList) do
 		playerInfo.Status:setContent(msg)
@@ -145,6 +146,10 @@ function resolveBids(state)
 			isTie = true
 			table.insert(winners, playerID)
 		end
+	end
+
+	for id,info in pairs(state.PlayerList) do
+		if misc.valueInList(id, winners) then info.HighBid = true else info.HighBid = false end
 	end
 
 	if not isTie then
@@ -235,7 +240,8 @@ function status(state)
 		msg = msg .. "\n" .. playerInfo.Player.name .. ": " .. playerInfo.Points
 		local last = playerInfo.LastBid
 		if CARD_NAMES[last] ~= nil then last = CARD_NAMES[last] end
-		if playerInfo.LastBid ~= nil then msg = msg .. " (Last Bid: " .. last .. ")" end
+		if playerInfo.LastBid ~= nil and playerInfo.HighBid then msg = msg .. " (**__Last Bid: " .. last .. "__**)"
+		elseif playerInfo.LastBid ~= nil then msg = msg .. " (Last Bid: " .. last ..")" end
 	end
 
 	for playerID, playerInfo in pairs(state.PlayerList) do
