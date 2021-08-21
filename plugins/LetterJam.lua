@@ -267,6 +267,7 @@ function letterJamGetStatus(user, state)
 end
 
 function letterJamPreviewWord(user, state, word)
+	if word == nil then return end
 	-- Get letters by number
 	local lettersTbl = {}
 	local playersTbl = {}
@@ -333,6 +334,7 @@ function letterJamPreviewWord(user, state, word)
 end
 
 function letterJamPickWord(user, state, word)
+	if word == nil then return end
 	-- Check if there are tokens the player can take
 	if state["Tokens"]["green"] == 0 then
 		for player,info in pairs(state["PlayerList"]) do
