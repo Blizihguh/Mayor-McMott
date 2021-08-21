@@ -170,7 +170,7 @@ function letterJamCreateGameInstance(channel, playerList, message)
 	-- Optionally, the players can assign each other words
 	--TODO: In either case, remove the cards used from the deck
 	local args = message.content:split(" ")
-	if args[3] == "pick" then
+	if args[3] ~= "auto" then
 		-- Let players pick words
 		state["Phase"] = -1
 		-- Assign everyone a player to give a word to
