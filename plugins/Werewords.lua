@@ -295,14 +295,14 @@ end
 
 function werewordsYes(message, state)
 	message:delete()
-	state["LastQuestion"]:addReaction("%E2%9C%85") --✅
+	state["LastQuestion"]:addReaction("✅") --%E2%9C%85
 	state["BasicToken"] = state["BasicToken"] - 1
 	werewordsCheckForEnd()
 end
 
 function werewordsNo(message, state)
 	message:delete()
-	state["LastQuestion"]:addReaction("%E2%9D%8C") --❌
+	state["LastQuestion"]:addReaction("❌") --%E2%9D%8C
 	state["BasicToken"] = state["BasicToken"] - 1
 	werewordsCheckForEnd()
 end
@@ -311,7 +311,7 @@ function werewordsWhat(message, state)
 	message:delete()
 	-- If there's no question toknes left, quietly inform the mayor that they fucked up and hope nobody notices!
 	if state["QuestionToken"] > 0 then
-		state["LastQuestion"]:addReaction("%F0%9F%A4%94") --🤔
+		state["LastQuestion"]:addReaction("🤔") --%F0%9F%A4%94
 		state["QuestionToken"] = state["QuestionToken"] - 1
 	else
 		werewordsMessagePlayer(state["Mayor"], "You have no Maybe tokens left! Answer with something else.")
@@ -322,10 +322,10 @@ function werewordsClose(message, state)
 	message:delete()
 	-- If the token is used up, substitute a werewordsYes instead
 	if state["SoCloseToken"] > 0 then
-		state["LastQuestion"]:addReaction("%E2%9D%95") --❕
+		state["LastQuestion"]:addReaction("❕") --%E2%9D%95
 		state["SoCloseToken"] = state["SoCloseToken"] - 1
 	else
-		state["LastQuestion"]:addReaction("%E2%9C%85") --✅
+		state["LastQuestion"]:addReaction("✅") --%E2%9C%85
 		state["BasicToken"] = state["BasicToken"] - 1
 		werewordsCheckForEnd()
 	end
