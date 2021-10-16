@@ -99,7 +99,7 @@ function werewords.dmHandler(message, state)
 			werewordsPickWord(state, args[2])
 			return
 		end
-	elseif author == state["Seer"] then
+	if author == state["Seer"] then
 		if args[1] == "!objection" then
 			werewordsObjection(state)
 		end
