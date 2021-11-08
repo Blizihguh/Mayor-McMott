@@ -12,10 +12,13 @@ local werewordsYes, werewordsNo, werewordsWhat, werewordsClose, werewordsWayOff,
 --#############################################################################################################################################
 
 local RULESETS = {
+	W = {"Werewolf"},
+	WF = {"Werewolf", "Fortune Teller"},
 	WS = {"Werewolf", "Seer"},
 	WSF = {"Werewolf", "Seer", "Fortune Teller"},
 	WWS = {"Werewolf", "Werewolf", "Seer"},
-	WWSF = {"Werewolf", "Werewolf", "Seer", "Fortune Teller"}
+	WWSF = {"Werewolf", "Werewolf", "Seer", "Fortune Teller"},
+	["20Q"] = {}
 }
 
 local WORDLISTS = {
