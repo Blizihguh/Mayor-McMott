@@ -178,32 +178,34 @@ function gameCommands(message)
 		if message.channel.type ~= 1 and (args[1] == "!start" or args[1] == "!vc") and args[2] ~= nil then -- Don't allow game starting in DMs!
 			local nameOfGame = misc.getKeyInTableInsensitive(args[2], GAME_LIST)
 			if nameOfGame then
-				-- Call the function associated with the given game
-				if args[1] == "!vc" then
-					-- Figure out what channel the user is in
-					local channel = nil
+				-- Get the channel and a list of Users who will be playing
+				local playerList = {}
+				-- What we do here will depend on how the command was called...
+				if (args[1] == "!vc") or (args[1] == "!vcr") then
+					-- Get the channel
+					local vcchannel = nil
 					for idx,voicechannel in pairs(message.guild.voiceChannels) do
 						for id,user in pairs(voicechannel.connectedMembers) do
 							if user.id == message.author.id then
-								channel = voicechannel
+								vcchannel = voicechannel
 								goto vc_found
 							end
 						end
 					end
 					::vc_found::
-					if channel == nil then return end
-					local memberTbl = channel.connectedMembers
-					-- memberTbl is a table of Members, but message.mentionedUsers is a table of Users, so we need to convert
-					local userTbl = {}
-					for key,val in pairs(memberTbl) do
-						userTbl[key] = val.user
-						misc.setn(userTbl, #userTbl+1)
+					if vcchannel == nil then return end
+					-- Get the User list
+					for key,val in pairs(vcchannel.connectedMembers) do
+						table.insert(playerList, val.user)
 					end
-					-- Modify the message object(!) so that it contains new text and a new mentionedUsers table
-					message:localSetContent(modifyVoiceMessage(message, channel))
-					message:localSetMentionedUsers(userTbl)
+				elseif args[1] == "!start" then
+					for key,val in pairs(message.mentionedUsers) do
+						table.insert(playerList, val)
+					end
 				end
-				GAME_LIST[nameOfGame].startFunc(message)
+				--TODO: Randomize playerList order for !vcr only
+				-- Call the function associated with the given game
+				GAME_LIST[nameOfGame].startFunc(message, playerList)
 			else
 				channel:send("Uh-oh! I don't know how to play that game, homie!")
 			end
