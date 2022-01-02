@@ -175,6 +175,23 @@ function chameleon.startGame(message)
 		else
 			oopsAlmostAllChameleons(state) -- 0.02% chance; if you're Chameleon, there is a ~5.5% chance it's this easter egg
 		end
+	elseif roll < 55 then
+		if message.guild.id == "353359832902008835" then
+			dmStatus(state)
+		else
+			-- Pick a different card for every player
+			local cards = {}
+			local ct = #message.mentionedUsers
+			while ct > 0 do
+				local newCard = misc.getRandomIndex(wordlistsForThisGame)
+				if not misc.valueInList(newCard, cards) then
+					table.insert(cards, newCard)
+					ct = ct - 1
+				end
+			end
+			misc.printTable(cards)
+			oopsAllDifferentWords(state, cards, wordlistsForThisGame) -- Easter egg that doesn't actually affect the odds of being Chameleon
+		end
 	else
 		dmStatus(state) -- If you're Chameleon, there is an ~11.0% chance it's an easter egg, and an ~89% chance it's normal
 	end
@@ -222,11 +239,16 @@ function dmStatus(state)
 	end
 end
 
-function oopsAllDifferentWords(state)
-	words = {}
+function oopsAllDifferentWords(state, cards, wordlistsForThisGame)
+	local ct = 1
+	misc.printTable(cards)
+	print(ct)
+	print(cards[ct])
 	for id,player in pairs(state["PlayerList"]) do
-		-- Get random word that hasn't been picked yet
-		-- 
+		state["Wordlist"] = cards[ct]
+		state["Words"] = wordlistsForThisGame[state["Wordlist"]]
+		ct = ct + 1
+		player:send(displayWords(state, (id == state["Chameleon"])))
 	end
 end
 
