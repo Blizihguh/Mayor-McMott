@@ -129,12 +129,12 @@ end
 --# Main Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function chameleon.startGame(message)
+function chameleon.startGame(message, playerList)
 	local state = {
 		GameChannel = message.channel,
 		Wordlist = nil,
 		WordIdx = math.random(16),
-		PlayerList = message.mentionedUsers,
+		PlayerList = playerList,
 		Chameleon = nil,
 		Words = {}
 	}
@@ -161,7 +161,7 @@ function chameleon.startGame(message)
 	end
 	state["Words"] = wordlistsForThisGame[state["Wordlist"]]
 
-	state["Chameleon"] = misc.getRandomIndex(message.mentionedUsers)
+	state["Chameleon"] = misc.getRandomIndex(playerList)
 	local roll = math.random(1000)
 	if roll < 15 then
 		if message.guild.id == "353359832902008835" then
@@ -181,7 +181,7 @@ function chameleon.startGame(message)
 		else
 			-- Pick a different card for every player
 			local cards = {}
-			local ct = #message.mentionedUsers
+			local ct = #playerList
 			while ct > 0 do
 				local newCard = misc.getRandomIndex(wordlistsForThisGame)
 				if not misc.valueInList(newCard, cards) then
@@ -195,7 +195,6 @@ function chameleon.startGame(message)
 	else
 		dmStatus(state) -- If you're Chameleon, there is an ~11.0% chance it's an easter egg, and an ~89% chance it's normal
 	end
-	--games.registerGame(message.channel, "Chameleon", state, message.mentionedUsers)
 end
 
 function chameleon.commandHandler(message, state)
