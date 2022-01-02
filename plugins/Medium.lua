@@ -13,11 +13,12 @@ local mediumDoGuesses, mediumPickCard, mediumEndGame, mediumIsPlayerIdx, mediumS
 local HANDSIZE = 6
 
 local WEREWORDLISTS = {
-	"supereasy", "easy", "medium", "hard", "ridiculous", "test"
+	"supereasy", "easy", "medium", "hard", "ridiculous"
 }
 
 local WORDLISTS = {
-	-- TODO: Add Medium wordlists
+	-- TODO: Add official Medium wordlists
+	"op_decrypto"
 }
 
 --#############################################################################################################################################
@@ -190,7 +191,7 @@ function mediumCreateDeck(channel, deckList)
 	for idx,name in pairs(deckList) do
 		if misc.valueInList(name, WEREWORDLISTS) then
 			-- It's a werewords list
-			local new = misc.parseCSV("words/words_" .. name .. ".csv")
+			local new = misc.parseCSV("words/op_decrypto.csv")
 			misc.fuseLists(deck, new)
 		elseif misc.valueInList(name, WORDLISTS) then
 			-- It's a medium list
