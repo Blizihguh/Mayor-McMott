@@ -16,9 +16,9 @@ local quitGame
 --# Main Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function REPLACE_GAME_NAME.startGame(message)
+function REPLACE_GAME_NAME.startGame(message, playerList)
 	-- Use the name as you formatted it in MayorMcMott.lua's GAME_LIST table
-	--games.registerGame(message.channel, "GameName", state, message.mentionedUsers)
+	--games.registerGame(message.channel, "GameName", state, playerList)
 end
 
 function REPLACE_GAME_NAME.commandHandler(message, state)
