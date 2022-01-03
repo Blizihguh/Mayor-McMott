@@ -8,8 +8,8 @@ local status, point, quitGame, checkForEnd
 --# Main Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function asshole.startGame(message)
-	if #message.mentionedUsers ~= 4 then
+function asshole.startGame(message, players)
+	if #players ~= 4 then
 		message.channel:send("The Asshole Game takes exactly four players, homie!")
 		return
 	end
@@ -17,7 +17,7 @@ function asshole.startGame(message)
 	local playerlist = {}
 	local cards = misc.shuffleTable({"King", "King", "Jack", "Jack", "Asshole", "Asshole", "Jester"})
 	local idx = 1
-	for id,playerObject in pairs(message.mentionedUsers) do
+	for id,playerObject in pairs(players) do
 		playerlist[idx] = {Player = playerObject, Card = cards[idx], Pointed = false, Won = false, Status = nil}
 		idx = idx + 1
 	end
@@ -39,7 +39,7 @@ function asshole.startGame(message)
 		end
 	end
 
-	games.registerGame(message.channel, "Asshole", state, message.mentionedUsers)
+	games.registerGame(message.channel, "Asshole", state, players)
 end
 
 function asshole.commandHandler(message, state)
