@@ -180,6 +180,7 @@ function gameCommands(message)
 			if nameOfGame then
 				-- Get the channel and a list of Users who will be playing
 				local playerList = {}
+				table.insert(playerList, message.author)
 				-- What we do here will depend on how the command was called...
 				if (args[1] == "!vc") or (args[1] == "!vcr") then
 					-- Get the channel
@@ -196,11 +197,13 @@ function gameCommands(message)
 					if vcchannel == nil then return end
 					-- Get the User list
 					for key,val in pairs(vcchannel.connectedMembers) do
-						table.insert(playerList, val.user)
+						-- Skip users that are already in the table (eg message author who @ed themselves)
+						if not misc.valueInList(val.user, playerList) then table.insert(playerList, val.user) end
 					end
 				elseif args[1] == "!start" then
 					for key,val in pairs(message.mentionedUsers) do
-						table.insert(playerList, val)
+						-- Skip users that are already in the table (eg message author who @ed themselves)
+						if not misc.valueInList(val, playerList) then table.insert(playerList, val) end
 					end
 				end
 				--TODO: Randomize playerList order for !vcr only
