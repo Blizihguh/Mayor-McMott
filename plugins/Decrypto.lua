@@ -11,12 +11,12 @@ local dmInfo, advancePhases, dmClue, checkClues, checkForEndgame, getRandomNumbe
 --# Main Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function decrypto.startGame(message)
+function decrypto.startGame(message, players)
 	-- Split players into teams
 	local playerList = {}
 	local team = "red"
-	for id,playerObject in pairs(message.mentionedUsers) do
-		playerList[id] = {Player = playerObject, Team = team}
+	for idx,playerObject in pairs(players) do
+		playerList[idx] = {Player = playerObject, Team = team}
 		if team == "red" then team = "blue" else team = "red" end
 	end
 
@@ -55,7 +55,7 @@ function decrypto.startGame(message)
 	end
 
 	-- Create a new game and register it
-	games.registerGame(message.channel, "Decrypto", state, message.mentionedUsers)
+	games.registerGame(message.channel, "Decrypto", state, players)
 end
 
 function decrypto.commandHandler(message, state)
