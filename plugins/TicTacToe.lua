@@ -8,7 +8,7 @@ local misc = require("Misc")
 local tictactoe = {}
 -- Because of the way lua works, we need to make all functions local except for startGame, commandHandler, and dmHandler
 -- Otherwise, they'll be imported and potentially cause conflicts with other games!
-local tictactoeCreateGameInstance, tictactoeCheckGameOver, tictactoeBoard, tictactoeMove, tictactoeExitGame
+local tictactoeCheckGameOver, tictactoeBoard, tictactoeMove, tictactoeExitGame
 
 --#############################################################################################################################################
 --# Main Functions                                                                                                                            #
@@ -16,18 +16,24 @@ local tictactoeCreateGameInstance, tictactoeCheckGameOver, tictactoeBoard, ticta
 
 -- There are three necessary functions for writing a Mottbot game plugin. They can be named anything.
 
-function tictactoe.startGame(message)
+function tictactoe.startGame(message, players)
 	--[[tictactoe.startGame is called when a user attempts to start a new game of Tic-Tac-Toe.]]
-	local playerList = message.mentionedUsers
-
-	if #playerList ~= 2 then
+	if #players ~= 2 then
 		message.channel:send("Exactly two players are necessary to play Tic-Tac-Toe!")
 		return
 	end
 
+	-- Create a table containing the state of this Tic-Tac-Toe game instance
 	message.channel:send("Starting game...")
-	local state = tictactoeCreateGameInstance(message.channel, playerList)
-	games.registerGame(message.channel, "TicTacToe", state, playerList)
+	local state = {
+		GameChannel = message.channel,
+		X = players[1].id,
+		O = players[2].id,
+		Board = {{"_", "_", "_"},{"_","_","_"},{"_","_","_"}},
+		XTurn = true
+	}
+
+	games.registerGame(message.channel, "TicTacToe", state, players)
 	
 	message.channel:send("It's Player One's turn!")
 end
@@ -56,7 +62,7 @@ function tictactoe.commandHandler(message, state)
 	end
 
 	--!end
-	if args[1] == "!end" then
+	if args[1] == "!quit" then
 		tictactoeExitGame(state)
 	elseif args[1] == "!board" then
 		tictactoeBoard(state)
@@ -72,19 +78,6 @@ end
 --#############################################################################################################################################
 --# Game Functions                                                                                                                            #
 --#############################################################################################################################################
-
-function tictactoeCreateGameInstance(channel, playerList)
-	--[[Create a table containing the game state of the new game]]
-	local instance = {
-		GameChannel = channel,
-		PlayerList = playerList,
-		X = playerList[1][1],
-		O = playerList[1][2],
-		Board = {{"_", "_", "_"},{"_","_","_"},{"_","_","_"}},
-		XTurn = true
-	}
-	return instance
-end
 
 function tictactoeCheckGameOver(state)
 	--[[Checks if the game is over:
