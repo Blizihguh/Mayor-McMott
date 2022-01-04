@@ -49,8 +49,7 @@ GAME_LIST = {
 		desc = [[It's literally Tic-Tac-Toe.]],
 		rules = [[How old are you that you don't know how to play Tic-Tac-Toe?]],
 		startFunc = tictactoe.startGame,
-		handler = tictactoe.commandHandler,
-		dmHandler = tictactoe.dmHandler
+		handler = tictactoe.commandHandler
 	},
 	Medium = {
 		desc = [[A mind reading game for 2-8 players. Players take turns picking two words from a hand of cards, and trying to find a word that most relates to the two they picked, without communicating at all. Use of ESP is highly encouraged.]],
@@ -77,8 +76,7 @@ GAME_LIST = {
 		desc = [[An implementation of exactly one round of Wavelength. One player is given a card with an axis on it, and a position on that axis, from -10 to 10. Their goal is to say a word that other players will place at roughly that position on the axis.]],
 		rules = [[https://www.ultraboardgames.com/wavelength/game-rules.php but with no scoring]],
 		startFunc = fastlength.startGame,
-		handler = fastlength.commandHandler,
-		dmHandler = fastlength.dmHandler
+		handler = fastlength.commandHandler
 	},
 	Codenames = {
 		desc = [[A team-based word game for 4-8 players. Each team has a secret list of words, and one spymaster, whose goal is to get their teammates to pick their words, without picking the opposing team's words.]],
@@ -91,8 +89,7 @@ GAME_LIST = {
 		desc = [[A social deduction word game for 3+ players. All players are given the same word in secret, except for the Chameleon, who must try to blend in -- at least until they figure out what the word is.]],
 		rules = [[https://bigpotato.com/blog/how-to-play-the-chameleon-instructions/ (see also: https://github.com/Blizihguh/Mayor-McMott/wiki/Chameleon)]],
 		startFunc = chameleon.startGame,
-		handler = chameleon.commandHandler,
-		dmHandler = chameleon.dmHandler
+		handler = chameleon.commandHandler
 	},
 	Decrypto = {
 		desc = [[A word game for 4+ players. Players are split into teams, who each see a list of four words. Each team takes turns giving clues to their word list, without giving their words away to the other team.]],
@@ -112,8 +109,7 @@ GAME_LIST = {
 		desc = [[A lying game where everything's made up and the roles don't matter.]],
 		rules = [[https://github.com/Blizihguh/Mayor-McMott/wiki/Conspiracy]],
 		startFunc = conspiracy.startGame,
-		handler = conspiracy.commandHandler,
-		dmHandler = conspiracy.dmHandler
+		handler = conspiracy.commandHandler
 	},
 	Madness = {
 		desc = [[A card game themed around deception and madness.]],
@@ -126,15 +122,13 @@ GAME_LIST = {
 		desc = [[Various mafia setups.]],
 		rules = [[https://github.com/Blizihguh/Mayor-McMott/wiki/Mafia]],
 		startFunc = mafia.startGame,
-		handler = mafia.commandHandler,
-		dmHandler = mafia.dmHandler
+		handler = mafia.commandHandler
 	},
 	Asshole = {
 		desc = [[The ONLY card game to use the advertisement cards that you get with every deck!]],
 		rules = [[https://github.com/Blizihguh/Mayor-McMott/wiki/Asshole-Game]],
 		startFunc = asshole.startGame,
 		handler = asshole.commandHandler,
-		dmHandler = asshole.dmHandler,
 		reactHandler = asshole.reactHandler
 	},
 	Goofspiel = {
@@ -170,7 +164,9 @@ function gameCommands(message)
 		for channel, game in pairs(games.INSTANCES) do
 			for idx, player in pairs(game[4]) do
 				if author == player then
-					GAME_LIST[game[2]].dmHandler(message, game[3])
+					if GAME_LIST[game[2]].dmHandler ~= nil then
+						GAME_LIST[game[2]].dmHandler(message, game[3])
+					end
 				end
 			end
 		end

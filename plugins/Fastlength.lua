@@ -70,11 +70,6 @@ function fastlength.commandHandler(message, state)
 	end
 end
 
-function fastlength.dmHandler(message, state)
-	-- This game has nothing to DM
-	-- TODO: Maybe DM the word choice to the bot?
-end
-
 --#############################################################################################################################################
 --# Game Functions                                                                                                                            #
 --#############################################################################################################################################
