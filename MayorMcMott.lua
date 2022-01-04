@@ -95,8 +95,8 @@ GAME_LIST = {
 		dmHandler = chameleon.dmHandler
 	},
 	Decrypto = {
-		desc = [[TODO]],
-		rules = [[TODO]],
+		desc = [[A word game for 4+ players. Players are split into teams, who each see a list of four words. Each team takes turns giving clues to their word list, without giving their words away to the other team.]],
+		rules = [[https://www.ultraboardgames.com/decrypto/game-rules.php]],
 		startFunc = decrypto.startGame,
 		handler = decrypto.commandHandler,
 		dmHandler = decrypto.dmHandler
@@ -124,21 +124,21 @@ GAME_LIST = {
 	},
 	Mafia = {
 		desc = [[Various mafia setups.]],
-		rules = [[none]],
+		rules = [[https://github.com/Blizihguh/Mayor-McMott/wiki/Mafia]],
 		startFunc = mafia.startGame,
 		handler = mafia.commandHandler,
 		dmHandler = mafia.dmHandler
 	},
 	Asshole = {
 		desc = [[The ONLY card game to use the advertisement cards that you get with every deck!]],
-		rules = [[TODO]],
+		rules = [[https://github.com/Blizihguh/Mayor-McMott/wiki/Asshole-Game]],
 		startFunc = asshole.startGame,
 		handler = asshole.commandHandler,
 		dmHandler = asshole.dmHandler,
 		reactHandler = asshole.reactHandler
 	},
 	Goofspiel = {
-		desc = [[The Game of Pure Strategy, also known as Psychological Jiu Jitsu]],
+		desc = [[The Game of Pure Strategy, also known as Psychological Jiu Jitsu.]],
 		rules = [[https://en.wikipedia.org/wiki/Goofspiel]],
 		startFunc = goofspiel.startGame,
 		handler = goofspiel.commandHandler,
