@@ -10,6 +10,7 @@ function startsWith(str, pattern)
 end
 
 function misc.parseCSV(filename)
+	-- THIS DOES NOT LIKE NEWLINES!!!
 	local tbl = {}
 	local f = csv.open(filename)
 	for fields in f:lines() do
