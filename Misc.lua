@@ -11,7 +11,7 @@ end
 
 function misc.parseCSV(filename, sep)
 	-- THIS DOES NOT LIKE NEWLINES!!!
-	if sep == nil then sep = ","
+	if sep == nil then sep = "," end
 	local tbl = {}
 	local f = csv.open(filename, {separator = sep})
 	for fields in f:lines() do
