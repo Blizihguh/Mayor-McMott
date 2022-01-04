@@ -35,6 +35,7 @@ local madness = require("plugins/Madness")
 local mafia = require("plugins/Mafia")
 local asshole = require("plugins/Asshole")
 local goofspiel = require("plugins/Goofspiel")
+local dreamcrush = require("plugins/DreamCrush")
 
 -- {Name : {Description, Rules, StartFunction, CommandHandler}}
 GAME_LIST = {
@@ -144,6 +145,13 @@ GAME_LIST = {
 		handler = goofspiel.commandHandler,
 		dmHandler = goofspiel.dmHandler,
 		reactHandler = goofspiel.reactHandler
+	},
+	DreamCrush = {
+		desc = [[Look into your heart and choose your favorite Crush, then guess who your friends are crushing on! Uncover sweet and strange secrets about prospective Crushes while navigating hilarious relationship milestones that will leave your feelings reeling as you play. Only by correctly predicting who makes your friends swoon will you live happily ever after with your own Dream Crush!]],
+		rules = [[TODO]],
+		startFunc = dreamcrush.startGame,
+		handler = dreamcrush.commandHandler,
+		dmHandler = dreamcrush.dmHandler
 	}
 }
 
