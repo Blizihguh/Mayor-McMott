@@ -17,14 +17,39 @@ local quitGame
 --#############################################################################################################################################
 
 function REPLACE_GAME_NAME.startGame(message, playerList)
-	-- Use the name as you formatted it in MayorMcMott.lua's GAME_LIST table
+	-- args[1] will be !start/!vc, and args[2] will be the game name.
+	-- The actual arguments, if the game takes them, will start at args[3]
+	local args = message.content:split(" ")
+
+	-- Any state that your game tracks between commands needs to be stored to this table
+	-- When you finish initializing the game, you save the state table with games.registerGame (see below)
+	-- When players call commands, a reference to this table will be passed to the command handler, so that you can use or modify the game's state
+	local state = {
+		GameChannel = message.channel,
+		PlayerList = playerList -- You may want to create a new list with more information tracked per player, and save that to state
+	}
+
+	-- Use the name as it appears in MayorMcMott.lua's GAME_LIST table, and the same player list from the function args (don't modify it!)
+	-- For very simple games that don't need commands (eg Chameleon), just delete this line, as well as the quitGame function
 	--games.registerGame(message.channel, "GameName", state, playerList)
 end
 
 function REPLACE_GAME_NAME.commandHandler(message, state)
+	-- args[1] will be the command name
+	local args = message.content:split(" ")
+
+	-- You can use whatever command names you want. But MottBot uses some command names frequently.
+	-- If you'd like to stick to convention, here are the most common MottBot command names:
+
+	--!pick: The most common command for MottBot. Good for picking from a list, or just when there's no better command name
+	--!clue: Generally for giving clues in word games (like Decrypto or Codenames)
+	--!reveal: For revealing something publicly (eg: the article in Trickipedia, each player's guess in Medium)
+	--!quit: For quitting the game early
 end
 
 function REPLACE_GAME_NAME.dmHandler(message, state)
+	-- args[1] will be the command name
+	local args = message.content:split(" ")
 end
 
 --OPTIONAL: Do not include this function if you don't need it!
