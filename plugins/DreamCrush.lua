@@ -16,7 +16,7 @@ local quitGame, createDecks
 --# Main Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function dreamcrush.startGame(message)
+function dreamcrush.startGame(message, players)
 	-- Use the name as you formatted it in MayorMcMott.lua's GAME_LIST table
 	local state = {
 		Host = message.author,
@@ -73,7 +73,7 @@ function dreamcrush.startGame(message)
 	
 	message.channel:send(crushIntro)
 	
-	games.registerGame(message.channel, "DreamCrush", state, message.mentionedUsers)
+	games.registerGame(message.channel, "DreamCrush", state, players)
 end
 
 function dreamcrush.commandHandler(message, state)
