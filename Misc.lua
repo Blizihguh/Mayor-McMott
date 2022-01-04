@@ -9,10 +9,11 @@ function startsWith(str, pattern)
 	return true
 end
 
-function misc.parseCSV(filename)
+function misc.parseCSV(filename, sep)
 	-- THIS DOES NOT LIKE NEWLINES!!!
+	if sep == nil then sep = ","
 	local tbl = {}
-	local f = csv.open(filename)
+	local f = csv.open(filename, {separator = sep})
 	for fields in f:lines() do
 		for i,v in pairs(fields) do tbl[i] = v end
 	end
