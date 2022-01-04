@@ -8,19 +8,19 @@ local doReveal, pickArticle
 --# Main Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function twopeople.startGame(message)
+function twopeople.startGame(message, players)
 	local state = {
 		PlayerList = {},
 		GameChannel = message.channel,
 		TomScott = message.author
 	}
-	for id,user in pairs(message.mentionedUsers) do
-		if state.TomScott.id ~= id then
-			state.PlayerList[id] = {user, nil} -- idx = {user object, their article}
+	for idx,user in pairs(players) do
+		if state.TomScott.id ~= user.id then
+			state.PlayerList[user.id] = {user, nil} -- idx = {user object, their article}
 		end
 	end
 	message.channel:send("Started the game with " .. state.TomScott.name .. " as the Judge! Everybody else, DM me your article with the !pick command!")
-	games.registerGame(message.channel, "Trickipedia", state, message.mentionedUsers)
+	games.registerGame(message.channel, "Trickipedia", state, players)
 end
 
 function twopeople.commandHandler(message, state)
