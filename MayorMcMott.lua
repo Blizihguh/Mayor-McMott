@@ -253,6 +253,23 @@ function miscCommands(message)
 				order[idx]:send("You're giving a Hidden Hannukah Harry gift to: " .. order[idx+1][10])
 			end
 		end
+	elseif args[1] == "!vcc" then
+		local vcchannel = nil
+		for idx,voicechannel in pairs(message.guild.voiceChannels) do
+			for id,user in pairs(voicechannel.connectedMembers) do
+				if user.id == message.author.id then
+					vcchannel = voicechannel
+					goto vcc_found
+				end
+			end
+		end
+		::vcc_found::
+		if vcchannel == nil then
+			message.channel:send("You're not in a call. So uh, I choose you, homie!")
+		else
+			local u = misc.getRandomIndex(vcchannel.connectedMembers)
+			message.channel:send("<@!" .. u .. ">, you're it!")
+		end
 	end
 	if string.match(message.content, "( ͡° ͜ʖ ͡°)") then
 		if string.match(string.lower(message.content), "fast") then
