@@ -35,8 +35,7 @@ local wordlist = "words/ae5.csv"
 --# Main Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function letterjam.startGame(message)
-	local playerList = message.mentionedUsers
+function letterjam.startGame(message, playerList)
 
 	-- Check for errors
 	if #playerList < 2 then
@@ -153,8 +152,7 @@ function letterJamCreateGameInstance(channel, playerList, message)
 		Phase = 0 -- 0 = Someone picks a word, 1 = Everyone decides whether to flip, -1 = start of game word assignment
 	}
 	-- Populate each player reference table
-	local idx = 1
-	for id,player in pairs(playerList) do
+	for idx,player in pairs(playerList) do
 		-- Player: 	A User object corresponding to the player
 		-- Cards: 	A table containing the cards the player has in front of them, in order (not necessarily in an order that spells a word)
 		-- Tokens: 	The number of tokens the player has received
@@ -165,7 +163,6 @@ function letterJamCreateGameInstance(channel, playerList, message)
 		-- Assgnm.: Who are they assigning to?
 		-- LOTS of terribly inefficient coding in this file is due to the fact that I chose to id based on user id rather than something useful. Too late to change
 		state["PlayerList"][idx] = {Player = player, Cards = nil, Tokens = 0, CardIdx = 1, Flip = false, BonusCard = nil, Intent = nil, Assignment = nil}
-		idx = idx + 1
 	end
 	-- Optionally, the players can assign each other words
 	--TODO: In either case, remove the cards used from the deck
