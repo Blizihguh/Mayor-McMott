@@ -193,7 +193,11 @@ function advancePhases(state)
 	if state.BluePhase == 0 then
 		if state.BlueClueGiver ~= nil then
 			state.BluePhase = 1
-			state.BlueClueGiver.Player:send("Your numbers are: " .. tostring(state.BlueNumbers))
+			local num1 = math.floor(state.BlueNumbers/100) 
+			local num2 = math.floor(state.BlueNumbers/10)  % 10
+			local num3 = math.floor(state.BlueNumbers)     % 10
+			state.BlueClueGiver.Player:send(string.format("Your words are: [%i] %s / [%i] %s / [%i] %s", num1, state.BlueWords[num1], num2, state.BlueWords[num2], num3, state.BlueWords[num3]))
+			--state.BlueClueGiver.Player:send("Your numbers are: " .. tostring(state.BlueNumbers))
 		end
 	elseif state.BluePhase == 1 then -- Advance if we have a clue from someone on blue team
 		if state.HaveBlueClues == true then
@@ -247,7 +251,10 @@ function advancePhases(state)
 	if state.RedPhase == 0 then
 		if state.RedClueGiver ~= nil then
 			state.RedPhase = 1
-			state.RedClueGiver.Player:send("Your numbers are: " .. tostring(state.RedNumbers))
+			local num1 = math.floor(state.RedNumbers/100) 
+			local num2 = math.floor(state.RedNumbers/10)  % 10
+			local num3 = math.floor(state.RedNumbers)     % 10
+			state.RedClueGiver.Player:send(string.format("Your words are: [%i] %s / [%i] %s / [%i] %s", num1, state.RedWords[num1], num2, state.RedWords[num2], num3, state.RedWords[num3]))
 		end
 	elseif state.RedPhase == 1 then -- Advance if we have a clue from someone on red team
 		if state.HaveRedClues == true then
