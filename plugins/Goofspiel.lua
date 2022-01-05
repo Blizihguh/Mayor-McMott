@@ -21,10 +21,10 @@ local CARD_NAMES = {
 --# Main Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function goofspiel.startGame(message)
+function goofspiel.startGame(message, players)
 	local playerList = {}
-	for playerID,playerObj in pairs(message.mentionedUsers) do
-		playerList[playerID] = {Player = playerObj, Hand = misc.shallowCopy(CARDS), Points = 0, Bid = nil, LastBid = nil, Status = nil, HighBid = nil}
+	for idx,playerObj in pairs(players) do
+		playerList[playerObj.id] = {Player = playerObj, Hand = misc.shallowCopy(CARDS), Points = 0, Bid = nil, LastBid = nil, Status = nil, HighBid = nil}
 	end
 
 	local args = message.content:split(" ")
@@ -41,7 +41,7 @@ function goofspiel.startGame(message)
 	}
 
 
-	games.registerGame(message.channel, "Goofspiel", state, message.mentionedUsers)
+	games.registerGame(message.channel, "Goofspiel", state, players)
 
 	for id,info in pairs(state.PlayerList) do
 		info.Status = info.Player:send("**Dealing out cards...**")
