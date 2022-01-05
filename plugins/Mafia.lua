@@ -9,8 +9,8 @@ local known_setups = "Jester3 (!start Mafia Jester3)\nChicago PD (!start Mafia C
 --# Main Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function mafia.startGame(message)
-    local players = misc.shuffleTable(misc.indexifyTable(misc.shallowCopy(message.mentionedUsers)))
+function mafia.startGame(message, playerList)
+    local players = misc.shuffleTable(playerList)
     local args = message.content:split(" ")
     args[3] = string.lower(args[3])
     
