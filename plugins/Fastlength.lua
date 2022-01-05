@@ -24,7 +24,7 @@ misc.fuseLists(AXES, CUSTOM_AXES)
 --# Main Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function fastlength.startGame(message)
+function fastlength.startGame(message, players)
 	local state = {
 		Psychic = message.author,
 		Axis = AXES[math.random(#AXES)],
