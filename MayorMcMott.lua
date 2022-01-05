@@ -241,22 +241,6 @@ end
 --# Command Handlers                                                                                                                          #
 --#############################################################################################################################################
 
-function modifyVoiceMessage(message, channel)
-	--[[Takes a message that mentions a voice channel, and modifies it into one with a list of players, for !vc]]
-	local newMessage = "!start"
-	-- Add all args to message
-	local args = message.content:split(" ")
-	for idx,arg in pairs(args) do
-		if idx ~= 1 then newMessage = newMessage .. " " .. arg end
-	end
-	-- Get this server's designated game channel
-	-- Add voice channel users to message
-	for id,user in pairs(channel.connectedMembers) do
-		newMessage = newMessage .. " " .. "<@!" .. user.id .. ">"
-	end
-	return newMessage
-end
-
 function miscCommands(message)
 	--[[Miscellaneous functionality goes here]]
 	args = message.content:split(" ")
