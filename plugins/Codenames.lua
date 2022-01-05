@@ -19,7 +19,7 @@ end
 --# Main Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function codenames.startGame(message)
+function codenames.startGame(message, players)
 	-- Determine which team goes first
 	local first
 	if math.random(2) == 1 then first = "red" else first = "blue" end
@@ -28,8 +28,8 @@ function codenames.startGame(message)
 	local team = "red"
 	local rCaptain, bCaptain
 	local i = 1
-	for id,playerObject in pairs(message.mentionedUsers) do
-		playerList[id] = {Player = playerObject, Team = team}
+	for idx,playerObject in pairs(players) do
+		playerList[playerObject.id] = {Player = playerObject, Team = team}
 		if i == 1 then rCaptain = playerObject elseif i == 2 then bCaptain = playerObject end
 		i = i + 1
 		if team == "red" then team = "blue" else team = "red" end
@@ -77,7 +77,7 @@ function codenames.startGame(message)
 	message.channel:send("The Green team is: " .. blueStr .. "\nThe Red team is: " .. redStr .. "\nThe " .. startStr .. " team is starting!")
 
 	-- Create a new game and register it
-	games.registerGame(message.channel, "Codenames", state, message.mentionedUsers)
+	games.registerGame(message.channel, "Codenames", state, players)
 end
 
 function codenames.commandHandler(message, state)
