@@ -25,8 +25,7 @@ local WORDLISTS = {
 --# Main Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function medium.startGame(message)
-	local playerList = message.mentionedUsers
+function medium.startGame(message, playerList)
 	local channelList = message.mentionedChannels
 
 	-- Check for errors
@@ -168,14 +167,12 @@ function mediumCreateGameInstance(channel, specChannel, playerList, message)
 	-- TODO: Get the decks and pass them in here
 	instance["Deck"] = mediumCreateDeck(channel, {"supereasy"})
 	-- Create playerlist with individual hands
-	local idx = 1
-	for id,player in pairs(playerList) do
+	for idx,player in pairs(playerList) do
 		-- Score = {Left Player Score, Right Player Score}
 		-- These are stored as tables instead of ints because the number of chips is public,
 		-- but the value of each chip is private
 		instance["PlayerList"][idx] = {Player = player, Hand = {}, Score = {Left = {}, Right = {}}}
 		mediumDrawCards(instance, idx)
-		idx = idx + 1
 	end
 	-- Pick starting player randomly
 	instance["CurrentPlayer"] = math.random(1,#instance["PlayerList"])

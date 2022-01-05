@@ -29,17 +29,21 @@ local WORDLISTS = {
 --# Main Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function werewords.startGame(message)
+function werewords.startGame(message, players)
 	--[[Start a new Werewords game]]
 	local args = message.content:split(" ")
 	local state = werewordsCreateGameInstance()
 
+	local playerList = {}
+
+	for idx,playerObj in pairs(players) do playerList[playerObj.id] = playerObj end
+
 	state["GameChannel"] = message.channel
 	state["Mayor"] = message.author
 	state["Mode"] = args[3]
-	state["PlayerList"] = message.mentionedUsers
+	state["PlayerList"] = playerList
 	ruleset = args[4]
-	games.registerGame(message.channel, "Werewords", state, message.mentionedUsers)
+	games.registerGame(message.channel, "Werewords", state, players)
 	message.channel:send("Starting game...")
 	-- Start game
 	werewordsAssignRoles(state["PlayerList"], ruleset, state)

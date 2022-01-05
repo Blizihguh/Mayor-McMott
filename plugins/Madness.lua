@@ -39,8 +39,7 @@ local DESCRIPTIONS = {
 --# Main Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function madness.startGame(message)
-    local playerList = message.mentionedUsers
+function madness.startGame(message, playerList)
 
     message.channel:send("Starting game...")
     local state = madnessCreateGameInstance(message.channel, playerList, message)
@@ -145,7 +144,7 @@ function madnessCreateGameInstance(channel, playerList, message)
 		end
 	end
 
-    local idx = 1
+	local idx = 1
     for id,player in pairs(playerList) do
         -- Player: A user object corresponding to the player
         -- Hand: A table containing the cards in the player's hand
