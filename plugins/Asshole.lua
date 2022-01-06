@@ -4,7 +4,7 @@ local asshole = {}
 asshole.desc = "The ONLY card game to use the advertisement cards that you get with every deck!"
 asshole.rules = "https://github.com/Blizihguh/Mayor-McMott/wiki/Asshole-Game"
 
-local status, point, quitGame, checkForEnd
+local status, point, quitGame, checkForEnd, loadGame
 
 --#############################################################################################################################################
 --# Main Functions                                                                                                                            #
@@ -16,35 +16,20 @@ function asshole.startGame(message, players)
 		return
 	end
 
-	local playerlist = {}
-	local cards = misc.shuffleTable({"King", "King", "Jack", "Jack", "Asshole", "Asshole", "Jester"})
-	local idx = 1
-	for id,playerObject in pairs(players) do
-		playerlist[idx] = {Player = playerObject, Card = cards[idx], Pointed = false, Won = false, Status = nil}
-		idx = idx + 1
-	end
-
-	local state = {
-		GameChannel = message.channel,
-		PlayerList = playerlist
-	}
-
-	-- Send everybody their info
-	for idx,player in pairs(state.PlayerList) do
-		status(state, player)
-	end
-	-- Add reactions to everybody's info message
-	local emojis = {"0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣"}
-	for idx,emote in pairs(emojis) do
-		for id,player in pairs(state.PlayerList) do
-			player.Status:addReaction(emote)
-		end
-	end
+	local state = {}
+	state.GameChannel = message.channel
+	state.Players = players
+	state = loadGame(state, players)
 
 	games.registerGame(message.channel, "Asshole", state, players)
 end
 
 function asshole.commandHandler(message, state)
+	local args = message.content:split(" ")
+	if args[1] == "!quit" then quitGame(state) end
+end
+
+function asshole.dmHandler(message, state)
 	local args = message.content:split(" ")
 	if args[1] == "!quit" then quitGame(state) end
 end
@@ -63,6 +48,32 @@ end
 --#############################################################################################################################################
 --# Game Functions                                                                                                                            #
 --#############################################################################################################################################
+
+function loadGame(state, players)
+	local playerlist = {}
+	local cards = misc.shuffleTable({"King", "King", "Jack", "Jack", "Asshole", "Asshole", "Jester"})
+	local idx = 1
+	for id,playerObject in pairs(players) do
+		playerlist[idx] = {Player = playerObject, Card = cards[idx], Pointed = false, Won = false, Status = nil}
+		idx = idx + 1
+	end
+
+	state.PlayerList = playerlist
+
+	-- Send everybody their info
+	for idx,player in pairs(state.PlayerList) do
+		status(state, player)
+	end
+	-- Add reactions to everybody's info message
+	local emojis = {"0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣"}
+	for idx,emote in pairs(emojis) do
+		for id,player in pairs(state.PlayerList) do
+			player.Status:addReaction(emote)
+		end
+	end
+
+	return state
+end
 
 function quitGame(state)
 	state.GameChannel:send("Quitting game...")
@@ -167,7 +178,7 @@ function checkForEnd(state)
 		for idx,playerObject in pairs(state.PlayerList) do
 			playerObject.Player:send(output)
 		end
-		quitGame(state)
+		state = loadGame(state, state.Players) -- Start a new round if the game is over
 	end
 end
 
