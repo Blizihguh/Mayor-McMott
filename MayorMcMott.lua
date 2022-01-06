@@ -31,6 +31,13 @@ GAME_LIST = {}
 
 function init()
 	--[[Called when the bot initializes]]
+	GAME_LIST = {}
+	if games.INSTANCES ~= nil then
+		for channel,info in pairs(games.INSTANCES) do
+			games.deregisterGame(channel)
+		end
+	end
+
 	local i = 0
 	for filename,filetype in fs.scandirSync("plugins") do
 		if filetype == "file" then
@@ -188,9 +195,20 @@ function miscCommands(message)
 	elseif args[1] == "!reload" then
 		if args[2] ~= nil then
 			if misc.getKeyInTableInsensitive(args[2], GAME_LIST) then
-				GAME_LIST[args[2]] = dofile("plugins/" .. args[2] .. ".lua")
+				-- Remove all loaded code relating to this game
+				local gamename = misc.getKeyInTableInsensitive(args[2], GAME_LIST)
+				GAME_LIST[gamename] = nil
+				for channel,info in pairs(games.INSTANCES) do
+					if info[2] == gamename then
+						games.deregisterGame(channel)
+					end
+				end
+				-- Reload the game
+				GAME_LIST[gamename] = dofile("plugins/" .. gamename .. ".lua")
+				message.channel:send("Reloaded " .. gamename)
 			elseif args[2]:lower() == "all" then
 				init()
+				message.channel:send("Reloaded all plugins")
 			end
 		else
 			message.channel:send("Do !reload [game] to reload one game, or !reload all to reload all plugins!")
