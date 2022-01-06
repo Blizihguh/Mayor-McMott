@@ -1,7 +1,9 @@
 local games = require("Games")
 local misc = require("Misc")
-
 local curios = {}
+curios.desc = "TODO" --"A bluffing game for 2-5 players. Players are dealt a hand of cards, providing partial information about the value of differently colored gems; each turn, everyone attempts to make the most money placing workers to acquire gems."
+curios.rules = "TODO" --"https://www.alderac.com/wp-content/uploads/2019/04/Curio_Rulebook_Final-Feb2019.pdf"
+
 local GEM_COUNTS = {0, 8, 10, 12, 14}
 local HAND_SIZE = {0, 4, 4, 3, 2}
 

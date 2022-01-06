@@ -1,6 +1,8 @@
 local games = require("Games")
 local misc = require("Misc")
 local deception = {}
+deception.desc = "TODO"
+deception.rules = "TODO"
 
 local WEAPONS = {
 	"Hook", "Scarf", "Arsenic", "Saxophone", "Pistol", "Bat", "Lab Sample", "Wrench",

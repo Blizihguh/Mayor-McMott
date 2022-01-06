@@ -1,6 +1,8 @@
 local games = require("Games")
 local misc = require("Misc")
 local conspiracy = {}
+conspiracy.desc = "A lying game where everything's made up and the roles don't matter."
+conspiracy.rules = "https://github.com/Blizihguh/Mayor-McMott/wiki/Conspiracy"
 
 --#############################################################################################################################################
 --# Main Functions                                                                                                                            #

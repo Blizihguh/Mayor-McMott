@@ -1,6 +1,8 @@
 local games = require("Games")
 local misc = require("Misc")
 local asshole = {}
+asshole.desc = "The ONLY card game to use the advertisement cards that you get with every deck!"
+asshole.rules = "https://github.com/Blizihguh/Mayor-McMott/wiki/Asshole-Game"
 
 local status, point, quitGame, checkForEnd
 

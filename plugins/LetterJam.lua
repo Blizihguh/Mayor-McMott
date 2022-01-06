@@ -2,6 +2,8 @@ local games = require("Games")
 local misc = require("Misc")
 
 local letterjam = {}
+letterjam.desc = "A cooperative word game for 2-6 players. Players each have a letter that only they can't see. Players take turns spelling words with the letters that they can see, thus helping people guess their own letter."
+letterjam.rules = "https://czechgames.com/files/rules/letter-jam-rules-en.pdf"
 
 local letterJamValidateWord, letterJamCreateGameInstance, letterJamTableifyWord, letterJamGetStatus, letterJamPreviewWord, letterJamPickWord
 local letterJamAdvancePhase, letterJamFlip, letterJamNoFlip, letterJamDoEndGame, letterJamEndGameFlip, letterJamQuitGame

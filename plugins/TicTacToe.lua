@@ -4,8 +4,11 @@ local games = require("Games")
 -- Misc has utility functions (luvit took "utils")
 local misc = require("Misc")
 -- Lua modules work, of course, by abusing tables. All of the functions that are accessed from outside of the module must be named tictactoe.functionName(),
--- which will add them as fields to the table tictactoe; at the end of the file, we return tictactoe.
+-- which will add them as fields to the table tictactoe; at the end of the file, we return tictactoe. We also include the game description and rules here.
 local tictactoe = {}
+tictactoe.desc = "It's literally Tic-Tac-Toe."
+tictactoe.rules = "How old are you that you don't know how to play Tic-Tac-Toe?"
+
 -- Because of the way lua works, we need to make all functions local except for startGame, commandHandler, and dmHandler
 -- Otherwise, they'll be imported and potentially cause conflicts with other games!
 local tictactoeCheckGameOver, tictactoeBoard, tictactoeMove, tictactoeExitGame

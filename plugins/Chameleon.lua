@@ -1,6 +1,8 @@
 local games = require("Games")
 local misc = require("Misc")
 local chameleon = {}
+chameleon.desc = "A social deduction word game for 3+ players. All players are given the same word in secret, except for the Chameleon, who must try to blend in -- at least until they figure out what the word is."
+chameleon.rules = "https://bigpotato.com/blog/how-to-play-the-chameleon-instructions/> (see also: <https://github.com/Blizihguh/Mayor-McMott/wiki/Chameleon)"
 
 local displayWords, dmStatus, oopsAllChameleons, removeUnderscores
 

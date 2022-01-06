@@ -2,6 +2,8 @@ local games = require("Games")
 local misc = require("Misc")
 
 local fastlength = {}
+fastlength.desc = "An implementation of exactly one round of Wavelength. One player is given a card with an axis on it, and a position on that axis, from -10 to 10. Their goal is to say a word that other players will place at roughly that position on the axis."
+fastlength.rules = "https://www.ultraboardgames.com/wavelength/game-rules.php> but with no scoring"
 
 local getAxisString
 

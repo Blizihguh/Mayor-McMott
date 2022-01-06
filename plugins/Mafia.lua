@@ -1,6 +1,8 @@
 local games = require("Games")
 local misc = require("Misc")
 local mafia = {}
+mafia.desc = "Various mafia setups."
+mafia.rules = "https://github.com/Blizihguh/Mayor-McMott/wiki/Mafia"
 
 local jester3, chicagoPD, jungle
 local known_setups = "Jester3 (!start Mafia Jester3)\nChicago PD (!start Mafia Chicago)\nJungle of Bullshit (!start Mafia Jungle)\nWin Lose Banana (!start Mafia Banana)"

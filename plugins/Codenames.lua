@@ -1,6 +1,8 @@
 local games = require("Games")
 local misc = require("Misc")
 local codenames = {}
+codenames.desc = "A team-based word game for 4-8 players. Each team has a secret list of words, and one spymaster, whose goal is to get their teammates to pick their words, without picking the opposing team's words."
+codenames.rules = "https://czechgames.com/files/rules/codenames-rules-en.pdf"
 
 local getWords, displayWords, displayWordsInColor, displayWordsUnicode, displayWordsCondensed, displayWordsCaptain, giveClue, pickWord, endGame, quitGame
 

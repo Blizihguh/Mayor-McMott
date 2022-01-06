@@ -1,6 +1,8 @@
 local games = require("Games")
 local misc = require("Misc")
 local goofspiel = {}
+goofspiel.desc = "The Game of Pure Strategy, also known as Psychological Jiu Jitsu."
+goofspiel.rules = "https://en.wikipedia.org/wiki/Goofspiel"
 
 local quitGame, advanceState, status, resolveBids, endGame, bidCmd, setupEmojis
 

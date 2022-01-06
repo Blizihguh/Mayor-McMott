@@ -2,6 +2,8 @@ local games = require("Games")
 local misc = require("Misc")
 
 local medium = {}
+medium.desc = "A mind reading game for 2-8 players. Players take turns picking two words from a hand of cards, and trying to find a word that most relates to the two they picked, without communicating at all. Use of ESP is highly encouraged."
+medium.rules = "https://stormchasergames.files.wordpress.com/2019/06/medium-rulebook-final-reduced-size-1.pdf"
 
 local mediumCreateGameInstance, mediumCreateDeck, mediumDrawCards, mediumDMHand, mediumDMScore, mediumDMPlayer, mediumUpdatePhase, mediumQuitGame
 local mediumDoGuesses, mediumPickCard, mediumEndGame, mediumIsPlayerIdx, mediumSendStatusMessage, mediumSendScoreMessage, mediumGetPlayerFromIdx, mediumGetIdxFromPlayer

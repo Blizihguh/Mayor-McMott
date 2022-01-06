@@ -2,6 +2,8 @@ local games = require("Games")
 local misc = require("Misc")
 
 local werewords = {}
+werewords.desc = "A social deduction game for 4-10 players. One player picks a secret word, and the other players ask them yes or no questions to try to deduce it. Certain players are secretly werewolves, and trying to prevent the word from being guessed."
+werewords.rules = "http://werewords.com/rules.php?ver=2"
 
 local werewordsLoadWordlist, werewordsCreateGameInstance, werewordsMessageGame, werewordsMessagePlayer, werewordsGetTellerWord, werewordsAssignRoles
 local werewordsSendWordOptions, werewordsFinishNight, werewordsCheckForEnd, werewordsExitGame, werewordsSendWordLists, werewordsPickWord, werewordsTokenStatus

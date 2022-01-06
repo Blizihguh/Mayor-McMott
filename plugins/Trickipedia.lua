@@ -1,6 +1,8 @@
 local games = require("Games")
 local misc = require("Misc")
 local twopeople = {}
+twopeople.desc = "A discord adaptation of the panel game Two of These People Are Lying."
+twopeople.rules = "https://www.youtube.com/watch?v=3UAOs9B9UH8&list=PLfx61sxf1Yz2I-c7eMRk9wBUUDCJkU7H0&index=2"
 
 local doReveal, pickArticle
 

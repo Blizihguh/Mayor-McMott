@@ -2,6 +2,8 @@ local games = require("Games")
 local misc = require("Misc")
 
 local madness = {}
+madness.desc = "A card game themed around deception and madness."
+madness.rules = "https://docs.google.com/document/d/e/2PACX-1vTJP8VRGUJ8TfChFd1uFYkaLkAxxXjwjp-6T88hHcQbzA6JLJ--NoE2ns7Aiu0zfHPhhzsYjdMUoF8u/pub"
 
 local madnessCreateGameInstance, madnessGetUserIndex, madnessDeckOut, madnessLastOneStanding, madnessCompleted, madnessEndGame, madnessDrawCard
 local madnessNextTurn, madnessTakeDamage, madnessAttack, madnessValidTarget, madnessShowCard, madnessPlayCard, madnessFreeAttack, madnessBecomeMad

@@ -1,6 +1,8 @@
 local games = require("Games")
 local misc = require("Misc")
 local loveletter = {}
+loveletter.desc = "TODO"
+loveletter.rules = "TODO"
 
 local guardFunc, priestFunc, baronFunc, handmaidFunc, princeFunc, kingFunc, countessFunc, princessFunc
 

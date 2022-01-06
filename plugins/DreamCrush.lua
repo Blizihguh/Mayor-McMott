@@ -1,9 +1,9 @@
 local games = require("Games")
 local misc = require("Misc")
 local dreamcrush = {}
+dreamcrush.desc = "Look into your heart and choose your favorite Crush, then guess who your friends are crushing on!"
+dreamcrush.rules = "TODO"
 
---IMPORTANT: Declare all function names (besides the startGame/commandHandler/dmHandler/optional reactHandler functions) as local variables here.
---           If you don't do this, they will be imported as global functions, possibly disrupting other games!
 local quitGame, createDecks
 
 -- Uncomment this if you want to import server-specific data
@@ -130,9 +130,6 @@ function dreamcrush.commandHandler(message, state)
 	if args[1] == "!quit" then
 		quitGame(state)
 	end
-end
-
-function dreamcrush.dmHandler(message, state)
 end
 
 --#############################################################################################################################################
