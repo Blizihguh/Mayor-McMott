@@ -166,14 +166,26 @@ function gameCommands(message)
 		-- Run game-specific functions
 		local gameType = games.INSTANCES[channel][2]
 		local state = games.INSTANCES[channel][3]
-		GAME_LIST[gameType].handler(message, state)
+		local stat, err, ret = xpcall(GAME_LIST[gameType].handler, debug.traceback, message, state)
+		if not stat then
+			-- Game crashed
+			print(tostring(nameOfGame) .. " crashed on public command") --TODO: Add id to output
+			print(err)
+			games.deregisterGame(channel)
+		end
 	elseif games.playerInGame(author) then -- User is in a game, call relevant handlers
 		-- Check every game to see if the player is playing, and call the relevant event handler for that game
-		for channel, game in pairs(games.INSTANCES) do
+		for gamechannel, game in pairs(games.INSTANCES) do
 			for idx, player in pairs(game[4]) do
 				if author == player then
 					if GAME_LIST[game[2]].dmHandler ~= nil then
-						GAME_LIST[game[2]].dmHandler(message, game[3])
+						local stat, err, ret = xpcall(GAME_LIST[game[2]].dmHandler, debug.traceback, message, game[3])
+						if not stat then
+							-- Game crashed
+							print(tostring(nameOfGame) .. " id " .. game[1] .. " crashed on DM command")
+							print(err)
+							games.deregisterGame(gamechannel)
+						end
 					end
 				end
 			end
@@ -210,10 +222,18 @@ function gameCommands(message)
 						if not misc.valueInList(val, playerList) then table.insert(playerList, val) end
 					end
 				end
+
 				-- Randomize player order for !vcr only
 				if args[1] == "!vcr" then misc.shuffleTable(playerList) end
+
 				-- Call the function associated with the given game
-				GAME_LIST[nameOfGame].startFunc(message, playerList)
+				local stat, err, ret = xpcall(GAME_LIST[nameOfGame].startFunc, debug.traceback, message, playerList)
+				if not stat then
+					-- Game crashed on startup
+					print(tostring(nameOfGame) .. " crashed on startup") --TODO: Add id to output
+					print(err)
+					games.deregisterGame(channel)
+				end
 			else
 				channel:send("Uh-oh! I don't know how to play that game, homie!")
 			end
@@ -229,7 +249,13 @@ function reactionCommands(channel, reaction, user)
 			if GAME_LIST[game[2]].reactHandler ~= nil then
 				for idx, player in pairs(game[4]) do
 					if user == player then
-						GAME_LIST[game[2]].reactHandler(reaction, user, game[3])
+						local stat, err, ret = xpcall(GAME_LIST[game[2]].reactHandler, debug.traceback, reaction, user, game[3])
+						if not stat then
+							-- Game crashed
+							print(tostring(nameOfGame) .. " id " .. game[1] .. " crashed on reaction")
+							print(err)
+							games.deregisterGame(channel)
+						end
 					end
 				end
 			end
