@@ -1,4 +1,4 @@
-local misc = require("Misc")
+local misc = dofile("Misc.lua") -- If we require() instead of dofile(), Misc won't reload when Debug.lua reloads
 
 local function debugFunc(message)
 	-- Any code you write here can be run with the command !debug
