@@ -149,11 +149,9 @@ GAME_LIST = {
 	}
 }
 
-function initGames()
-	--[[Called when the bot initializes]]
-	-- Currently empty; werewords.loadWordlists() was originally called here, but that made it inaccessible to Werewords.lua, for reasons I don't
-	-- fully understand
-end
+--#############################################################################################################################################
+--# Command Handlers                                                                                                                          #
+--#############################################################################################################################################
 
 function gameCommands(message)
 	--[[Called on new messages]]
@@ -262,10 +260,6 @@ function reactionCommands(channel, reaction, user)
 		end
 	end
 end
-
---#############################################################################################################################################
---# Command Handlers                                                                                                                          #
---#############################################################################################################################################
 
 function miscCommands(message)
 	--[[Miscellaneous functionality goes here]]
@@ -380,10 +374,16 @@ end
 --# Bot Functions                                                                                                                             #
 --#############################################################################################################################################
 
+function init()
+	--[[Called when the bot initializes]]
+	-- Currently empty; werewords.loadWordlists() was originally called here, but that made it inaccessible to Werewords.lua, for reasons I don't
+	-- fully understand
+end
+
 -- Login
 client:on("ready", function()
 	print("Logged in as " .. client.user.username)
-	initGames()
+	init()
 end)
 
 
