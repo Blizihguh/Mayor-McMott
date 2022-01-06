@@ -1,5 +1,5 @@
 local discordia = require("discordia")
-local messageClass = require("discordia/libs/containers/Message")
+local fs = require("fs")
 local games = require("Games")
 local misc = require("Misc")
 local client = discordia.Client()
@@ -20,134 +20,21 @@ local currentGhostFriend = nil
 --# ANYTHING THAT NEEDS TO BE EDITED TO ADD A NEW GAME GOES HERE                                                                              #
 --#############################################################################################################################################
 
-local werewords = require("plugins/Werewords")
-local tictactoe = require("plugins/TicTacToe")
-local medium = require("plugins/Medium")
-local curios = require("plugins/Curios")
-local letterjam = require("plugins/LetterJam")
-local fastlength = require("plugins/Fastlength")
-local codenames = require("plugins/Codenames")
-local chameleon = require("plugins/Chameleon")
-local decrypto = require("plugins/Decrypto")
-local twopeople = require("plugins/TwoPeople")
-local conspiracy = require("plugins/Conspiracy")
-local madness = require("plugins/Madness")
-local mafia = require("plugins/Mafia")
-local asshole = require("plugins/Asshole")
-local goofspiel = require("plugins/Goofspiel")
-local dreamcrush = require("plugins/DreamCrush")
+GAME_LIST = {}
 
--- {Name : {Description, Rules, StartFunction, CommandHandler}}
-GAME_LIST = {
-	Werewords = {
-		desc = [[A social deduction game for 4-10 players. One player picks a secret word, and the other players ask them yes or no questions to try to deduce it. Certain players are secretly werewolves, and trying to prevent the word from being guessed.]],
-		rules = [[http://werewords.com/rules.php?ver=2]],
-		startFunc = werewords.startGame,
-		handler = werewords.commandHandler,
-		dmHandler = werewords.dmHandler
-	},
-	TicTacToe = {
-		desc = [[It's literally Tic-Tac-Toe.]],
-		rules = [[How old are you that you don't know how to play Tic-Tac-Toe?]],
-		startFunc = tictactoe.startGame,
-		handler = tictactoe.commandHandler
-	},
-	Medium = {
-		desc = [[A mind reading game for 2-8 players. Players take turns picking two words from a hand of cards, and trying to find a word that most relates to the two they picked, without communicating at all. Use of ESP is highly encouraged.]],
-		rules = [[https://stormchasergames.files.wordpress.com/2019/06/medium-rulebook-final-reduced-size-1.pdf]],
-		startFunc = medium.startGame,
-		handler = medium.commandHandler,
-		dmHandler = medium.dmHandler
-	},
-	Curios = {
-		desc = [[A bluffing game for 2-5 players. Players are dealt a hand of cards, providing partial information about the value of differently colored gems; each turn, everyone attempts to make the most money placing workers to acquire gems.]],
-		rules = [[https://www.alderac.com/wp-content/uploads/2019/04/Curio_Rulebook_Final-Feb2019.pdf]],
-		startFunc = curios.startGame,
-		handler = curios.commandHandler,
-		dmHandler = curios.dmHandler
-	},
-	LetterJam = {
-		desc = [[A cooperative word game for 2-6 players. Players each have a letter that only they can't see. Players take turns spelling words with the letters that they can see, thus helping people guess their own letter.]],
-		rules = [[https://czechgames.com/files/rules/letter-jam-rules-en.pdf]],
-		startFunc = letterjam.startGame,
-		handler = letterjam.commandHandler,
-		dmHandler = letterjam.dmHandler
-	},
-	Fastlength = {
-		desc = [[An implementation of exactly one round of Wavelength. One player is given a card with an axis on it, and a position on that axis, from -10 to 10. Their goal is to say a word that other players will place at roughly that position on the axis.]],
-		rules = [[https://www.ultraboardgames.com/wavelength/game-rules.php but with no scoring]],
-		startFunc = fastlength.startGame,
-		handler = fastlength.commandHandler
-	},
-	Codenames = {
-		desc = [[A team-based word game for 4-8 players. Each team has a secret list of words, and one spymaster, whose goal is to get their teammates to pick their words, without picking the opposing team's words.]],
-		rules = [[https://czechgames.com/files/rules/codenames-rules-en.pdf]],
-		startFunc = codenames.startGame,
-		handler = codenames.commandHandler,
-		dmHandler = codenames.dmHandler
-	},
-	Chameleon = {
-		desc = [[A social deduction word game for 3+ players. All players are given the same word in secret, except for the Chameleon, who must try to blend in -- at least until they figure out what the word is.]],
-		rules = [[https://bigpotato.com/blog/how-to-play-the-chameleon-instructions/ (see also: https://github.com/Blizihguh/Mayor-McMott/wiki/Chameleon)]],
-		startFunc = chameleon.startGame,
-		handler = chameleon.commandHandler
-	},
-	Decrypto = {
-		desc = [[A word game for 4+ players. Players are split into teams, who each see a list of four words. Each team takes turns giving clues to their word list, without giving their words away to the other team.]],
-		rules = [[https://www.ultraboardgames.com/decrypto/game-rules.php]],
-		startFunc = decrypto.startGame,
-		handler = decrypto.commandHandler,
-		dmHandler = decrypto.dmHandler
-	},
-	Trickipedia = {
-		desc = [[A discord adaptation of the panel game Two of These People Are Lying.]],
-		rules = [[https://www.youtube.com/watch?v=3UAOs9B9UH8&list=PLfx61sxf1Yz2I-c7eMRk9wBUUDCJkU7H0&index=2]],
-		startFunc = twopeople.startGame,
-		handler = twopeople.commandHandler,
-		dmHandler = twopeople.dmHandler
-	},
-	Conspiracy = {
-		desc = [[A lying game where everything's made up and the roles don't matter.]],
-		rules = [[https://github.com/Blizihguh/Mayor-McMott/wiki/Conspiracy]],
-		startFunc = conspiracy.startGame,
-		handler = conspiracy.commandHandler
-	},
-	Madness = {
-		desc = [[A card game themed around deception and madness.]],
-		rules = [[https://docs.google.com/document/d/e/2PACX-1vTJP8VRGUJ8TfChFd1uFYkaLkAxxXjwjp-6T88hHcQbzA6JLJ--NoE2ns7Aiu0zfHPhhzsYjdMUoF8u/pub]],
-		startFunc = madness.startGame,
-		handler = madness.commandHandler,
-		dmHandler = madness.dmHandler
-	},
-	Mafia = {
-		desc = [[Various mafia setups.]],
-		rules = [[https://github.com/Blizihguh/Mayor-McMott/wiki/Mafia]],
-		startFunc = mafia.startGame,
-		handler = mafia.commandHandler
-	},
-	Asshole = {
-		desc = [[The ONLY card game to use the advertisement cards that you get with every deck!]],
-		rules = [[https://github.com/Blizihguh/Mayor-McMott/wiki/Asshole-Game]],
-		startFunc = asshole.startGame,
-		handler = asshole.commandHandler,
-		reactHandler = asshole.reactHandler
-	},
-	Goofspiel = {
-		desc = [[The Game of Pure Strategy, also known as Psychological Jiu Jitsu.]],
-		rules = [[https://en.wikipedia.org/wiki/Goofspiel]],
-		startFunc = goofspiel.startGame,
-		handler = goofspiel.commandHandler,
-		dmHandler = goofspiel.dmHandler,
-		reactHandler = goofspiel.reactHandler
-	},
-	DreamCrush = {
-		desc = [[Look into your heart and choose your favorite Crush, then guess who your friends are crushing on! Uncover sweet and strange secrets about prospective Crushes while navigating hilarious relationship milestones that will leave your feelings reeling as you play. Only by correctly predicting who makes your friends swoon will you live happily ever after with your own Dream Crush!]],
-		rules = [[TODO]],
-		startFunc = dreamcrush.startGame,
-		handler = dreamcrush.commandHandler,
-		dmHandler = dreamcrush.dmHandler
-	}
-}
+function init()
+	--[[Called when the bot initializes]]
+	local i = 0
+	for filename,filetype in fs.scandirSync("plugins") do
+		if filetype == "file" then
+			if filename:sub(-4) == ".lua" then
+				GAME_LIST[filename] = require("plugins/" .. filename:sub(1,-5))
+				i = i + 1
+			end
+		end
+	end
+	print("Loaded " .. i .. " plugins!")
+end
 
 --#############################################################################################################################################
 --# Command Handlers                                                                                                                          #
@@ -164,7 +51,7 @@ function gameCommands(message)
 		-- Run game-specific functions
 		local gameType = games.INSTANCES[channel][2]
 		local state = games.INSTANCES[channel][3]
-		local stat, err, ret = xpcall(GAME_LIST[gameType].handler, debug.traceback, message, state)
+		local stat, err, ret = xpcall(GAME_LIST[gameType].commandHandler, debug.traceback, message, state)
 		if not stat then
 			-- Game crashed
 			print(tostring(nameOfGame) .. " crashed on public command") --TODO: Add id to output
@@ -225,7 +112,7 @@ function gameCommands(message)
 				if args[1] == "!vcr" then misc.shuffleTable(playerList) end
 
 				-- Call the function associated with the given game
-				local stat, err, ret = xpcall(GAME_LIST[nameOfGame].startFunc, debug.traceback, message, playerList)
+				local stat, err, ret = xpcall(GAME_LIST[nameOfGame].startGame, debug.traceback, message, playerList)
 				if not stat then
 					-- Game crashed on startup
 					print(tostring(nameOfGame) .. " crashed on startup") --TODO: Add id to output
@@ -373,12 +260,6 @@ end
 --#############################################################################################################################################
 --# Bot Functions                                                                                                                             #
 --#############################################################################################################################################
-
-function init()
-	--[[Called when the bot initializes]]
-	-- Currently empty; werewords.loadWordlists() was originally called here, but that made it inaccessible to Werewords.lua, for reasons I don't
-	-- fully understand
-end
 
 -- Login
 client:on("ready", function()

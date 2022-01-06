@@ -66,7 +66,7 @@ local SCENES = {
 	["Victim's Occupation"] = {"Boss", "Professional", "Worker", "Student", "Unemployed", "Retired"},
 	["Weather"] = {"Sunny", "Stormy", "Dry", "Humid", "Cold", "Hot"},
 	["Day of Crime"] = {"Weekday", "Weekend", "Spring", "Summer", "Autumn", "Winter"},
-	["Time Until Discovery"] = {"Immediate", "Minutes", "Hours", "Days", "Weeks", "Months or More"}
+	["Time Until Discovery"] = {"Immediate", "Minutes", "Hours", "Days", "Weeks", "Months or More"},
 	["Murderer's Build"] = {"Large/Overweight", "Small/Underweight", "Tall", "Short", "Healthy/Muscular", "Average"},
 	["Evidence Left Behind"] = {"Natural", "Creative", "Written", "Synthetic", "Personal", "Unrelated"},
 	["Victim's Clothes"] = {"Neat", "Untidy", "Formal", "Casual", "Bizarre", "Naked"},
@@ -88,7 +88,7 @@ local CAUSES = {
 --# Main Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function deception.startGame(message)
+function deception.startGame(message, playerList)
 end
 
 function deception.commandHandler(message, state)
@@ -100,7 +100,5 @@ end
 --#############################################################################################################################################
 --# Game Functions                                                                                                                            #
 --#############################################################################################################################################
-
-
 
 return deception
