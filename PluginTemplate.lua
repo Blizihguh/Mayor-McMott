@@ -1,8 +1,17 @@
+-- If you're editing this file into a plugin, be sure to put it in the plugins folder! It won't be loaded unless it's in there.
+
+-- Every game imports the Games module, which acts as an intermediary between MayorMcMott and your plugin.
+-- You should only need to use games.registerGame() and games.deregisterGame().
 local games = require("Games")
+-- The Misc module contains general utility functions. You'll probably want it for convenience's sake
 local misc = require("Misc")
+
+-- Lua modules work by returning a table containing all their functions. MayorMcMott plugins work the same!
+-- When you define the handlers your game uses, you'll do it as part of this table (see the "Main Functions" section below)
+-- Note that you do not need to, and should not, include other functions as part of this table.
 local REPLACE_GAME_NAME = {}
 
---IMPORTANT: Declare all function names (besides the startGame/commandHandler/dmHandler/optional reactHandler functions) as local variables here.
+--IMPORTANT: Declare all function names (besides the startGame/commandHandler/optional dmHandler and reactHandler functions) as local variables here.
 --           If you don't do this, they will be imported as global functions, possibly disrupting other games!
 local quitGame
 
