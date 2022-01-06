@@ -28,7 +28,8 @@ function init()
 	for filename,filetype in fs.scandirSync("plugins") do
 		if filetype == "file" then
 			if filename:sub(-4) == ".lua" then
-				GAME_LIST[filename] = require("plugins/" .. filename:sub(1,-5))
+				local gamename = filename:sub(1,-5)
+				GAME_LIST[gamename] = require("plugins/" .. gamename)
 				i = i + 1
 			end
 		end
