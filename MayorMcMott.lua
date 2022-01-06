@@ -62,7 +62,7 @@ function gameCommands(message)
 	local author = message.author
 	local args = content:split(" ")
 
-	if misc.keyInTable(channel, games.INSTANCES) then -- Channel has game already
+	if misc.keyInTable(channel, games.INSTANCES) and (GAME_LIST[gameType].commandHandler ~= nil) then -- Channel has game already
 		-- Run game-specific functions
 		local gameType = games.INSTANCES[channel][2]
 		local state = games.INSTANCES[channel][3]

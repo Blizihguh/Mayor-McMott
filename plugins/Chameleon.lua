@@ -199,14 +199,6 @@ function chameleon.startGame(message, playerList)
 	end
 end
 
-function chameleon.commandHandler(message, state)
-	local args = message.content:split(" ")
-	if args[1] == "!quit" then
-		games.deregisterGame(state["GameChannel"])
-		message.channel:send("Quiting game...")
-	end
-end
-
 --#############################################################################################################################################
 --# Game Functions                                                                                                                            #
 --#############################################################################################################################################
