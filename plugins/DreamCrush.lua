@@ -2,7 +2,7 @@ local games = require("Games")
 local misc = require("Misc")
 local dreamcrush = {}
 dreamcrush.desc = "Look into your heart and choose your favorite Crush, then guess who your friends are crushing on!"
-dreamcrush.rules = "TODO"
+dreamcrush.rules = "https://youtu.be/DWnM71e2ofc"
 
 local quitGame, createDecks
 
