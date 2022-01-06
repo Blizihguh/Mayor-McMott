@@ -1,0 +1,63 @@
+local emote_tables = {}
+
+-- Add the IDs for your emoji alphabet here
+-- The values in this table should look like: "<:emotename:id>"
+emote_tables.RedLetters = {
+	A = "",
+	B = "",
+	C = "",
+	D = "",
+	E = "",
+	F = "",
+	G = "",
+	H = "",
+	I = "",
+	J = "",
+	K = "",
+	L = "",
+	M = "",
+	N = "",
+	O = "",
+	P = "",
+	Q = "",
+	R = "",
+	S = "",
+	T = "",
+	U = "",
+	V = "",
+	W = "",
+	X = "",
+	Y = "",
+	Z = ""
+}
+
+emote_tables.GreenLetters = {
+	A = "",
+	B = "",
+	C = "",
+	D = "",
+	E = "",
+	F = "",
+	G = "",
+	H = "",
+	I = "",
+	J = "",
+	K = "",
+	L = "",
+	M = "",
+	N = "",
+	O = "",
+	P = "",
+	Q = "",
+	R = "",
+	S = "",
+	T = "",
+	U = "",
+	V = "",
+	W = "",
+	X = "",
+	Y = "",
+	Z = ""
+}
+
+return emote_tables

@@ -4,6 +4,7 @@ BOT_TOKEN
 discordia.log
 gateway.json
 Debug.lua
+Emotes.lua
 words/server-specific/
 plugins/server-specific/Chameleon-SP.lua
 plugins/server-specific/Codenames-SP.lua
