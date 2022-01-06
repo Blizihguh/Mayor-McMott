@@ -1,8 +1,37 @@
 local csv = require("deps/csv")
+local emotes = require("Emotes")
 
 local misc = {}
 
-function startsWith(str, pattern)
+function misc.strToBlueEmote(str)
+	local output = ""
+	local zws = "​" -- Character combos that match a country code will combine into a flag if we don't put a zero-width space between them
+	for i = 1, #str do
+		local c = str:sub(i,i):lower()
+		if string.match(c, "[abcdefghijklmnopqrstuvwxyz]") then output = output .. ":regional_indicator_" .. c .. ":" .. zws end
+	end
+	return output
+end
+
+function misc.strToRedEmote(str)
+	local output = ""
+	for i = 1, #str do
+		local c = str:sub(i,i):upper()
+		if emotes.RedLetters[c] ~= nil then output = output .. emotes.RedLetters[c] end
+	end
+	return output
+end
+
+function misc.strToGreenEmote(str)
+	local output = ""
+	for i = 1, #str do
+		local c = str:sub(i,i):upper()
+		if emotes.GreenLetters[c] ~= nil then output = output .. emotes.GreenLetters[c] end
+	end
+	return output
+end
+
+function misc.startsWith(str, pattern)
 	for i = 1, #pattern do
 		if str:sub(i,i) ~= pattern:sub(i,i) then return false end
 	end

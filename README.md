@@ -7,6 +7,8 @@ To run Mayor McMott, simply download the repository, create a file named BOT_TOK
 
 For some games which support server-specific data (eg Chameleon), you can add your data in plugins/server-specific/. This allows you to add, for instance, Chameleon cards that will only appear when playing in a specific server. Games that support this will have example files in plugins/server-specific/; simply edit them to include your custom data, then rename them to remove the .example prefix.
 
+There are two other .example files that you may want to use. Debug.lua.example returns an empty function. Rename it to Debug.lua and modify the function to run it with the !debug command. The !debug function will be updated every time you run it, so there's no need to restart the bot. Emotes.lua.example returns a table of custom emojis. If you want to use functions that include custom emojis, add the IDs for your emojis here. Misc already implements two such functions, which can be used to write words in using custom red and green letter emojis. If you do not update this with the IDs to your custom emojis, those functions will return mostly empty strings.
+
 ## How Do I Add A Game?
 Adding a new game to Mayor McMott is pretty simple. All you have to do is:
 * Create a new file to hold your game, and require Games.lua in it.
