@@ -214,6 +214,8 @@ function miscCommands(message)
 		else
 			message.channel:send("Do !reload [game] to reload one game, or !reload all to reload all plugins!")
 		end
+	elseif args[1] == "!debug" then
+		pcall(dofile("Debug.lua"), message)
 	end
 	if string.match(message.content, "( ͡° ͜ʖ ͡°)") then
 		if string.match(string.lower(message.content), "fast") then

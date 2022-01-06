@@ -1,0 +1,6 @@
+local function debugFunc(message)
+	-- Any code you write here can be run with the command !debug
+	-- You don't need to reload the bot for this function to refresh; just save this file and run the command!
+end
+
+return debugFunc
