@@ -4,13 +4,13 @@ local games = {}
 --# State/Globals                                                                                                                             #
 --#############################################################################################################################################
 
--- {Channel : {ID, Name, State}}
+-- {Channel : {ID, Name, State, Players}}
 games.INSTANCES = {}
 
 function games.registerGame(channel, name, state, players)
 	--[[Add game to the instances table]]
 	local id = math.random(10000)
-	while idInUse(id) do id = math.random(10000) end
+	while idInUse(id) or (id < 1) do id = math.random(10000) end
 	games.INSTANCES[channel] = {id, name, state, players}
 end
 
@@ -19,11 +19,23 @@ function games.deregisterGame(channel)
 	games.INSTANCES[channel] = nil
 end
 
+function games.deregisterByID(id)
+	--[[Remove game from the instances table by game id]]
+	for channel, game in pairs(games.INSTANCES) do
+		if game[1] == id then 
+			games.INSTANCES[channel] = nil
+			return true
+		else
+			return false
+		end
+	end
+end
+
 function games.playerInGame(person)
-	--[[Check if player exists in any game]]
+	--[[Check if player exists in any game, and return the game id if so]]
 	for game, info in pairs(games.INSTANCES) do
 		for idx, player in pairs(info[4]) do
-			if player == person then return true end
+			if player == person then return info[1] end
 		end
 	end
 	return false
