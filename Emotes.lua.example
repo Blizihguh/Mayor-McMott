@@ -2,9 +2,11 @@ local emote_tables = {}
 
 -- Add the IDs for your emoji alphabet here
 -- The values in this table should look like: "<:emotename:id>"
+-- Red A, B, and O are already in the Unicode standard as blood type emojis
+-- With 23 custom red letters and 26 custom green letters, the full alphabet takes 49 emoji slots
 emote_tables.RedLetters = {
-	A = "",
-	B = "",
+	A = ":a:",
+	B = ":b:",
 	C = "",
 	D = "",
 	E = "",
@@ -17,7 +19,7 @@ emote_tables.RedLetters = {
 	L = "",
 	M = "",
 	N = "",
-	O = "",
+	O = ":o2:",
 	P = "",
 	Q = "",
 	R = "",
