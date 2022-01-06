@@ -47,6 +47,7 @@ function REPLACE_GAME_NAME.commandHandler(message, state)
 	--!quit: For quitting the game early
 end
 
+--OPTIONAL: Do not include this function if you don't need it!
 function REPLACE_GAME_NAME.dmHandler(message, state)
 	-- args[1] will be the command name
 	local args = message.content:split(" ")
