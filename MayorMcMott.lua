@@ -36,7 +36,7 @@ function init()
 		if filetype == "file" then
 			if filename:sub(-4) == ".lua" then
 				local gamename = filename:sub(1,-5)
-				GAME_LIST[gamename] = require("plugins/" .. gamename)
+				GAME_LIST[gamename] = dofile("plugins/" .. gamename .. ".lua") -- Using dofile instead of require to allow reloading after changes
 				i = i + 1
 			end
 		end
@@ -184,6 +184,16 @@ function miscCommands(message)
 		else
 			local u = misc.getRandomIndex(vcchannel.connectedMembers)
 			message.channel:send("<@!" .. u .. ">, you're it!")
+		end
+	elseif args[1] == "!reload" then
+		if args[2] ~= nil then
+			if misc.getKeyInTableInsensitive(args[2], GAME_LIST) then
+				GAME_LIST[args[2]] = dofile("plugins/" .. args[2] .. ".lua")
+			elseif args[2]:lower() == "all" then
+				init()
+			end
+		else
+			message.channel:send("Do !reload [game] to reload one game, or !reload all to reload all plugins!")
 		end
 	end
 	if string.match(message.content, "( ͡° ͜ʖ ͡°)") then
