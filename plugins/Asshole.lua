@@ -47,9 +47,6 @@ function asshole.commandHandler(message, state)
 	if args[1] == "!quit" then quitGame(state) end
 end
 
-function asshole.dmHandler(message, state)
-end
-
 function asshole.reactHandler(reaction, user, state)
 	-- Check if the message is the user's status message
 	for idx,playerObject in pairs(state.PlayerList) do
