@@ -236,8 +236,11 @@ function infoCommands(content, channel, author, args)
 	if args[1] == "!games" then -- Print the list of games the bot can run
 		local output = ""
 		for key,value in pairs(GAME_LIST) do
-			output = output .. key .. ": " .. value["desc"] .. "\n"
+			if value.desc ~= "TODO" then
+				output = output .. key .. ", "
+			end
 		end
+		output = output:sub(1,-3)
 		channel:send(output)
 	elseif args[1] == "!list" then -- Print a list of currently running games
 		local noGames = true -- lua's table size operator is notoriously useless
@@ -251,7 +254,7 @@ function infoCommands(content, channel, author, args)
 	elseif args[1] == "!info" then -- Print info about a specific game
 		for key,value in pairs(GAME_LIST) do
 			if args[2]:lower() == key:lower() then
-				local msg = value["desc"] .. "\nRules: " .. value["rules"]
+				local msg = value["desc"] .. "\nRules: <" .. value["rules"] .. ">"
 				channel:send(msg)
 			end
 		end
