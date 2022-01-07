@@ -22,7 +22,7 @@ function twopeople.startGame(message, players)
 		end
 	end
 	message.channel:send("Started the game with " .. state.TomScott.name .. " as the Judge! Everybody else, DM me your article with the !pick command!")
-	games.registerGame(message.channel, "Trickipedia", state, players)
+	state.GameID = games.registerGame(message.channel, "Trickipedia", state, players)
 end
 
 function twopeople.commandHandler(message, state)
@@ -46,7 +46,7 @@ end
 
 function quitGame(state)
 	state.GameChannel:send("Exiting game.")
-	games.deregisterGame(state.GameChannel)
+	games.deregisterGame(state.GameID)
 end
 
 function pickArticle(state, message)
@@ -70,7 +70,7 @@ function doReveal(state)
 		-- Pick a random article
 		local chosen = misc.getRandomIndex(state.PlayerList)
 		state.GameChannel:send("The article is: " .. string.upper(state.PlayerList[chosen][2]))
-		games.deregisterGame(state.GameChannel)
+		games.deregisterGame(state.GameID)
 	else
 		state.GameChannel:send("Someone hasn't submitted an article yet!")
 	end

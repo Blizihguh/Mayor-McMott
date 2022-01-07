@@ -36,7 +36,7 @@ function tictactoe.startGame(message, players)
 		XTurn = true
 	}
 
-	games.registerGame(message.channel, "TicTacToe", state, players)
+	state["GameID"] = games.registerGame(message.channel, "TicTacToe", state, players)
 	
 	message.channel:send("It's Player One's turn!")
 end
@@ -173,7 +173,7 @@ end
 function tictactoeExitGame(state)
 	--[[Close the game]]
 	state["GameChannel"]:send("Quitting game...")
-	games.deregisterGame(state["GameChannel"])
+	games.deregisterGame(state["GameID"])
 end
 
 return tictactoe

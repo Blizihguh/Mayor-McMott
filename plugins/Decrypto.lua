@@ -57,7 +57,7 @@ function decrypto.startGame(message, players)
 	end
 
 	-- Create a new game and register it
-	games.registerGame(message.channel, "Decrypto", state, players)
+	state.GameID = games.registerGame(message.channel, "Decrypto", state, players)
 end
 
 function decrypto.commandHandler(message, state)
@@ -187,7 +187,7 @@ end
 
 function quitGame(state)
 	state.GameChannel:send("Quitting game...")
-	games.deregisterGame(state.GameChannel)
+	games.deregisterGame(state.GameID)
 end
 
 function advancePhases(state)

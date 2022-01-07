@@ -21,7 +21,7 @@ function asshole.startGame(message, players)
 	state.Players = players
 	state = loadGame(state, players)
 
-	games.registerGame(message.channel, "Asshole", state, players)
+	state.GameID = games.registerGame(message.channel, "Asshole", state, players)
 end
 
 function asshole.commandHandler(message, state)
@@ -80,7 +80,7 @@ function quitGame(state)
 	for idx,playerInfo in pairs(state.PlayerList) do
 		playerInfo.Player:send("Quitting game...")
 	end
-	games.deregisterGame(state.GameChannel)
+	games.deregisterGame(state.GameID)
 end
 
 function point(state, user, emoji)

@@ -48,7 +48,7 @@ function letterjam.startGame(message, playerList)
 	-- Create a new game and register it
 	message.channel:send("Starting game...")
 	local state = letterJamCreateGameInstance(message.channel, playerList, message)
-	games.registerGame(message.channel, "LetterJam", state, playerList)
+	state.GameID = games.registerGame(message.channel, "LetterJam", state, playerList)
 end
 
 function letterjam.commandHandler(message, state)
@@ -581,7 +581,7 @@ end
 
 function letterJamQuitGame(state)
 	state["GameChannel"]:send("Quitting game...")
-	games.deregisterGame(state["GameChannel"])
+	games.deregisterGame(state["GameID"])
 end
 
 return letterjam

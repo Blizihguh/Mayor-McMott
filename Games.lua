@@ -4,53 +4,54 @@ local games = {}
 --# State/Globals                                                                                                                             #
 --#############################################################################################################################################
 
--- {Channel : {ID, Name, State, Players}}
+-- {ID: {Channel, Name, State, Players}}
 games.INSTANCES = {}
 
 function games.registerGame(channel, name, state, players)
 	--[[Add game to the instances table]]
 	local id = math.random(10000)
 	while idInUse(id) or (id < 1) do id = math.random(10000) end
-	games.INSTANCES[channel] = {id, name, state, players}
+	games.INSTANCES[id] = {channel, name, state, players}
+	return id
 end
 
-function games.deregisterGame(channel)
+function games.deregisterGame(id)
 	--[[Remove game from the instances table]]
-	games.INSTANCES[channel] = nil
+	games.INSTANCES[id] = nil
 end
 
-function games.deregisterByID(id)
-	--[[Remove game from the instances table by game id]]
-	for channel, game in pairs(games.INSTANCES) do
-		if game[1] == id then 
-			games.INSTANCES[channel] = nil
-			return true
-		else
-			return false
+function games.playerInGame(person, id)
+	--[[Check if player exists in any game, and return true if so. If id is passed, only check that game.]]
+	if id == nil then
+		for id, info in pairs(games.INSTANCES) do
+			for idx, player in pairs(info[4]) do
+				if player == person then return true end
+			end
 		end
-	end
-end
-
-function games.playerInGame(person)
-	--[[Check if player exists in any game, and return the game id if so]]
-	for game, info in pairs(games.INSTANCES) do
-		for idx, player in pairs(info[4]) do
-			if player == person then return info[1] end
+		return false
+	else
+		local plist = games.INSTANCES[id][4]
+		for idx, player in pairs(plist) do
+			if player == person then return id end
 		end
+		return false
 	end
-	return false
 end
 
 function idInUse(id)
 	--[[Check if the given game ID is in use]]
-	for game, info in pairs(games.INSTANCES) do
-		if info[1] == id then return true end
-	end
-	return false
+	return games.INSTANCES[id] ~= nil
 end
 
-function games.getState(channel)
-	return games.INSTANCES[channel][2]
+function games.getState(id)
+	return games.INSTANCES[id][2]
+end
+
+function games.getIDForChannel(channel)
+	for id,info in pairs(games.INSTANCES) do
+		if info[1] == channel then return id end
+	end
+	return nil
 end
 
 return games

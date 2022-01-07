@@ -45,7 +45,7 @@ function madness.startGame(message, playerList)
 
     message.channel:send("Starting game...")
     local state = madnessCreateGameInstance(message.channel, playerList, message)
-    games.registerGame(message.channel, "Madness", state, playerList)
+    state.GameID = games.registerGame(message.channel, "Madness", state, playerList)
 end
 
 function madness.commandHandler(message, state)
@@ -248,7 +248,7 @@ end
 
 function madnessEndGame(state)
 	state["GameChannel"]:send("Quitting game...")
-	games.deregisterGame(state["GameChannel"])
+	games.deregisterGame(state["GameID"])
 end
 
 function madnessDrawCard(state, id)

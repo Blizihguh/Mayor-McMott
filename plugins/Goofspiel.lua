@@ -43,7 +43,7 @@ function goofspiel.startGame(message, players)
 	}
 
 
-	games.registerGame(message.channel, "Goofspiel", state, players)
+	state.GameID = games.registerGame(message.channel, "Goofspiel", state, players)
 
 	for id,info in pairs(state.PlayerList) do
 		info.Status = info.Player:send("**Dealing out cards...**")
@@ -260,7 +260,7 @@ end
 
 function quitGame(state)
 	state.GameChannel:send("Quitting game...")
-	games.deregisterGame(state.GameChannel)	
+	games.deregisterGame(state.GameID)	
 end
 
 return goofspiel

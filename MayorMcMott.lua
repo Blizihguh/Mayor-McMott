@@ -33,8 +33,8 @@ function init()
 	--[[Called when the bot initializes]]
 	GAME_LIST = {}
 	if games.INSTANCES ~= nil then
-		for channel,info in pairs(games.INSTANCES) do
-			games.deregisterGame(channel)
+		for id,info in pairs(games.INSTANCES) do
+			games.deregisterGame(id)
 		end
 	end
 
@@ -62,7 +62,8 @@ function gameCommands(message)
 	local author = message.author
 	local args = content:split(" ")
 
-	if misc.keyInTable(channel, games.INSTANCES) then -- Channel has game already
+	local gameid = games.getIDForChannel(channel)
+	if gameid ~= nil then -- Channel has game already
 		-- Run game-specific functions
 		local gameType = games.INSTANCES[channel][2]
 		if GAME_LIST[gameType].commandHandler == nil then return end
@@ -70,23 +71,21 @@ function gameCommands(message)
 		local stat, err, ret = xpcall(GAME_LIST[gameType].commandHandler, debug.traceback, message, state)
 		if not stat then
 			-- Game crashed
-			print(tostring(nameOfGame) .. " crashed on public command") --TODO: Add id to output
+			print(tostring(nameOfGame) .. " id " .. gameid .. " crashed on public command") --TODO: Add id to output
 			print(err)
-			games.deregisterGame(channel)
+			games.deregisterGame(gameid)
 		end
 	elseif games.playerInGame(author) then -- User is in a game, call relevant handlers
 		-- Check every game to see if the player is playing, and call the relevant event handler for that game
-		for gamechannel, game in pairs(games.INSTANCES) do
-			for idx, player in pairs(game[4]) do
-				if author == player then
-					if GAME_LIST[game[2]].dmHandler ~= nil then
-						local stat, err, ret = xpcall(GAME_LIST[game[2]].dmHandler, debug.traceback, message, game[3])
-						if not stat then
-							-- Game crashed
-							print(tostring(nameOfGame) .. " id " .. game[1] .. " crashed on DM command")
-							print(err)
-							games.deregisterGame(gamechannel)
-						end
+		for gameid, game in pairs(games.INSTANCES) do
+			if games.playerInGame(author, gameid) then
+				if GAME_LIST[game[2]].dmHandler ~= nil then
+					local stat, err, ret = xpcall(GAME_LIST[game[2]].dmHandler, debug.traceback, message, game[3])
+					if not stat then
+						-- Game crashed
+						print(tostring(nameOfGame) .. " id " .. game[1] .. " crashed on DM command")
+						print(err)
+						games.deregisterGame(gameid)
 					end
 				end
 			end
@@ -133,7 +132,8 @@ function gameCommands(message)
 					-- Game crashed on startup
 					print(tostring(nameOfGame) .. " crashed on startup") --TODO: Add id to output
 					print(err)
-					games.deregisterGame(channel)
+					local gid = games.getIDForChannel(message.channel)
+					if gid ~= nil then games.deregisterGame(gid) end
 				end
 			else
 				channel:send("Uh-oh! I don't know how to play that game, homie!")
@@ -145,18 +145,16 @@ end
 function reactionCommands(channel, reaction, user)
 	if games.playerInGame(user) then -- User is in a game, call relevant handlers
 		-- Check every game to see if the player is playing, and call the relevant event handler for that game
-		for channel, game in pairs(games.INSTANCES) do
+		for gameid, game in pairs(games.INSTANCES) do
 			-- Don't bother if the game doesn't have a reactHandler command
 			if GAME_LIST[game[2]].reactHandler ~= nil then
-				for idx, player in pairs(game[4]) do
-					if user == player then
-						local stat, err, ret = xpcall(GAME_LIST[game[2]].reactHandler, debug.traceback, reaction, user, game[3])
-						if not stat then
-							-- Game crashed
-							print(tostring(nameOfGame) .. " id " .. game[1] .. " crashed on reaction")
-							print(err)
-							games.deregisterGame(channel)
-						end
+				if games.playerInGame(user, gameid) then
+					local stat, err, ret = xpcall(GAME_LIST[game[2]].reactHandler, debug.traceback, reaction, user, game[3])
+					if not stat then
+						-- Game crashed
+						print(tostring(nameOfGame) .. " id " .. game[1] .. " crashed on reaction")
+						print(err)
+						games.deregisterGame(gameid)
 					end
 				end
 			end
@@ -199,9 +197,9 @@ function miscCommands(message)
 				-- Remove all loaded code relating to this game
 				local gamename = misc.getKeyInTableInsensitive(args[2], GAME_LIST)
 				GAME_LIST[gamename] = nil
-				for channel,info in pairs(games.INSTANCES) do
+				for gid,info in pairs(games.INSTANCES) do
 					if info[2] == gamename then
-						games.deregisterGame(channel)
+						games.deregisterGame(gid)
 					end
 				end
 				-- Reload the game

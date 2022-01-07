@@ -28,7 +28,7 @@ function curios.startGame(message)
 	-- Create a new game and register it
 	message.channel:send("Starting game...")
 	local state = curiosCreateGameInstance(message.channel, playerList)
-	games.registerGame(message.channel, "Curios", state, playerList)
+	state.GameID = games.registerGame(message.channel, "Curios", state, playerList)
 
 	-- DM players their hands
 	for idx,playerInfo in pairs(state["PlayerList"]) do
@@ -39,7 +39,7 @@ end
 function curios.commandHandler(message, state)
 end
 
-function curiosDMHandler(message, state)
+function curios.curiosDMHandler(message, state)
 end
 
 --[[--------------------------------------------------------

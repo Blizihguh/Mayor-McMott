@@ -45,7 +45,7 @@ function werewords.startGame(message, players)
 	state["Mode"] = args[3]
 	state["PlayerList"] = playerList
 	ruleset = args[4]
-	games.registerGame(message.channel, "Werewords", state, players)
+	state.GameID = games.registerGame(message.channel, "Werewords", state, players)
 	message.channel:send("Starting game...")
 	-- Start game
 	werewordsAssignRoles(state["PlayerList"], ruleset, state)
@@ -265,7 +265,7 @@ end
 
 function werewordsExitGame(channel, state)
 	werewordsMessageGame("Quitting game...", state)
-	games.deregisterGame(channel)
+	games.deregisterGame(state.GameID)
 
 end
 

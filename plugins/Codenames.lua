@@ -79,7 +79,7 @@ function codenames.startGame(message, players)
 	message.channel:send("The Green team is: " .. blueStr .. "\nThe Red team is: " .. redStr .. "\nThe " .. startStr .. " team is starting!")
 
 	-- Create a new game and register it
-	games.registerGame(message.channel, "Codenames", state, players)
+	state.GameID = games.registerGame(message.channel, "Codenames", state, players)
 end
 
 function codenames.commandHandler(message, state)
@@ -134,7 +134,7 @@ end
 
 function quitGame(state)
 	state["GameChannel"]:send("Quitting game...")
-	games.deregisterGame(state["GameChannel"])
+	games.deregisterGame(state["GameID"])
 end
 
 function endGame(state, winningTeam)

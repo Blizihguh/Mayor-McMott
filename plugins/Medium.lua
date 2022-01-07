@@ -52,7 +52,7 @@ function medium.startGame(message, playerList)
 	else
 		state = mediumCreateGameInstance(message.channel, nil, playerList, message)
 	end
-	games.registerGame(message.channel, "Medium", state, playerList)
+	state.GameID = games.registerGame(message.channel, "Medium", state, playerList)
 
 	-- DM players their hands
 	for idx,playerInfo in pairs(state["PlayerList"]) do
@@ -438,7 +438,7 @@ function mediumEndGame(state)
 	state["GameChannel"]:send(output)
 
 	-- Exit game
-	games.deregisterGame(state["GameChannel"])
+	games.deregisterGame(state["GameID"])
 end
 
 function mediumQuitGame(state)

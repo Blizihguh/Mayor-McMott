@@ -73,7 +73,7 @@ function dreamcrush.startGame(message, players)
 	
 	message.channel:send(crushIntro)
 	
-	games.registerGame(message.channel, "DreamCrush", state, players)
+	state.GameID = games.registerGame(message.channel, "DreamCrush", state, players)
 end
 
 function dreamcrush.commandHandler(message, state)
@@ -161,7 +161,7 @@ end
 
 function quitGame(state)
 	state.GameChannel:send("Quitting game...")
-	games.deregisterGame(state.GameChannel)	
+	games.deregisterGame(state.GameID)	
 end
 
 return dreamcrush

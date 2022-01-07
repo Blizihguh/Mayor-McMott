@@ -54,7 +54,7 @@ function fastlength.startGame(message, players)
 	end
 
 	-- Create a new game and register it
-	games.registerGame(message.channel, "Fastlength", state, {message.author})
+	state.GameID = games.registerGame(message.channel, "Fastlength", state, {message.author})
 end
 
 function fastlength.commandHandler(message, state)
@@ -68,7 +68,7 @@ function fastlength.commandHandler(message, state)
 		else
 			message.channel:send("The target value is... " .. state["Value"] .. "\n" .. getAxisString(state["Value"], state["Axis"]))
 		end
-		games.deregisterGame(state["GameChannel"])
+		games.deregisterGame(state["GameID"])
 	end
 end
 

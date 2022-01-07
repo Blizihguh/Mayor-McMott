@@ -40,7 +40,7 @@ function REPLACE_GAME_NAME.startGame(message, playerList)
 
 	-- Use the name as it appears in MayorMcMott.lua's GAME_LIST table, and the same player list from the function args (don't modify it!)
 	-- For very simple games that don't need commands (eg Chameleon), just delete this line, as well as the quitGame function
-	--games.registerGame(message.channel, "GameName", state, playerList)
+	--state.GameID = games.registerGame(message.channel, "GameName", state, playerList)
 end
 
 function REPLACE_GAME_NAME.commandHandler(message, state)
@@ -72,7 +72,7 @@ end
 
 function quitGame(state)
 	state.GameChannel:send("Quitting game...")
-	games.deregisterGame(state.GameChannel)	
+	games.deregisterGame(state.GameID)	
 end
 
 return REPLACE_GAME_NAME
