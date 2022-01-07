@@ -292,6 +292,7 @@ function infoCommands(content, channel, author, args)
 		end
 		if noGames then channel:send("No games currently running.") else channel:send(output) end
 	elseif args[1] == "!info" then -- Print info about a specific game
+		if args[2] == nil then channel:send("What game do you want info for?"); return end
 		for key,value in pairs(GAME_LIST) do
 			if args[2]:lower() == key:lower() then
 				local msg = value["desc"] .. "\nRules: <" .. value["rules"] .. ">"
