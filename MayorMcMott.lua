@@ -65,9 +65,9 @@ function gameCommands(message)
 	local gameid = games.getIDForChannel(channel)
 	if gameid ~= nil then -- Channel has game already
 		-- Run game-specific functions
-		local gameType = games.INSTANCES[channel][2]
+		local gameType = games.INSTANCES[gameid][2]
 		if GAME_LIST[gameType].commandHandler == nil then return end
-		local state = games.INSTANCES[channel][3]
+		local state = games.INSTANCES[gameid][3]
 		local stat, err, ret = xpcall(GAME_LIST[gameType].commandHandler, debug.traceback, message, state)
 		if not stat then
 			-- Game crashed
