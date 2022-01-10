@@ -55,93 +55,115 @@ end
 --# Command Handlers                                                                                                                          #
 --#############################################################################################################################################
 
+function safeCallHandler(gameName, gameid, handler, message, arg2)
+	-- If the handler is a start game handler, arg2 is player list; otherwise it's state
+	local stat, err, ret = xpcall(handler, debug.traceback, message, arg2)
+	if not stat then
+		-- Game crashed
+		print(tostring(gameName) .. " (id " .. tostring(gameid) .. ") crashed on message:")
+		print(message.content)
+		if type(arg2) == "table" then misc.printTable(arg2) else print(arg2) end
+		print("\n")
+		print(err)
+		if gameid ~= nil then
+			games.deregisterGame(gameid)
+		else
+			gameid = games.getIDForChannel(message.channel)
+			if gameid ~= nil then games.deregisterGame(gameid) end
+		end
+	end
+end
+
 function gameCommands(message)
-	--[[Called on new messages]]
 	local content = message.content
 	local channel = message.channel
 	local author = message.author
+	local authorvc = nil
+	local gameName = nil
+	local gameid = games.getIDForChannel(channel)
 	local args = content:split(" ")
 
-	local gameid = games.getIDForChannel(channel)
-	if gameid ~= nil then -- Channel has game already
-		-- Run game-specific functions
-		local gameType = games.INSTANCES[gameid][2]
-		if GAME_LIST[gameType].commandHandler == nil then return end
-		local state = games.INSTANCES[gameid][3]
-		local stat, err, ret = xpcall(GAME_LIST[gameType].commandHandler, debug.traceback, message, state)
-		if not stat then
-			-- Game crashed
-			print(tostring(nameOfGame) .. " id " .. gameid .. " crashed on public command") --TODO: Add id to output
-			print(err)
-			games.deregisterGame(gameid)
+	if (args[1] == "!start") or (args[1] == "!vc") or (args[1] == "!vcr") then -- Are we trying to start a new game?
+		-- args[2] should be the game name; if it's nonexistant or invalid, that's an error
+		if #args == 1 then 
+			channel:send("You need to tell me what game you want to play, homie...")
+			return
 		end
-	elseif games.playerInGame(author) then -- User is in a game, call relevant handlers
-		-- Check every game to see if the player is playing, and call the relevant event handler for that game
-		for gameid, game in pairs(games.INSTANCES) do
-			if games.playerInGame(author, gameid) then
-				if GAME_LIST[game[2]].dmHandler ~= nil then
-					local stat, err, ret = xpcall(GAME_LIST[game[2]].dmHandler, debug.traceback, message, game[3])
-					if not stat then
-						-- Game crashed
-						print(tostring(nameOfGame) .. " id " .. game[1] .. " crashed on DM command")
-						print(err)
-						games.deregisterGame(gameid)
-					end
-				end
+		gameName = misc.getKeyInTableInsensitive(args[2], GAME_LIST)
+		if gameName == nil then
+			channel:send("Uh-oh! I don't know how to play that game, homie!")
+			return
+		end
+		-- Don't start a new game if there's already a new game in this channel
+		if gameid ~= nil then
+			channel:send("This channel already has a game in it, homie!")
+			return
+		end
+		-- Only some games can be started in DM, and some must be started with !vc/!vcr
+		if (channel.type == 1) and (GAME_LIST[args[2]]["startInDMs"] == nil) then
+			channel:send("That game can't be started in DMs, homie. But what's up? Wait wait, I know -- *the skyyyyy*. :point_right::sunglasses::point_right:")
+			return
+		elseif (channel.type == 1) and (GAME_LIST[args[2]]["startInDMs"] == "vcOnly") and (args[1] == "!start") then
+			channel:send("You have to be in a voice channel to start this game in DMs, homie. Otherwise you'd just be playing by yourself :sob:")
+			return
+		end
+		-- Don't allow !vc/!vcr if the message author isn't in a voice channel
+		if ((args[1] == "!vc") or (args[1] == "!vcr")) then
+			for gid,guild in pairs(authorvc.mutualGuilds) do
+				authorvc = guild:getMember(author.id).voiceChannel
+				if authorvc ~= nil then break end
+			end
+			if authorvc == nil then
+				channel:send("You have to be in a voice channel to use !vc or !vcr, homie! (It would help if I was in the server whose call you're in, too...)")
+				return
 			end
 		end
-	else -- Channel does not have game already
-		if message.channel.type ~= 1 and (args[1] == "!start" or args[1] == "!vc" or args[1] == "!vcr") and args[2] ~= nil then -- Don't allow game starting in DMs!
-			local nameOfGame = misc.getKeyInTableInsensitive(args[2], GAME_LIST)
-			if nameOfGame then
-				-- Get the channel and a list of Users who will be playing
-				local playerList = {}
-				table.insert(playerList, message.author)
-				-- What we do here will depend on how the command was called...
-				if (args[1] == "!vc") or (args[1] == "!vcr") then
-					-- Get the channel
-					local vcchannel = nil
-					for idx,voicechannel in pairs(message.guild.voiceChannels) do
-						for id,user in pairs(voicechannel.connectedMembers) do
-							if user.id == message.author.id then
-								vcchannel = voicechannel
-								goto vc_found
-							end
+		--TODO: Should we allow one player to be in multiple games?
+		-- If we've made it to this point, we're all good to start the game
+		-- First, we get the player list for the game
+		local playerList = {}
+		table.insert(playerList, message.author)
+		if args[1] == "!start" then
+			for key,val in pairs(message.mentionedUsers) do
+				-- Skip users that are already in the table (eg message author who @ed themselves)
+				if not misc.valueInList(val, playerList) then table.insert(playerList, val) end
+			end
+		else -- !vc/!vcr
+			for key,val in pairs(authorvc.connectedMembers) do
+				-- Skip users that are already in the table (eg message author who @ed themselves)
+				if not misc.valueInList(val.user, playerList) then table.insert(playerList, val.user) end
+			end
+		end
+		-- Randomize player order for !vcr only
+		if args[1] == "!vcr" then misc.shuffleTable(playerList) end
+		-- Start the game
+		safeCallHandler(gameName, nil, GAME_LIST[gameName].startGame, message, playerList)
+	else -- This message wasn't trying to start a game, so maybe it's in the middle of one!
+		if games.playerInGame(author) then
+			-- If this is the game channel, run the command handler for that game
+			if gameid ~= nil and GAME_LIST[games.getGameName(gameid)].commandHandler ~= nil then
+				gameName = games.getGameName(gameid)
+				local state = games.getGameState(gameid)
+				safeCallHandler(gameName, gameid, GAME_LIST[gameName].commandHandler, message, state)
+			end
+			-- If this is a DM, run the DM handler for any games they're in
+			if channel.type == 1 then
+				-- Loop over all games that this player is in
+				for player,gameid in games.getGamesWithPlayer(author) do
+					gameName = games.getGameName(gameid)
+					if gameName ~= nil then
+						if GAME_LIST[gameName].dmHandler ~= nil then
+							local state = games.getGameState(gameid)
+							safeCallHandler(gameName, gameid, GAME_LIST[gameName].dmHandler, message, state)
 						end
 					end
-					::vc_found::
-					if vcchannel == nil then return end
-					-- Get the User list
-					for key,val in pairs(vcchannel.connectedMembers) do
-						-- Skip users that are already in the table (eg message author who @ed themselves)
-						if not misc.valueInList(val.user, playerList) then table.insert(playerList, val.user) end
-					end
-				elseif args[1] == "!start" then
-					for key,val in pairs(message.mentionedUsers) do
-						-- Skip users that are already in the table (eg message author who @ed themselves)
-						if not misc.valueInList(val, playerList) then table.insert(playerList, val) end
-					end
 				end
-
-				-- Randomize player order for !vcr only
-				if args[1] == "!vcr" then misc.shuffleTable(playerList) end
-
-				-- Call the function associated with the given game
-				local stat, err, ret = xpcall(GAME_LIST[nameOfGame].startGame, debug.traceback, message, playerList)
-				if not stat then
-					-- Game crashed on startup
-					print(tostring(nameOfGame) .. " crashed on startup") --TODO: Add id to output
-					print(err)
-					local gid = games.getIDForChannel(message.channel)
-					if gid ~= nil then games.deregisterGame(gid) end
-				end
-			else
-				channel:send("Uh-oh! I don't know how to play that game, homie!")
 			end
 		end
 	end
 end
 
+--TODO: Overhaul this
 function reactionCommands(channel, reaction, user)
 	if games.playerInGame(user) then -- User is in a game, call relevant handlers
 		-- Check every game to see if the player is playing, and call the relevant event handler for that game
@@ -285,9 +307,9 @@ function infoCommands(content, channel, author, args)
 	elseif args[1] == "!list" then -- Print a list of currently running games
 		local noGames = true -- lua's table size operator is notoriously useless
 		local output = ""
-		for key,value in pairs(games.INSTANCES) do
+		for id,gameinfo in pairs(games.INSTANCES) do
 			noGames = false
-			local game = value[1] .. ": " .. value[2]
+			local game = id .. ": " .. games.getGameName(id)
 			output = output .. game .. "\n"
 		end
 		if noGames then channel:send("No games currently running.") else channel:send(output) end
@@ -324,7 +346,7 @@ client:on("messageCreate", function(message)
 	logDMs(content, channel, author, args)
 	echoCommands(content, channel, author, args)
 	infoCommands(content, channel, author, args)
-	gameCommands(message) -- Send the entire message, as some games might need additional information (eg mentionedUsers, reactions)
+	gameCommands(message)
 	miscCommands(message)
 end)
 
