@@ -15,6 +15,23 @@ function games.registerGame(channel, name, state, players)
 	return id
 end
 
+function games.getGamesWithPlayer(player)
+	-- This is an iterator (like pairs/ipairs)
+	local function gamesWithPlayer_iter(player, gid)
+		gid = next(games.INSTANCES, gid)
+		return games.playerInGame(player, gid)
+	end
+	return gamesWithPlayer_iter, player, nil
+end
+
+function games.getGameName(id)
+	return games.INSTANCES[id][2]
+end
+
+function games.getGameState(id)
+	return games.INSTANCES[id][3]
+end
+
 function games.deregisterGame(id)
 	--[[Remove game from the instances table]]
 	games.INSTANCES[id] = nil
