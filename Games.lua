@@ -19,17 +19,19 @@ function games.getGamesWithPlayer(player)
 	-- This is an iterator (like pairs/ipairs)
 	local function gamesWithPlayer_iter(player, gid)
 		gid = next(games.INSTANCES, gid)
-		return games.playerInGame(player, gid)
+		return gid,games.playerInGame(player, gid)
 	end
 	return gamesWithPlayer_iter, player, nil
 end
 
 function games.getGameName(id)
-	return games.INSTANCES[id][2]
+	if games.INSTANCES[id] ~= nil then return games.INSTANCES[id][2] end
+	return nil
 end
 
 function games.getGameState(id)
-	return games.INSTANCES[id][3]
+	if games.INSTANCES[id] ~= nil then return games.INSTANCES[id][3] end
+	return nil
 end
 
 function games.deregisterGame(id)
