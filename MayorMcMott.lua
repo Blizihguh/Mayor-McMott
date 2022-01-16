@@ -109,7 +109,7 @@ function gameCommands(message)
 		end
 		-- Don't allow !vc/!vcr if the message author isn't in a voice channel
 		if ((args[1] == "!vc") or (args[1] == "!vcr")) then
-			for gid,guild in pairs(authorvc.mutualGuilds) do
+			for gid,guild in pairs(author.mutualGuilds) do
 				authorvc = guild:getMember(author.id).voiceChannel
 				if authorvc ~= nil then break end
 			end
