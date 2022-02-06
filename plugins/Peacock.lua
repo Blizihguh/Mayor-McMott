@@ -2,7 +2,7 @@ local games = require("Games")
 local misc = require("Misc")
 
 local peacock = {}
-peacock.desc = "TODO"
+peacock.desc = "Chameleon, but in reverse"
 peacock.rules = "TODO"
 
 local quitGame, removeUnderscores, displayWords
