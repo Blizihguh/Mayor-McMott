@@ -171,6 +171,20 @@ function misc.valueInList(val, table)
 	return false
 end
 
+function map(tbl, f)
+    local t = {}
+    for k,v in pairs(tbl) do
+        t[k] = f(v)
+    end
+    return t
+end
+
+function sumMap(tbl, f)
+	-- Returns the sum of the result of map()
+	local t = map(tbl, f)
+	return sumTable(t)
+end
+
 function misc.getKey(val, table)
 	-- misc.valueInList but it returns the position
 	for k,v in pairs(table) do
