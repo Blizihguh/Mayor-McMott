@@ -100,10 +100,10 @@ function gameCommands(message)
 			return
 		end
 		-- Only some games can be started in DM, and some must be started with !vc/!vcr
-		if (channel.type == 1) and (GAME_LIST[args[2]]["startInDMs"] == nil) then
+		if (channel.type == 1) and (GAME_LIST[gameName]["startInDMs"] == nil) then
 			channel:send("That game can't be started in DMs, homie. But what's up? Wait wait, I know -- *the skyyyyy*. :point_right::sunglasses::point_right:")
 			return
-		elseif (channel.type == 1) and (GAME_LIST[args[2]]["startInDMs"] == "vcOnly") and (args[1] == "!start") then
+		elseif (channel.type == 1) and (GAME_LIST[gameName]["startInDMs"] == "vcOnly") and (args[1] == "!start") then
 			channel:send("You have to be in a voice channel to start this game in DMs, homie. Otherwise you'd just be playing by yourself :sob:")
 			return
 		end
