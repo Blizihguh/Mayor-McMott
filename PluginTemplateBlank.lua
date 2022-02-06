@@ -2,6 +2,8 @@ local games = require("Games")
 local misc = require("Misc")
 
 local REPLACE_GAME_NAME = {}
+REPLACE_GAME_NAME.desc = "TODO"
+REPLACE_GAME_NAME.rules = "TODO"
 
 local quitGame
 

@@ -10,6 +10,9 @@ local misc = require("Misc")
 -- When you define the handlers your game uses, you'll do it as part of this table (see the "Main Functions" section below)
 -- Note that you do not need to, and should not, include other functions as part of this table.
 local REPLACE_GAME_NAME = {}
+-- Replace these with the description and a link to the rules of the game, respectively
+REPLACE_GAME_NAME.desc = "TODO"
+REPLACE_GAME_NAME.rules = "TODO"
 
 --IMPORTANT: Declare all function names (besides the startGame/commandHandler/optional dmHandler and reactHandler functions) as local variables here.
 --           If you don't do this, they will be imported as global functions, possibly disrupting other games!
