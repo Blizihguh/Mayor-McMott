@@ -15,6 +15,10 @@ local known_setups = "Jester3 (!start Mafia Jester3)\nChicago PD (!start Mafia C
 function mafia.startGame(message, playerList)
     local players = misc.shuffleTable(playerList)
     local args = message.content:split(" ")
+    if #args < 3 then
+        message.channel:send("You have to tell me what setup you want to play, homie!\nKnown setups:\n" .. known_setups)
+        return
+    end
     args[3] = string.lower(args[3])
     
     if     args[3] == "jester3" then jester3(message.channel, players)
