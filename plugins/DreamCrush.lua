@@ -3,6 +3,7 @@ local misc = require("Misc")
 local dreamcrush = {}
 dreamcrush.desc = "Look into your heart and choose your favorite Crush, then guess who your friends are crushing on!"
 dreamcrush.rules = "https://youtu.be/DWnM71e2ofc"
+dreamcrush.startInDMs = true
 
 local quitGame, createDecks
 

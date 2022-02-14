@@ -13,6 +13,9 @@ local REPLACE_GAME_NAME = {}
 -- Replace these with the description and a link to the rules of the game, respectively
 REPLACE_GAME_NAME.desc = "TODO"
 REPLACE_GAME_NAME.rules = "TODO"
+-- The following option(s) should be set only if you need them. If you don't set them, they will default to nil.
+-- startInDMs takes three options: nil (not allowed), true (allowed), and "vcOnly" (only allowed if the user is in a voice channel)
+--REPLACE_GAME_NAME.startInDMs = true
 
 --IMPORTANT: Declare all function names (besides the startGame/commandHandler/optional dmHandler and reactHandler functions) as local variables here.
 --           If you don't do this, they will be imported as global functions, possibly disrupting other games!

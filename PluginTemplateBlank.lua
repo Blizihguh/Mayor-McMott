@@ -4,6 +4,7 @@ local misc = require("Misc")
 local REPLACE_GAME_NAME = {}
 REPLACE_GAME_NAME.desc = "TODO"
 REPLACE_GAME_NAME.rules = "TODO"
+--REPLACE_GAME_NAME.startInDMs = true
 
 local quitGame
 
