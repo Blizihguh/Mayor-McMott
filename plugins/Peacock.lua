@@ -12,10 +12,10 @@ local WORDLISTS_VANILLA = wl[1]
 local WORDLISTS_CUSTOM = wl[2]
 
 -- Uncomment this if you want to import server-specific data
--- local SERVER_LIST = {}
--- if misc.fileExists("plugins/server-specific/peacock-SP.lua") then
--- 	SERVER_LIST = require("plugins/server-specific/peacock-SP")
--- end
+local SERVER_LIST = {}
+if misc.fileExists("plugins/server-specific/Chameleon-SP.lua") then
+	SERVER_LIST = require("plugins/server-specific/Chameleon-SP")
+end
 
 --#############################################################################################################################################
 --# Main Functions                                                                                                                            #
@@ -32,10 +32,25 @@ function peacock.startGame(message, playerList)
 		Words = nil,
 		Peacock = message.author
 	}
+	
+	local wordlistsForThisGame = {}
+	-- Do we want custom cards?
+	local args = message.content:split(" ")
+	if args[3] ~= "vanilla" then
+		misc.fuseDicts(wordlistsForThisGame, WORDLISTS_CUSTOM)
+		-- If so, do we have server cards?
+		for server,list in pairs(SERVER_LIST) do
+			if message.guild.id == server then misc.fuseDicts(wordlistsForThisGame, list) end
+		end
+	end
+	-- Do we want vanilla cards?
+	if args[3] ~= "custom" then
+		misc.fuseDicts(wordlistsForThisGame, WORDLISTS_VANILLA)
+	end
 
-	state["Lists"] = misc.getRandomIndices(WORDLISTS_VANILLA,10)
+	state["Lists"] = misc.getRandomIndices(wordlistsForThisGame,10)
 	state["Wordlist"] = misc.getRandomIndex(state["Lists"])
-	state["Words"] = WORDLISTS_VANILLA[state["Wordlist"]]
+	state["Words"] = wordlistsForThisGame[state["Wordlist"]]
 
 	for idx,player in pairs(playerList) do
 		if player.id == message.author.id then player:send(displayWords(state, true)) else player:send(displayWords(state, false)) end
