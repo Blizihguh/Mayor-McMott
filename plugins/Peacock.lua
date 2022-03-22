@@ -78,6 +78,8 @@ function peacock.dmHandler(message, state)
 		pickWord(state, message.author)
 	elseif args[1] == "!card" then
 		displayCard(state, message.author, args[2])
+	elseif args[1] == "!status" then
+		if state["Peacock"] == message.author then message.author:send(displayWords(state, true)) else message.author:send(displayWords(state, false)) end
 	end
 end
 
@@ -117,6 +119,11 @@ function displayWords(state, peacock)
 		output = "Category: " .. removeUnderscores(state["Wordlist"]) .. "\nWords:\n"
 		for idx,word in pairs(state["Words"]) do
 			output = output .. "[" .. idx .. "] " .. word .. "\n"
+		end
+		output = output .. "Word Lists: "
+		for idx,name in pairs(state["Cards"]) do
+			output = output .. "[" .. idx .. "] __" .. removeUnderscores(name) .. "__ "
+			idx = idx + 1
 		end
 	else
 		output = "**You are the Peacock!** Word Lists:\n"
