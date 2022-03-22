@@ -225,6 +225,18 @@ function misc.getRandomIndex(t)
     return index
 end
 
+function misc.getRandomIndices(t,n)
+	-- Gets n random non-nil indices from the table
+    local keys = {}
+    local indices = {}
+    for key, value in pairs(t) do
+        keys[#keys+1] = key --Store keys in another table
+    end
+    misc.shuffleTable(keys)
+    for i=1,n do indices[keys[i]] = t[keys[i]] end
+    return indices
+end
+
 function misc.setn(tbl,n)
 	-- setn was deprecated in 5.2 but not replaced, and lua does not update table size when you do tbl[idx] = val
 	-- Therefore, if you want to use that syntax, you need to do this horribly ugly thing
