@@ -28,11 +28,12 @@ function peacock.startGame(message, playerList)
 		GameChannel = message.channel,
 		PlayerList = playerList,
 		Lists = nil,
+		Cards = {},
 		Wordlist = nil,
 		Words = nil,
 		Peacock = message.author
 	}
-	
+
 	local wordlistsForThisGame = {}
 	-- Do we want custom cards?
 	local args = message.content:split(" ")
@@ -52,6 +53,13 @@ function peacock.startGame(message, playerList)
 	state["Wordlist"] = misc.getRandomIndex(state["Lists"])
 	state["Words"] = wordlistsForThisGame[state["Wordlist"]]
 
+	-- Slightly spaghetti, but easier than trying to store this info in some other way
+	local idx = 1
+	for name,list in pairs(state["Lists"]) do
+		state["Cards"][idx] = name
+		idx = idx + 1
+	end
+
 	for idx,player in pairs(playerList) do
 		if player.id == message.author.id then player:send(displayWords(state, true)) else player:send(displayWords(state, false)) end
 	end
@@ -68,6 +76,8 @@ function peacock.dmHandler(message, state)
 	local args = message.content:split(" ")
 	if args[1] == "!gimme" and message.author ~= state["Peacock"] then
 		pickWord(state, message.author)
+	elseif args[1] == "!card" then
+		displayCard(state, message.author, args[2])
 	end
 end
 
@@ -89,6 +99,18 @@ function removeUnderscores(word)
 	return o
 end
 
+function displayCard(state, author, cardIdx)
+	cardIdx = tonumber(cardIdx)
+	if state["Cards"][cardIdx] == nil then
+		author:send("That card isn't in this game, homie!")
+	else
+		local output = "Category: " .. removeUnderscores(state["Cards"][cardIdx]) .. "\nWords: "
+		for idx,word in pairs(state["Lists"][state["Cards"][cardIdx]]) do output = output .. word .. ", " end
+		output = output:sub(1,-3)
+		author:send(output)
+	end
+end
+
 function displayWords(state, peacock)
 	local output
 	if not peacock then
@@ -98,10 +120,10 @@ function displayWords(state, peacock)
 		end
 	else
 		output = "**You are the Peacock!** Word Lists:\n"
-		for name,list in pairs(state["Lists"]) do
-			output = output .. "__" .. removeUnderscores(name) .. "__, "
+		for idx,name in pairs(state["Cards"]) do
+			output = output .. "[" .. idx .. "] " .. removeUnderscores(name) .. "\n"
+			idx = idx + 1
 		end
-		output = output:sub(1,-3)
 	end
 
 	return output
