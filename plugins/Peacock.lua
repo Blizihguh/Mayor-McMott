@@ -51,7 +51,7 @@ function peacock.startGame(message, playerList)
 
 	state["Lists"] = misc.getRandomIndices(wordlistsForThisGame,10)
 	state["Wordlist"] = misc.getRandomIndex(state["Lists"])
-	state["Words"] = wordlistsForThisGame[state["Wordlist"]]
+	state["Words"] = misc.shuffleTable(misc.shallowCopy(wordlistsForThisGame[state["Wordlist"]]))
 
 	-- Slightly spaghetti, but easier than trying to store this info in some other way
 	local idx = 1
