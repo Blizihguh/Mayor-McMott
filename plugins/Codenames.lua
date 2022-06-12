@@ -418,7 +418,8 @@ function displayWordsCaptain(state, user)
 	rWords = rWords:sub(1, -3)
 	wWords = wWords:sub(1, -3)
 	aWord  = aWord:sub(1, -3)
-	user:send("```ml\n" .. bWords .. "\n" .. rWords .. "\n" .. wWords .. "\n" .. aWord .. "```")
+	local team = user.id == state["RedCaptain"] and "Red" or "Green"
+	user:send("```ml\n" .. bWords .. "\n" .. rWords .. "\n" .. wWords .. "\n" .. aWord .. "``` You are on **" .. team .. " team**!")
 end
 
 return codenames
