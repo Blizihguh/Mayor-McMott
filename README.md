@@ -18,6 +18,6 @@ Adding a new game to Mayor McMott is pretty simple. All you have to do is:
   * (Optionally) a DM handler, which will handle any DMs from people playing your game,
   * (Optionally) a reaction handler, which will handle any reactions from people playing your game.
 * In your start game function, call games.registerGame() to create a new instance of the game.
-* Finally, add your game to the table GAME_LIST in MayorMcMott.lua, and restart your bot!
+* Make sure your code is in the Plugins folder, and it should load automatically when starting the bot!
 
 Two reference files have also been provided: TicTacToe.lua, a thoroughly documented implementation of a simple game, and Template.lua, a template for creating new games.
