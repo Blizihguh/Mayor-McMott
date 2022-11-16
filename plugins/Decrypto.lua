@@ -4,8 +4,6 @@ local decrypto = {}
 decrypto.desc = "A word game for 4+ players. Players are split into teams, who each see a list of four words. Each team takes turns giving clues to their word list, without giving their words away to the other team."
 decrypto.rules = "https://www.ultraboardgames.com/decrypto/game-rules.php"
 
--- Enum for teams
-local teams = {BLUE = 0, RED = 1}
 -- Local functions
 local dmInfo, advancePhases, dmClue, checkClues, checkForEndgame, getRandomNumbers, quitGame, handleGimme, handleClue, handleGuess, getPlayerFromID
 
