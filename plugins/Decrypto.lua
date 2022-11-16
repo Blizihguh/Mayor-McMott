@@ -3,6 +3,7 @@ local misc = require("Misc")
 local decrypto = {}
 decrypto.desc = "A word game for 4+ players. Players are split into teams, who each see a list of four words. Each team takes turns giving clues to their word list, without giving their words away to the other team."
 decrypto.rules = "https://www.ultraboardgames.com/decrypto/game-rules.php"
+decrypto.startInDMs = "vcOnly"
 
 -- Local functions
 local dmInfo, advancePhases, dmClue, checkClues, checkForEndgame, getRandomNumbers, quitGame, handleGimme, handleClue, handleGuess, getPlayerFromID
@@ -66,7 +67,9 @@ end
 function decrypto.dmHandler(message, state)
 	local args = message.content:split(" ")
 
-	if args[1] == "!gimme" then
+	if args[1] == "!quit" then 
+		quitGame(state)
+	elseif args[1] == "!gimme" then
 		handleGimme(state, message.author)
 	elseif args[1] == "!clue" then
 		handleClue(state, message.author, message.content)
