@@ -18,15 +18,15 @@ local quitGame
 --# Main Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function REPLACE_GAME_NAME.startGame(message, playerList)
+function REPLACE_GAME_NAME.startGame(message, playerList, channel)
 	local args = message.content:split(" ")
 
 	local state = {
-		GameChannel = message.channel,
+		GameChannel = channel,
 		PlayerList = playerList
 	}
 	
-	--state.GameID = games.registerGame(message.channel, "GameName", state, playerList)
+	--state.GameID = games.registerGame(channel, "GameName", state, playerList)
 end
 
 function REPLACE_GAME_NAME.commandHandler(message, state)
