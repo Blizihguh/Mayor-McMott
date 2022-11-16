@@ -18,11 +18,14 @@ discordia.extensions()
 --# Globals                                                                                                                                   #
 --#############################################################################################################################################
 
-LOG_MOTTBOT_MESSAGES = true
+-- Settings
+LOG_MOTTBOT_MESSAGES = true  -- If true, all messages in the bot's DMs will be printed to console.
+ECHO_ALLOWED_USERS = nil     -- List of allowed users for !setchannel and !echo. Leave nil to allow anyone to use them.
+DEBUG_ALLOWED_USERS = nil    -- List of allowed users for !reload and !debug. Leave nil to allow anyone to use them.
 
+-- You don't need to touch these, they're set by the bot automatically when appropriate
 local currentGhostChannel = nil
 local currentGhostFriend = nil
-
 GAME_LIST = {}
 
 --#############################################################################################################################################
@@ -214,6 +217,14 @@ function miscCommands(message)
 			message.channel:send("<@!" .. u .. ">, you're it!")
 		end
 	elseif args[1] == "!reload" then
+		-- Check if we're allowed to do this
+		if DEBUG_ALLOWED_USERS ~= nil then
+			if not misc.valueInList(message.author.id, DEBUG_ALLOWED_USERS) then
+				message.channel:send("YOU DON'T HAVE ENOUGH BADGES TO TRAIN ME!")
+				return
+			end
+		end
+
 		if args[2] ~= nil then
 			if misc.getKeyInTableInsensitive(args[2], GAME_LIST) then
 				-- Reload the game
@@ -243,6 +254,14 @@ function miscCommands(message)
 			message.channel:send("Do !reload [game] to reload one game, or !reload all to reload all plugins!")
 		end
 	elseif args[1] == "!debug" then
+		-- Check if we're allowed to do this
+		if DEBUG_ALLOWED_USERS ~= nil then
+			if not misc.valueInList(message.author.id, DEBUG_ALLOWED_USERS) then
+				message.channel:send("YOU DON'T HAVE ENOUGH BADGES TO TRAIN ME!")
+				return
+			end
+		end
+
 		local stat, result = xpcall(dofile("Debug.lua"), debug.traceback, message)
 		if not stat then
 			print("Debug crashed")
@@ -276,6 +295,13 @@ end
 
 function echoCommands(content, channel, author, args)
 	--[[Handles !setchannel and !echo]]
+	-- Check if we're allowed to do this
+	if ECHO_ALLOWED_USERS ~= nil then
+		if not misc.valueInList(author.id, ECHO_ALLOWED_USERS) then
+			return
+		end
+	end
+
 	if args[1] == "!setchannel" then
 		local id = args[2]
 		currentGhostChannel = client:getChannel(id)
@@ -289,8 +315,6 @@ function echoCommands(content, channel, author, args)
 		print(currentGhostChannel)
 		print(args[2])
 	elseif args[1] == "!echo" then
-		--print(message.content)
-		--channel:send("<@!132092363098030080>")
 		local message = ""
 		for i, word in pairs(args) do
 			if i == 2 then message = word end
