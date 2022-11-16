@@ -28,31 +28,18 @@ local WORDLISTS = {
 --#############################################################################################################################################
 
 function medium.startGame(message, playerList)
-	local channelList = message.mentionedChannels
+	local channel = message.channel
 
 	-- Check for errors
 	if #playerList < 2 then
-		message.channel:send("You need at least two players to play Medium!")
-		return
-	end
-
-	if #channelList > 1 then
-		message.channel:send("You only need to mention one channel (for spectating other players' turns)!")
-		return
-	elseif #channelList == 1 and (channelList[1][1] == message.channel.id) then
-		message.channel:send("Mention a channel for players to spectate in (ie, not the game channel itself)!")
+		channel:send("You need at least two players to play Medium!")
 		return
 	end
 
 	-- Create a new game and register it
-	message.channel:send("Starting game...")
-	local state = nil
-	if #channelList == 1 then
-		state = mediumCreateGameInstance(message.channel, message.guild:getChannel(channelList[1][1]), playerList, message)
-	else
-		state = mediumCreateGameInstance(message.channel, nil, playerList, message)
-	end
-	state.GameID = games.registerGame(message.channel, "Medium", state, playerList)
+	channel:send("Starting game...")
+	local state = mediumCreateGameInstance(channel, playerList, message)
+	state.GameID = games.registerGame(channel, "Medium", state, playerList)
 
 	-- DM players their hands
 	for idx,playerInfo in pairs(state["PlayerList"]) do
@@ -148,10 +135,9 @@ end
 --# Game Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function mediumCreateGameInstance(channel, specChannel, playerList, message)
+function mediumCreateGameInstance(channel, playerList, message)
 	local instance = {
 		GameChannel = channel,
-		SpecChannel = specChannel,
 		PlayerList = {},			-- Each player is a table containing a player reference, a table holding their hand, and a table holding their score chips
 		Deck = nil,
 		Balls = 0, 					-- How many crystal balls have been drawn?
