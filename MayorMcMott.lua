@@ -57,14 +57,14 @@ end
 
 function safeCallHandler(gameName, gameid, handler, message, arg2)
 	-- If the handler is a start game handler, arg2 is player list; otherwise it's state
-	local stat, err, ret = xpcall(handler, debug.traceback, message, arg2)
+	local stat, result = xpcall(handler, debug.traceback, message, arg2)
 	if not stat then
 		-- Game crashed
 		print(tostring(gameName) .. " (id " .. tostring(gameid) .. ") crashed on message:")
 		print(message.content)
 		if type(arg2) == "table" then misc.printTable(arg2) else print(arg2) end
 		print("\n")
-		print(err)
+		print(result)
 		if gameid ~= nil then
 			games.deregisterGame(gameid)
 		else
@@ -171,11 +171,11 @@ function reactionCommands(channel, reaction, user)
 			-- Don't bother if the game doesn't have a reactHandler command
 			if GAME_LIST[game[2]].reactHandler ~= nil then
 				if games.playerInGame(user, gameid) then
-					local stat, err, ret = xpcall(GAME_LIST[game[2]].reactHandler, debug.traceback, reaction, user, game[3])
+					local stat, result = xpcall(GAME_LIST[game[2]].reactHandler, debug.traceback, reaction, user, game[3])
 					if not stat then
 						-- Game crashed
 						print(tostring(nameOfGame) .. " id " .. game[1] .. " crashed on reaction")
-						print(err)
+						print(result)
 						games.deregisterGame(gameid)
 					end
 				end
@@ -216,17 +216,25 @@ function miscCommands(message)
 	elseif args[1] == "!reload" then
 		if args[2] ~= nil then
 			if misc.getKeyInTableInsensitive(args[2], GAME_LIST) then
-				-- Remove all loaded code relating to this game
-				local gamename = misc.getKeyInTableInsensitive(args[2], GAME_LIST)
-				GAME_LIST[gamename] = nil
-				for gid,info in pairs(games.INSTANCES) do
-					if info[2] == gamename then
-						games.deregisterGame(gid)
-					end
-				end
 				-- Reload the game
-				GAME_LIST[gamename] = dofile("plugins/" .. gamename .. ".lua")
-				message.channel:send("Reloaded " .. gamename)
+				local gamename = misc.getKeyInTableInsensitive(args[2], GAME_LIST)
+				local stat, result = xpcall(dofile, debug.traceback, "plugins/" .. gamename .. ".lua")
+				if not stat then
+					print(result)
+					message.channel:send("Reload failed; see console for details")
+				else
+					-- Remove all loaded code relating to this game, and force-end all copies of the game
+					-- We only do this when we can successfully reload, otherwise we end up with no copy of the game loaded
+					GAME_LIST[gamename] = nil
+					for gid,info in pairs(games.INSTANCES) do
+						if info[2] == gamename then
+							games.deregisterGame(gid)
+						end
+					end
+					-- Replace the game code with the new code
+					GAME_LIST[gamename] = result
+					message.channel:send("Successfully reloaded " .. gamename)
+				end
 			elseif args[2]:lower() == "all" then
 				init()
 				message.channel:send("Reloaded all plugins")
@@ -235,10 +243,10 @@ function miscCommands(message)
 			message.channel:send("Do !reload [game] to reload one game, or !reload all to reload all plugins!")
 		end
 	elseif args[1] == "!debug" then
-		local stat, err, ret = xpcall(dofile("Debug.lua"), debug.traceback, message)
+		local stat, result = xpcall(dofile("Debug.lua"), debug.traceback, message)
 		if not stat then
 			print("Debug crashed")
-			print(err)
+			print(result)
 		end
 	end
 	if string.match(message.content, "( ͡° ͜ʖ ͡°)") then
