@@ -179,6 +179,7 @@ function advanceState(state)
 end
 
 function checkForEnd(state)
+	--TODO: Go for more than one round? The game only says to go for two rounds, which seems kind of silly
 	-- If it's round seven, the game is over
 	if state.Round >= 7 then
 		sendStatusMessages(state)
@@ -226,6 +227,8 @@ function endRound(state)
 			end
 		end
 	end
+	-- If we get here and there's no winner, it means everyone played a zero, so the first person to play zero wins
+	if winner == nil then winner = thisHandCards[0] end
 
 	-- Move cards played this hand to last hand
 	for idx,player in pairs(state.PlayerList) do
@@ -236,10 +239,7 @@ function endRound(state)
 	-- Update player score, round, turn, and last round winner
 	state.LastRoundWinner = winner
 	state.Turn = state.LastRoundWinner
-	print(winner)
-	misc.printTable(state.PlayerList)
-	misc.printTable(state.PlayerList[winner])
-	state.PlayerList[winner].Score = state.PlayerList[winner].Score + 1 --TODO: Attempt to index a nil value???
+	state.PlayerList[winner].Score = state.PlayerList[winner].Score + 1
 	state.Round = state.Round + 1
 end
 
@@ -270,14 +270,15 @@ function sendStatusMessages(state)
 	local lastHandCards = {}
 	for playerIdx,player in pairs(state.PlayerList) do
 		if player.CardPlayedLastHand == nil then break end -- Ignore this section on round one
-		table.insert(lastHandCards, {Emoji = player.Emoji, Name = player.Player.name, Card = player.Cards[player.CardPlayedLastHand].Card, Value = player.Cards[player.CardPlayedLastHand].Value})
+		table.insert(lastHandCards, {Idx = playerIdx, Emoji = player.Emoji, Name = player.Player.name, Card = player.Cards[player.CardPlayedLastHand].Card, Value = player.Cards[player.CardPlayedLastHand].Value})
 	end
 	-- Add last round's info to display
 	for _,info in pairs(lastHandCards) do
 		--TODO: Nicer formatting
-		--TODO: Bold winner
 		--TODO: Put this in the order the cards were played
+		if info.Idx == state.LastRoundWinner then msg2 = msg2 .. "**" end
 		msg2 = msg2 .. info.Emoji .. " " .. info.Card .. " (" .. info.Value .. ")\n"
+		if info.Idx == state.LastRoundWinner then msg2 = msg2 .. "**" end
 	end
 
 	-- Build the current hand portion
@@ -333,8 +334,9 @@ function sendStatusMessages(state)
 end
 
 function giveCards(state, message, playerIdx)
-	--TODO: This seems to silently fail if any of the cards have spaces...
+	print(message.content)
 	local cards = message.content:split(",")
+	misc.printTable(cards)
 	if #cards ~= 6 then
 		message.author:send("Usage: !pick [best card], [second best], [third best], [fourth], [fifth], [trump card]")
 		return
