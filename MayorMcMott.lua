@@ -63,29 +63,30 @@ function safeCallHandler(gameName, gameid, handler, args, handlerType)
 	local stat, result = xpcall(handler, debug.traceback, unpack(args))
 	if not stat then
 		-- Game crashed
-		print(tostring(gameName) .. " (id " .. tostring(gameid) .. ") crashed:\n")
+		print("#=======================================#\n")
+		print(tostring(gameName) .. " (id " .. tostring(gameid) .. ") crashed:")
 		-- Print information about the crash
 		if handlerType == "start" then
-			print("Message: " .. tostring(args[1].content) .. "\n")
-			print("Author: " .. tostring(args[1].author.name)  .. " ID:" .. tostring(args[1].author.id) .. "\n")
-			print("PlayerList: \n")
+			print("Message: " .. tostring(args[1].content))
+			print("Author: " .. tostring(args[1].author.name)  .. " ID:" .. tostring(args[1].author.id))
+			print("PlayerList:")
 			if type(args[2] == "table") then
 				misc.printTable(args[2])
 			else
 				print(tostring(args[2]))
 			end
 		elseif handlerType == "message" then
-			print("Message: " .. tostring(args[1].content) .. "\n")
-			print("Author: " .. tostring(args[1].author.name)  .. " ID:" .. tostring(args[1].author.id) .. "\n")
-			print("State: \n")
+			print("Message: " .. tostring(args[1].content))
+			print("Author: " .. tostring(args[1].author.name)  .. " ID:" .. tostring(args[1].author.id))
+			print("State:")
 			if type(args[2] == "table") then
 				misc.printTable(args[2])
 			else
 				print(tostring(args[2]))
 			end
 		elseif handlerType == "react" then
-			print("Reaction: " .. tostring(args[1].emojiName) .. "\n")
-			print("User: " .. tostring(args[2].name) .. " ID:" .. tostring(args[2].id) .. "\n")
+			print("Reaction: " .. tostring(args[1].emojiName))
+			print("User: " .. tostring(args[2].name) .. " ID:" .. tostring(args[2].id))
 			print("State: \n")
 			if type(args[3] == "table") then
 				misc.printTable(args[3])
@@ -93,8 +94,8 @@ function safeCallHandler(gameName, gameid, handler, args, handlerType)
 				print(tostring(args[3]))
 			end
 		else
-			print("Unknown handler type: " .. tostring(handlerType) .. "\n")
-			print("args:\n")
+			print("Unknown handler type: " .. tostring(handlerType))
+			print("args:")
 			if type(args) == "table" then 
 				misc.printTable(args)
 			else
@@ -102,7 +103,7 @@ function safeCallHandler(gameName, gameid, handler, args, handlerType)
 			end
 		end
 		-- Print traceback
-		print("\n")
+		print("")
 		print(result)
 		if gameid ~= nil then
 			games.deregisterGame(gameid)
