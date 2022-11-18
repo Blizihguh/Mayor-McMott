@@ -58,14 +58,50 @@ end
 --# Command Handlers                                                                                                                          #
 --#############################################################################################################################################
 
-function safeCallHandler(gameName, gameid, handler, message, arg2)
+function safeCallHandler(gameName, gameid, handler, args, handlerType)
 	-- If the handler is a start game handler, arg2 is player list; otherwise it's state
-	local stat, result = xpcall(handler, debug.traceback, message, arg2)
+	local stat, result = xpcall(handler, debug.traceback, unpack(args))
 	if not stat then
 		-- Game crashed
-		print(tostring(gameName) .. " (id " .. tostring(gameid) .. ") crashed on message:")
-		print(message.content)
-		if type(arg2) == "table" then misc.printTable(arg2) else print(arg2) end
+		print(tostring(gameName) .. " (id " .. tostring(gameid) .. ") crashed:\n")
+		-- Print information about the crash
+		if handlerType == "start" then
+			print("Message: " .. tostring(args[1].content) .. "\n")
+			print("Author: " .. tostring(args[1].author.name)  .. " ID:" .. tostring(args[1].author.id) .. "\n")
+			print("PlayerList: \n")
+			if type(args[2] == "table") then
+				misc.printTable(args[2])
+			else
+				print(tostring(args[2]))
+			end
+		elseif handlerType == "message" then
+			print("Message: " .. tostring(args[1].content) .. "\n")
+			print("Author: " .. tostring(args[1].author.name)  .. " ID:" .. tostring(args[1].author.id) .. "\n")
+			print("State: \n")
+			if type(args[2] == "table") then
+				misc.printTable(args[2])
+			else
+				print(tostring(args[2]))
+			end
+		elseif handlerType == "react" then
+			print("Reaction: " .. tostring(args[1].emojiName) .. "\n")
+			print("User: " .. tostring(args[2].name) .. " ID:" .. tostring(args[2].id) .. "\n")
+			print("State: \n")
+			if type(args[3] == "table") then
+				misc.printTable(args[3])
+			else
+				print(tostring(args[3]))
+			end
+		else
+			print("Unknown handler type: " .. tostring(handlerType) .. "\n")
+			print("args:\n")
+			if type(args) == "table" then 
+				misc.printTable(args)
+			else
+				print(tostring(args))
+			end
+		end
+		-- Print traceback
 		print("\n")
 		print(result)
 		if gameid ~= nil then
@@ -140,14 +176,14 @@ function gameCommands(message)
 		-- Randomize player order for !vcr only
 		if args[1] == "!vcr" then misc.shuffleTable(playerList) end
 		-- Start the game
-		safeCallHandler(gameName, nil, GAME_LIST[gameName].startGame, message, playerList)
+		safeCallHandler(gameName, nil, GAME_LIST[gameName].startGame, {message, playerList}, "start")
 	else -- This message wasn't trying to start a game, so maybe it's in the middle of one!
 		if games.playerInGame(author) then
 			-- If this is the game channel, run the command handler for that game
 			if gameid ~= nil and GAME_LIST[games.getGameName(gameid)].commandHandler ~= nil then
 				gameName = games.getGameName(gameid)
 				local state = games.getGameState(gameid)
-				safeCallHandler(gameName, gameid, GAME_LIST[gameName].commandHandler, message, state)
+				safeCallHandler(gameName, gameid, GAME_LIST[gameName].commandHandler, {message, state}, "message")
 			end
 			-- If this is a DM, run the DM handler for any games they're in
 			if channel.type == 1 then
@@ -157,7 +193,7 @@ function gameCommands(message)
 					if gameName ~= nil then
 						if GAME_LIST[gameName].dmHandler ~= nil then
 							local state = games.getGameState(gameid)
-							safeCallHandler(gameName, gameid, GAME_LIST[gameName].dmHandler, message, state)
+							safeCallHandler(gameName, gameid, GAME_LIST[gameName].dmHandler, {message, state}, "message")
 						end
 					end
 				end
@@ -166,22 +202,16 @@ function gameCommands(message)
 	end
 end
 
---TODO: Overhaul this
 function reactionCommands(channel, reaction, user)
 	if games.playerInGame(user) then -- User is in a game, call relevant handlers
-		-- Check every game to see if the player is playing, and call the relevant event handler for that game
-		for gameid, game in pairs(games.INSTANCES) do
+		-- Check every game the player is playing, and call the relevant event handler for that game, if it has one
+		for gameid, game in games.getGamesWithPlayer(user) do
+			local gameName = games.getGameName(gameid)
+			local state = games.getGameState(gameid)
 			-- Don't bother if the game doesn't have a reactHandler command
-			if GAME_LIST[game[2]].reactHandler ~= nil then
-				if games.playerInGame(user, gameid) then
-					local stat, result = xpcall(GAME_LIST[game[2]].reactHandler, debug.traceback, reaction, user, game[3])
-					if not stat then
-						-- Game crashed
-						print(tostring(nameOfGame) .. " id " .. toString(game[1]) .. " crashed on reaction")
-						print(result)
-						games.deregisterGame(gameid)
-					end
-				end
+			if GAME_LIST[gameName].reactHandler ~= nil then
+				safeCallHandler(gameName, gameid, GAME_LIST[gameName].reactHandler, {reaction, user, state}, "react")
+
 			end
 		end
 	end
