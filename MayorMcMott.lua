@@ -177,7 +177,7 @@ function reactionCommands(channel, reaction, user)
 					local stat, result = xpcall(GAME_LIST[game[2]].reactHandler, debug.traceback, reaction, user, game[3])
 					if not stat then
 						-- Game crashed
-						print(tostring(nameOfGame) .. " id " .. game[1] .. " crashed on reaction")
+						print(tostring(nameOfGame) .. " id " .. toString(game[1]) .. " crashed on reaction")
 						print(result)
 						games.deregisterGame(gameid)
 					end
