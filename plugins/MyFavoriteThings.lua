@@ -2,8 +2,8 @@ local games = require("Games")
 local misc = require("Misc")
 
 local favethings = {}
-favethings.desc = "TODO"
-favethings.rules = "TODO"
+favethings.desc = "A trick-taking game where the suits are arbitrary categories and the numbers are your opinions."
+favethings.rules = "https://github.com/Blizihguh/Mayor-McMott/wiki/Eye-My-Favorite-Things"
 favethings.startInDMs = "vcOnly"
 
 ***REMOVED***
