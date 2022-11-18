@@ -188,6 +188,9 @@ end
 
 function quitGame(state)
 	state.GameChannel:send("Quitting game...")
+	for idx,playerInfo in pairs(state.PlayerList) do
+		playerInfo.Player:send("Quitting game...")
+	end
 	games.deregisterGame(state.GameID)
 end
 
