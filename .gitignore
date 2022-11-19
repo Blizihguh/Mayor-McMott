@@ -8,3 +8,4 @@ Emotes.lua
 words/server-specific/
 plugins/server-specific/Chameleon-SP.lua
 plugins/server-specific/Codenames-SP.lua
+plugins/server-specific/MyFavoriteThings-SP.lua
