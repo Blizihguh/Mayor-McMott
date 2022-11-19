@@ -13,10 +13,10 @@ local CARD_REACTS = {"🇦", "🇧", "🇨", "🇩", "🇪", "🇫"}
 local playCard, setupEmojis, advanceState, checkForEnd, endRound, sendStatusMessages, giveCards, giveCategory, getPlayerIdxFromID, quitGame, askForCategories
 
 -- Uncomment this if you want to import server-specific data
--- local SERVER_LIST = {}
--- if misc.fileExists("plugins/server-specific/favethings-SP.lua") then
--- 	SERVER_LIST = require("plugins/server-specific/favethings-SP")
--- end
+local PLAYER_LIST = {}
+if misc.fileExists("plugins/server-specific/MyFavoriteThings-SP.lua") then
+ 	PLAYER_LIST = require("plugins/server-specific/MyFavoriteThings-SP")
+end
 
 --#############################################################################################################################################
 --# Main Functions                                                                                                                            #
@@ -49,10 +49,15 @@ function favethings.startGame(message, playerList)
 	-- Assign everyone an emoji
 	local assignedEmojis = {}
 	for idx,player in pairs(players) do
-		local tempEmoji = (player.Player.id % #ANIMALS) + 1
-		while misc.valueInList(tempEmoji, assignedEmojis) do tempEmoji = ((tempEmoji + 1) % #ANIMALS) + 1 end
-		table.insert(assignedEmojis, tempEmoji)
-		player.Emoji = ANIMALS[tempEmoji]
+		if PLAYER_LIST[player.Player.id] ~= nil then -- If we have an entry for this player, use their pre-assigned animal
+			player.Emoji = PLAYER_LIST[player.Player.id]
+			table.insert(assignedEmojis, player.Emoji)
+		else -- Otherwise, pick one based on their id
+			local tempEmoji = misc.getRandomItem(ANIMALS)
+			while misc.valueInList(tempEmoji, assignedEmojis) do tempEmoji = misc.GetRandomItem(ANIMALS) end
+			table.insert(assignedEmojis, tempEmoji)
+			player.Emoji = tempEmoji
+		end 
 	end
 
 	local state = {
