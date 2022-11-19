@@ -1,6 +1,6 @@
 local PLAYER_LIST = {
-	"id1" = ":emoji1:",
-	"id2" = ":emoji2:"
+	["id1"] = ":emoji1:",
+	["id2"] = ":emoji2:"
 }
 
 return PLAYER_LIST
