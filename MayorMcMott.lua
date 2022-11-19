@@ -108,7 +108,7 @@ function safeCallHandler(gameName, gameid, handler, args, handlerType)
 		if gameid ~= nil then
 			games.deregisterGame(gameid)
 		else
-			gameid = games.getIDForChannel(message.channel)
+			gameid = games.getIDForChannel(args[1]) -- If there's no gameid, we were starting a game
 			if gameid ~= nil then games.deregisterGame(gameid) end
 		end
 	end
