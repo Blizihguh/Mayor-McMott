@@ -268,6 +268,12 @@ function misc.getRandomIndices(t,n)
     return indices
 end
 
+-- Get a random item from a table
+function misc.getRandomItem(t)
+	local k = misc.getRandomIndex(t)
+	return t[k]
+end
+
 -- setn was deprecated in 5.2 but not replaced, and lua does not update table size when you do tbl[idx] = val
 -- Therefore, if you want to use that syntax, you need to do this horribly ugly thing
 -- You should probably use sizeOfTable instead of #tbl instead of using this.
