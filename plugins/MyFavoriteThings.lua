@@ -6,7 +6,6 @@ favethings.desc = "A trick-taking game where the suits are arbitrary categories 
 favethings.rules = "https://github.com/Blizihguh/Mayor-McMott/wiki/Eye-My-Favorite-Things"
 favethings.startInDMs = "vcOnly"
 
-***REMOVED***
 local ANIMALS = {":frog:", ":fox:", ":rat:", ":dog:", ":raccoon:", ":horse:", ":pig:", ":hamster:", ":bear:", ":panda_face:", ":koala:", ":chicken:", ":turtle:", ":dragon_face:", ":whale:", ":tropical_fish:", ":octopus:", ":shark:", ":crab:", ":squid:", ":monkey_face:", ":orangutan:", ":cat:", ":tiger:", ":lion_face:", ":unicorn:", ":cow:", ":boar:", ":mouse:", ":rabbit:", ":polar_bear:", ":sloth:"}
 local CARD_REACTS = {"🇦", "🇧", "🇨", "🇩", "🇪", "🇫"}
 
