@@ -159,7 +159,7 @@ function advanceState(state)
 			if state.LastRoundWinner == nil then
 				state.LastRoundWinner = misc.getRandomIndex(state.PlayerList)
 			end
-			state.Turn = state.LastRoundWinner --TODO: Is this supposed to carry between rounds? I'm going to say yes but I'm not sure it's established in the rules
+			state.Turn = state.LastRoundWinner --TODO: Is this supposed to carry between sets? I'm going to say yes but I'm not sure it's established in the rules
 			state.Phase = 3
 			sendStatusMessages(state)
 		end
@@ -183,7 +183,7 @@ function advanceState(state)
 end
 
 function checkForEnd(state)
-	--TODO: Go for more than one round? The game only says to go for two rounds, which seems kind of silly
+	--TODO: Go for more than one set of cards? The game only says to go for two rounds, which seems kind of silly
 	-- If it's round seven, the game is over
 	if state.Round >= 7 then
 		sendStatusMessages(state)
@@ -260,7 +260,14 @@ function sendStatusMessages(state)
 	-- Send the message to everyone
 	for idx,player in pairs(state.PlayerList) do
 		if player.StatusMsgCategories == nil then
-			player.StatusMsgCategories = player.Player:send(msg)
+			local err
+			player.StatusMsgCategories,err = player.Player:send(msg)
+			-- Once in a blue moon, sending one of these status messages will fail, even though the message sent
+			-- http-codec.lua:256: chunk-size field too large
+			print("################################################### Diagnostic A ############################")
+			print(player.StatusMsgCategories)
+			print(err)
+			print("#############################################################################################")
 		else
 			player.StatusMsgCategories:setContent(msg)
 		end
@@ -312,7 +319,12 @@ function sendStatusMessages(state)
 	-- Send the message to everyone
 	for idx,player in pairs(state.PlayerList) do
 		if player.StatusMsgRound == nil then
-			player.StatusMsgRound = player.Player:send(msg2)
+			local err
+			player.StatusMsgRound,err = player.Player:send(msg2)
+			print("################################################### Diagnostic B ############################")
+			print(player.StatusMsgRound)
+			print(err)
+			print("#############################################################################################")
 		else
 			player.StatusMsgRound:setContent(msg2)
 		end
@@ -326,8 +338,13 @@ function sendStatusMessages(state)
 		local fstr = ".\n`+-- Your Cards ------------------------+`\n:regional_indicator_a: %s\n:regional_indicator_b: %s\n:regional_indicator_c: %s\n:regional_indicator_d: %s\n:regional_indicator_e: %s\n:regional_indicator_f: %s"
 		local msg3 = string.format(fstr, cards[1].Card, cards[2].Card, cards[3].Card, cards[4].Card, cards[5].Card, cards[6].Card)
 		if player.StatusMsgHand == nil then
-			player.StatusMsgHand = player.Player:send(msg3)
+			local err
+			player.StatusMsgHand,err = player.Player:send(msg3)
 			needsEmojis = true
+			print("################################################### Diagnostic C ############################")
+			print(player.StatusMsgHand)
+			print(err)
+			print("#############################################################################################")
 		else
 			player.StatusMsgHand:setContent(msg3)
 		end
@@ -371,6 +388,7 @@ function giveCategory(state, message, playerIdx)
 
 	-- Update info
 	playerObj.YourCategory = category
+	message.author:send("Category chosen: " .. category)
 end
 
 function getPlayerIdxFromID(state, id)
