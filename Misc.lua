@@ -281,4 +281,10 @@ function misc.setn(tbl,n)
 	setmetatable(tbl,{__len=function() return n end})
 end
 
+-- Sleep for n seconds
+function misc.sleep(s)
+  local ntime = os.time() + s
+  repeat until os.time() > ntime
+end
+
 return misc
