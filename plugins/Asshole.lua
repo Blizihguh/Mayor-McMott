@@ -40,8 +40,13 @@ function asshole.reactHandler(reaction, user, state)
 	for idx,playerObject in pairs(state.PlayerList) do
 		-- Check if the reaction was made by the user (not the bot) and is on the status message and the user hasn't pointed yet
 		if playerObject.Pointed == false and playerObject.Player.id == user.id and playerObject.Status.id == reaction.message.id then
+			-- Get the lock, and if we can't get it, yield until we can
+			-- We need to lock here because two players pointing at the same time can result in the game simultaneously ending in two different ways
+			state.Lock:lock(false)
 			-- The user has selected a number!
 			point(state, user, reaction.emojiName)
+			-- Now that we're done pointing, unlock the lock, yielding to the next function if it's ready
+			state.Lock:unlock()
 		end
 	end
 end
@@ -58,6 +63,8 @@ function loadGame(state, players)
 		playerlist[idx] = {Player = playerObject, Card = cards[idx], Pointed = false, Won = false, Status = nil}
 		idx = idx + 1
 	end
+
+	state.Lock = misc.createMutex()
 
 	state.PlayerList = playerlist
 
