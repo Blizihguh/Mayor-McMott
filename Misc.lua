@@ -287,4 +287,15 @@ function misc.sleep(s)
   repeat until os.time() > ntime
 end
 
+-- Return a new Mutex object
+function misc.createMutex()
+	-- This is just a stub; the actual function is initialized in MayorMcMott.lua's init function
+	-- I know this is ugly, but Misc.lua can't require Discordia for some reason...
+	-- In the mean time, we'll define some code to run if createMutex is called without being initialized
+	-- Specifically, we'll print an error to console and crash
+	print("WARNING: CREATE MUTEX FUNCTION DID NOT LOAD CORRECTLY AND WILL DO NOTHING")
+	local foo = nil
+	return foo[0]
+end
+
 return misc

@@ -52,6 +52,8 @@ function init()
 		end
 	end
 	print("Loaded " .. i .. " plugins!")
+	-- We need to initialize this function here, because Misc.lua can't load discordia for some reason
+	misc.createMutex = discordia.Mutex
 end
 
 --#############################################################################################################################################
