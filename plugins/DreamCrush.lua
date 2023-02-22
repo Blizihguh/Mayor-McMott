@@ -27,7 +27,7 @@ function dreamcrush.startGame(message, players)
 		Round = 0,
 		GameChannel = message.channel
 	}
-	createDecks(numChars, state)
+	createDecks(state)
 	local args = message.content:split(" ")
 	
 	local numCrushes = nil
@@ -102,8 +102,6 @@ function dreamcrush.commandHandler(message, state)
 			local trait = table.remove(state.Traits[state.Round],misc.getRandomIndex(state.Traits[state.Round]))
 			print(trait)
 			traitsMessage = traitsMessage .. state.Crushes[index] .. ": ||" .. trait .. "||\n"
-			--if <CATCHPHRASE> in trait then
-			----local catchphrase = table.remove(State.Catchp
 		end
 		
 		
@@ -137,27 +135,36 @@ end
 --# Game Functions                                                                                                                            #
 --#############################################################################################################################################
 
-function createDecks(n, state)
-	print("Parsing trait tables")
-	--local t1 = misc.parseCSV("words/dreamcrush/dreamcrush_traits1.csv")
-	--print("and the rest")
-	local trait_table = {
-						misc.parseCSV("words/dreamcrush/dreamcrush_traits1.csv",";"),
-					    misc.parseCSV("words/dreamcrush/dreamcrush_traits2.csv",";"),
-					    misc.parseCSV("words/dreamcrush/dreamcrush_traits3.csv",";"),
-						misc.parseCSV("words/dreamcrush/dreamcrush_traits4.csv",";"),
-						misc.parseCSV("words/dreamcrush/dreamcrush_traits5.csv",";")
-						}
-	print("Parsing prompt tables")
-	local prompt_table = {
-						misc.parseCSV("words/dreamcrush/dreamcrush_round1.csv",";"),
-					    misc.parseCSV("words/dreamcrush/dreamcrush_round2.csv",";"),
-					    misc.parseCSV("words/dreamcrush/dreamcrush_round3.csv",";"),
-						misc.parseCSV("words/dreamcrush/dreamcrush_round4.csv",";"),
-						misc.parseCSV("words/dreamcrush/dreamcrush_round5.csv",";")
-						}
+function createDecks(state)
+	local trait_format         = "words/dreamcrush/dreamcrush_traits%i.csv"
+	local custom_trait_format  = "words/dreamcrush/dreamcrush_traits%i_custom.csv"
+	local prompt_format        = "words/dreamcrush/dreamcrush_round%i.csv"
+	local custom_prompt_format = "words/dreamcrush/dreamcrush_round%i_custom.csv"
+
+	local trait_table  = {}
+	local prompt_table = {}
+
+	-- Get traits
+	for i=1,5 do
+		local traits = misc.parseCSV(string.format(trait_format,i),";")
+		local custom = misc.parseCSV(string.format(custom_trait_format,i),";")
+		misc.fuseLists(traits, custom)
+		print("Loaded", tostring(#traits), "traits for deck", tostring(i))
+		table.insert(trait_table, traits)
+	end
+
+	-- Get prompts
+	for i=1,5 do
+		local prompts = misc.parseCSV(string.format(prompt_format,i),";")
+		local custom  = misc.parseCSV(string.format(custom_prompt_format,i),";")
+		misc.fuseLists(prompts, custom)
+		print("Loaded", tostring(#prompts), "prompts for deck", tostring(i))
+		table.insert(prompt_table, prompts)
+	end
+
+	-- Save to state
+	state.Traits  = trait_table
 	state.Prompts = prompt_table
-	state.Traits = trait_table
 end
 
 function quitGame(state)
