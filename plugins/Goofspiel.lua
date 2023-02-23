@@ -64,7 +64,9 @@ function goofspiel.dmHandler(message, state)
 	-- end
 end
 
-function goofspiel.reactHandler(reaction, user, state)
+function goofspiel.reactHandler(reaction, user, state, isAdding)
+	-- We only care about add events
+	if not isAdding then return end
 	-- Check if the message is the user's status message
 	for id,info in pairs(state.PlayerList) do
 		-- Check if the reaction was made by the user (not the bot) and is on the status message

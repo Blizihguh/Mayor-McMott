@@ -205,7 +205,7 @@ function gameCommands(message)
 	end
 end
 
-function reactionCommands(channel, reaction, user)
+function reactionCommands(channel, reaction, user, isAdding)
 	if games.playerInGame(user) then -- User is in a game, call relevant handlers
 		-- Check every game the player is playing, and call the relevant event handler for that game, if it has one
 		for gameid, game in games.getGamesWithPlayer(user) do
@@ -213,7 +213,7 @@ function reactionCommands(channel, reaction, user)
 			local state = games.getGameState(gameid)
 			-- Don't bother if the game doesn't have a reactHandler command
 			if GAME_LIST[gameName].reactHandler ~= nil then
-				safeCallHandler(gameName, gameid, GAME_LIST[gameName].reactHandler, {reaction, user, state}, "react")
+				safeCallHandler(gameName, gameid, GAME_LIST[gameName].reactHandler, {reaction, user, state, isAdding}, "react")
 
 			end
 		end
@@ -421,7 +421,15 @@ client:on("reactionAdd", function(reaction, userId)
 	local channel = reaction.message.channel
 	local user = reaction.client._users:get(userId)
 
-	reactionCommands(channel, reaction, user)
+	reactionCommands(channel, reaction, user, true)
+end)
+
+client:on("reactionRemove", function(reaction, userId)
+
+	local channel = reaction.message.channel
+	local user = reaction.client._users:get(userId)
+
+	reactionCommands(channel, reaction, user, false)
 end)
 
 function getBotString()

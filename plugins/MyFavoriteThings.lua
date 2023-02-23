@@ -92,7 +92,9 @@ function favethings.dmHandler(message, state)
 	advanceState(state)
 end
 
-function favethings.reactHandler(reaction, user, state)
+function favethings.reactHandler(reaction, user, state, isAdding)
+	-- We only care about add events
+	if not isAdding then return end
 	-- Check if the reaction is from the player whose turn it is
 	local idx = getPlayerIdxFromID(state, user.id)
 	if idx ~= state.Turn then return end
