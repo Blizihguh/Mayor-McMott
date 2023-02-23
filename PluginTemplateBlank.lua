@@ -37,7 +37,7 @@ function REPLACE_GAME_NAME.dmHandler(message, state)
 	local args = message.content:split(" ")
 end
 
-function REPLACE_GAME_NAME.reactHandler(reaction, user, state)
+function REPLACE_GAME_NAME.reactHandler(reaction, user, state, isAdding)
 end
 
 --#############################################################################################################################################
