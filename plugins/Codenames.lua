@@ -408,8 +408,8 @@ function displayWordsCaptain(state, user)
 	for idx, word in pairs(state["Words"]) do
 		if not word["Flipped"] then
 			if word["Team"] == "blue" then bWords = bWords .. string.format(fString, "\"" .. word["Word"] .. "\"")
-			elseif word["Team"] == "red" then rWords = rWords .. string.format(fString, "'" .. string.gsub(word["Word"], "%s+", "_") .. "'") --Remove whitespace because ml
-			elseif word["Team"] == "white" then wWords = wWords .. string.format(fString, word["Word"])
+			elseif word["Team"] == "red" then rWords = rWords .. string.format(fString,  word["Word"])
+			elseif word["Team"] == "white" then wWords = wWords .. string.format(fString, "'" .. string.gsub(word["Word"], "%s+", "_") .. "'") --Remove whitespace because ml
 			else aWord = aWord .. string.format(fString, string.lower(word["Word"])) end
 		end
 	end
