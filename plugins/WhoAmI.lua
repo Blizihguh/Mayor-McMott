@@ -139,7 +139,7 @@ end
 
 function quitGame(state)
 	state.GameChannel:send("Quitting game...")
-	for id,player in pairs(playerList) do
+	for id,player in pairs(state.PlayerList) do
 		player.StatusMsg:setComponents(nil)
 	end
 	games.deregisterGame(state.GameID)	
