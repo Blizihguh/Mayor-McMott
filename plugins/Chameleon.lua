@@ -3,6 +3,7 @@ local misc = require("Misc")
 local chameleon = {}
 chameleon.desc = "A social deduction word game for 3+ players. All players are given the same word in secret, except for the Chameleon, who must try to blend in -- at least until they figure out what the word is."
 chameleon.rules = "https://bigpotato.com/blog/how-to-play-the-chameleon-instructions/> (see also: <https://github.com/Blizihguh/Mayor-McMott/wiki/Chameleon)"
+chameleon.startInDMs = "vcOnly"
 
 local displayWords, dmStatus, oopsAllChameleons, removeUnderscores
 
@@ -22,13 +23,24 @@ end
 
 function chameleon.startGame(message, playerList)
 	local state = {
-		GameChannel = message.channel,
 		Wordlist = nil,
 		WordIdx = math.random(16),
 		PlayerList = playerList,
 		Chameleon = nil,
 		Words = {}
 	}
+
+	-- Figure out what guild this is being played in 
+	-- If it's a !start, just use the message guild
+	-- If it's a !vc, then we need to get the vc from the author's current voice channel
+	print(message.content)
+	author = message.author
+	g = message.guild
+	for gid,guild in pairs(author.mutualGuilds) do
+		g = guild
+		authorvc = guild:getMember(author.id).voiceChannel
+		if authorvc ~= nil then break end
+	end
 
 	local wordlistsForThisGame = {}
 	-- Do we want custom cards?
@@ -37,7 +49,7 @@ function chameleon.startGame(message, playerList)
 		misc.fuseDicts(wordlistsForThisGame, WORDLISTS_CUSTOM)
 		-- If so, do we have server cards?
 		for server,list in pairs(SERVER_LIST) do
-			if message.guild.id == server then misc.fuseDicts(wordlistsForThisGame, list) end
+			if guild == server then misc.fuseDicts(wordlistsForThisGame, list) end
 		end
 	end
 	-- Do we want vanilla cards?
