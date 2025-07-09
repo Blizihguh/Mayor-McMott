@@ -151,6 +151,7 @@ function misc.findNil(tbl)
 end
 
 -- Turn a table into a list, taking all the values and discarding all the keys
+-- Returns a new table, does not modify the original
 function misc.indexifyTable(tbl)
 	local newTbl = {}
 	i = 1
@@ -294,6 +295,21 @@ function misc.createMutex()
 	-- In the mean time, we'll define some code to run if createMutex is called without being initialized
 	-- Specifically, we'll print an error to console and crash
 	print("WARNING: CREATE MUTEX FUNCTION DID NOT LOAD CORRECTLY AND WILL DO NOTHING")
+	local foo = nil
+	return foo[0]
+end
+
+-- Return a new button object
+function misc.createButton()
+	-- This is a stub; see the createMutex function above for more information
+	print("WARNING: CREATE BUTTON FUNCTION DID NOT LOAD CORRECTLY AND WILL DO NOTHING")
+	local foo = nil
+	return foo[0]
+end
+
+function misc.createComponents()
+	-- This is a stub; see the createMutex function above for more information
+	print("WARNING: CREATE COMPONENTS FUNCTION DID NOT LOAD CORRECTLY AND WILL DO NOTHING")
 	local foo = nil
 	return foo[0]
 end

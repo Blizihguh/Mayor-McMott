@@ -3,6 +3,7 @@ local fs = require("fs")
 local games = require("Games")
 local misc = require("Misc")
 local client = discordia.Client()
+require("discordia-components")
 
 discordia.extensions()
 
@@ -54,6 +55,8 @@ function init()
 	print("Loaded " .. i .. " plugins!")
 	-- We need to initialize this function here, because Misc.lua can't load discordia for some reason
 	misc.createMutex = discordia.Mutex
+	misc.createButton = discordia.Button
+	misc.createComponents = discordia.Components
 end
 
 --#############################################################################################################################################
@@ -94,6 +97,15 @@ function safeCallHandler(gameName, gameid, handler, args, handlerType)
 				misc.printTable(args[3])
 			else
 				print(tostring(args[3]))
+			end
+		elseif handlerType == "interact" then
+			print("Interaction: " .. tostring(args[1]))
+			print("User: " .. tostring(args[2].name) .. " ID: " ..tostring(args[2].id))
+			print("State: \n")
+			if type(args[4] == "table") then
+				misc.printTable(args[4])
+			else
+				print(tostring(args[4]))
 			end
 		else
 			print("Unknown handler type: " .. tostring(handlerType))
@@ -214,7 +226,18 @@ function reactionCommands(channel, reaction, user, isAdding)
 			-- Don't bother if the game doesn't have a reactHandler command
 			if GAME_LIST[gameName].reactHandler ~= nil then
 				safeCallHandler(gameName, gameid, GAME_LIST[gameName].reactHandler, {reaction, user, state, isAdding}, "react")
+			end
+		end
+	end
+end
 
+function interactionCommands(channel, interId, user, interaction)
+	if games.playerInGame(user) then
+		for gameid, game in games.getGamesWithPlayer(user) do
+			local gameName = games.getGameName(gameid)
+			local state = games.getGameState(gameid)
+			if GAME_LIST[gameName].buttonHandler ~= nil then
+				safeCallHandler(gameName, gameid, GAME_LIST[gameName].buttonHandler, {interId, user, channel, state, interaction}, "interact")
 			end
 		end
 	end
@@ -399,7 +422,6 @@ client:on("ready", function()
 	init()
 end)
 
-
 -- Handle new messages
 client:on("messageCreate", function(message)
 
@@ -430,6 +452,15 @@ client:on("reactionRemove", function(reaction, userId)
 	local user = reaction.client._users:get(userId)
 
 	reactionCommands(channel, reaction, user, false)
+end)
+
+client:on("interactionCreate", function(interaction)
+
+	local channel = interaction.channel
+	local userId = interaction.user
+	local interId = interaction.data.custom_id
+
+	interactionCommands(channel, interId, userId, interaction)
 end)
 
 function getBotString()
