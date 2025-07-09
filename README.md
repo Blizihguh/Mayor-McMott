@@ -9,7 +9,7 @@ For some games which support server-specific data (eg Chameleon), you can add yo
 
 There are two other .example files that you may want to use. Debug.lua.example returns an empty function. Rename it to Debug.lua and modify the function to run it with the !debug command. The !debug function will be updated every time you run it, so there's no need to restart the bot. Emotes.lua.example returns a table of custom emojis. If you want to use functions that include custom emojis, add the IDs for your emojis here. Misc already implements two such functions, which can be used to write words in using custom red and green letter emojis. If you do not update this with the IDs to your custom emojis, those functions will return mostly empty strings. The files for these emojis can be found in the emotes/ folder if you'd like to add them to your server. Discord bots can use their servers' custom emojis in any server, just like a Nitro user, so you can make a new server and add Mayor McMott there to avoid using up emoji slots on a server you care about.
 
-Mayor McMott comes with some commands that you might want to limit to specific users. !debug and !reload are meant for debugging, and !setchannel and !echo can be disruptive if spammed. To restrict these commands, change the value of DEBUG_ALLOWED_USERS (for the first two) or ECHO_ALLOWED_USERS (for the latter two) at the top of MayorMcMott.lua. For instance, if you wanted to restrict the debug commands to only the users with IDs 123456789 and 111111111, you would set the variable like so: `DEBUG_ALLOWED_USERS = {"123456789", "111111111"}`
+Mayor McMott comes with some commands that you might want to limit to specific users. !debug and !reload are meant for debugging, and !setchannel and !echo can be disruptive if spammed. To restrict these commands, change the value of DEBUG_ALLOWED_USERS (for the first two) or ECHO_ALLOWED_USERS (for the last two) at the top of MayorMcMott.lua. For instance, if you wanted to restrict the debug commands to only the users with IDs 123456789 and 111111111, you would set the variable like so: `DEBUG_ALLOWED_USERS = {"123456789", "111111111"}`
 
 ## How Do I Add A Game?
 Adding a new game to Mayor McMott is pretty simple. All you have to do is:
@@ -19,7 +19,8 @@ Adding a new game to Mayor McMott is pretty simple. All you have to do is:
   * A command handler, which will handle any messages in your game's channel,
   * (Optionally) a DM handler, which will handle any DMs from people playing your game,
   * (Optionally) a reaction handler, which will handle any reactions from people playing your game.
+  * (Optionally) a reaction handler, which will allow you to add buttons that the players can interact with.
 * In your start game function, call games.registerGame() to create a new instance of the game.
 * Make sure your code is in the Plugins folder, and it should load automatically when starting the bot!
 
-Two reference files have also been provided: TicTacToe.lua, a thoroughly documented implementation of a simple game, and Template.lua, a template for creating new games.
+Two reference files have also been provided: TicTacToe.lua, a thoroughly documented implementation of a simple game, and PluginTemplate.lua, a template for creating new games. A version of PluginTemplate.lua without comments is also provided as BlankPluginTemplate.lua.

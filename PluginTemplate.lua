@@ -86,6 +86,10 @@ end
 function REPLACE_GAME_NAME.reactHandler(reaction, user, state, isAdding)
 end
 
+--OPTIONAL: Do not include this function if you don't need it!
+function REPLACE_GAME_NAME.buttonHandler(interId, user, channel, state, interaction)
+end
+
 --#############################################################################################################################################
 --# Game Functions                                                                                                                            #
 --#############################################################################################################################################
