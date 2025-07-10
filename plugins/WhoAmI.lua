@@ -90,7 +90,7 @@ function confirmPick(state, user)
 	player = state.PlayerList[user.id]
 	targetPlayer = state.PlayerList[player.GivingTo]
 	targetPlayer.Confirmed = true
-	player.StatusMsg:update(player.StatusMsg.content) -- Send an empty update to remove the "interaction failed" message
+	--player.StatusMsg:update(player.StatusMsg.content) -- Send an empty update to remove the "interaction failed" message
 	player.StatusMsg:setComponents(nil)
 	-- Check if everyone is confirmed
 	for id,player in pairs(state.PlayerList) do
