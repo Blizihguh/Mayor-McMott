@@ -123,7 +123,7 @@ end
 function getCategories(state)
 	-- Randomize player order
 	players = misc.indexifyTable(state.PlayerList)
-	misc.shuffleTable(players)
+	--misc.shuffleTable(players)
 	-- Tell each player to pick a character
 	for idx,player in pairs(players) do
 		-- Get next player
