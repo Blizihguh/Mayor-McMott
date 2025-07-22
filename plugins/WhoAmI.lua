@@ -6,7 +6,7 @@ whoami.desc = "TODO"
 whoami.rules = "TODO"
 whoami.startInDMs = "vcOnly"
 
-local quitGame, setupPlayers, getCategories, setupCounters, pickCharacter, handleRejection, confirmPick, playerFinished, playerResigned
+local quitGame, setupPlayers, getCategories, setupCounters, pickCharacter, handleRejection, confirmPick, playerFinished, playerResigned, updateStatusMsg, updateStatusForEveryone
 
 -- Uncomment this if you want to import server-specific data
 -- local SERVER_LIST = {}
@@ -23,7 +23,8 @@ function whoami.startGame(message, playerList)
 
 	local state = {
 		GameChannel = message.channel,
-		PlayerList = {}
+		PlayerList = {},
+		Lock = misc.createMutex()
 	}
 	
 	setupPlayers(state, playerList)
@@ -48,10 +49,12 @@ end
 function whoami.buttonHandler(interId, user, channel, state, interaction)
 	if interId == "counter_up" then
 		state.PlayerList[user.id].Counter = state.PlayerList[user.id].Counter + 1
-		interaction:update("Counter: " .. tostring(state.PlayerList[user.id].Counter))
+		updateStatusForEveryone(state)
+		interaction:updateDeferred()
 	elseif interId == "counter_down" then
 		state.PlayerList[user.id].Counter = state.PlayerList[user.id].Counter - 1
-		interaction:update("Counter: " .. tostring(state.PlayerList[user.id].Counter))
+		updateStatusForEveryone(state)
+		interaction:updateDeferred()
 	elseif interId == "reject" then
 		handleRejection(state, user)
 	elseif interId == "confirm" then
@@ -63,13 +66,48 @@ end
 --# Game Functions                                                                                                                            #
 --#############################################################################################################################################
 
+function updateStatusForEveryone(state)
+	-- It seems like this needs to be a lock, to prevent a situation where two people are updating the board at the same time
+	-- (eg, two people are submitting characters at the same time)
+	state.Lock:lock(false)
+	for id,player in pairs(state.PlayerList) do
+		updateStatusMsg(state, id)
+	end
+	state.Lock:unlock()
+end
+
+function updateStatusMsg(state, myId)
+	local message = ""
+	local me = state.PlayerList[myId]
+	-- In theory I think the order of players in the message could change between calls
+	-- In practice I can't imagine why this would happen, I haven't seen it happen, and if it does happen it's not a big deal
+	for id,player in pairs(state.PlayerList) do
+		local character = player.Character ~= nil and player.Character or "---"
+		local givenby = player.GivenBy ~= nil and state.PlayerList[player.GivenBy].Name or "---"
+		local resigned = ""
+		if player.Resigned then resigned = "(resigned)" end
+
+		if player.Finished then
+			message = message .. string.format("%s is %s (given by: %s) (guesses: %i) %s\n", player.Name, character, givenby, player.Counter, resigned)
+		elseif id == myId then
+			message = message .. string.format("%s is --- (given by: %s) (guesses: %i)\n", player.Name, givenby, player.Counter)
+		elseif id == me.GivingTo and player.Character == nil then
+			message = message .. string.format("**You are giving a character to %s!**\n", player.Name)
+		elseif id == me.GivingTo and not me.Confirmed then
+			message = message .. string.format("**You have given %s to %s!**\n", character, player.Name)
+		else
+			message = message .. string.format("%s is %s (given by: %s) (guesses: %i)\n", player.Name, character, givenby, player.Counter)
+		end
+	end
+
+	me.StatusMsg:setContent(message)
+end
+
 function playerFinished(state, user)
 	local player = state.PlayerList[user.id]
 	player.StatusMsg:setComponents(nil)
 	player.Finished = true
-	for id,otherPlayer in pairs(state.PlayerList) do
-		otherPlayer.PlayerObj:send(player.Name .. " guessed their character in " .. tostring(player.Counter) .. " questions! (" .. player.Character .. ")")
-	end
+	updateStatusForEveryone(state)
 	-- Check if everyone is finished
 	for id,thisPlayer in pairs(state.PlayerList) do
 		if not thisPlayer.Finished then return end
@@ -78,26 +116,16 @@ function playerFinished(state, user)
 	quitGame(state)
 end
 
-function playerFinished(state, user)
-	local player = state.PlayerList[user.id]
-	player.StatusMsg:setComponents(nil)
-	player.Finished = true
-	for id,otherPlayer in pairs(state.PlayerList) do
-		otherPlayer.PlayerObj:send(player.Name .. " gave up guessing their character after " .. tostring(player.Counter) .. " questions... (" .. player.Character .. ")")
-	end
-	-- Check if everyone is finished
-	for id,thisPlayer in pairs(state.PlayerList) do
-		if not thisPlayer.Finished then return end
-	end
-	-- If we get to this point, everyone is finished
-	quitGame(state)
+function playerResigned(state, user)
+	state.PlayerList[user.id].Resigned = true
+	playerFinished(state, user)
 end
 
 function handleRejection(state, user)
 	local player = state.PlayerList[user.id]
 	local targetPlayer = state.PlayerList[player.GivingTo]
 	targetPlayer.Character = nil
-	player.StatusMsg:update("You are giving a character to " .. targetPlayer.Name .. "!")
+	updateStatusForEveryone(state)
 	player.StatusMsg:setComponents(nil)
 end
 
@@ -125,12 +153,12 @@ function pickCharacter(state, message)
 	}
 	-- Update info
 	targetPlayer.Character = character
-	player.StatusMsg:setContent("You've given \"" .. character .. "\" to " .. targetPlayer.Name .. "!")
+	updateStatusForEveryone(state)
 	player.StatusMsg:setComponents(components)
 	-- Tell everyone
 	for id,otherPlayer in pairs(state.PlayerList) do
 		if id ~= message.author.id and id ~= player.GivingTo then
-			otherPlayer.PlayerObj:send(player.Name .. " has given \"" .. character .. "\" to " .. targetPlayer.Name .. "!")
+			updateStatusForEveryone(state)
 		end
 	end
 end
@@ -148,7 +176,7 @@ function getCategories(state)
 		nextPlayer.GivenBy = player.PlayerObj.id
 		player.GivingTo = nextPlayer.PlayerObj.id
 		-- Tell the player to make an assignment
-		player.StatusMsg:setContent("You are giving a character to " .. nextPlayer.Name .. "!")
+		updateStatusForEveryone(state)
 	end
 end
 
@@ -166,7 +194,6 @@ function setupCounters(state)
 			misc.createButton { id = "counter_down", emoji = "➖", style = "primary" },
 			misc.createButton { id = "counter_up", emoji = "➕", style = "primary" },
 		}
-		player.StatusMsg:setContent("Counter: 0")
 		player.StatusMsg:setComponents(components)
 	end
 end
@@ -174,12 +201,13 @@ end
 function setupPlayers(state, playerList)
 	local players = {}
 	for idx, player in pairs(playerList) do
-		players[player.id] = { Name = player.name, StatusMsg = nil, StatusMsg2 = nil, Counter = 0, PlayerObj = player, Character = nil, Confirmed = false, GivenBy = nil, GivingTo = nil, Finished = false }
+		players[player.id] = { Name = player.name, StatusMsg = nil, Counter = 0, PlayerObj = player, Character = nil, Confirmed = false, GivenBy = nil, GivingTo = nil, Finished = false, Resigned = false }
 
 
 		players[player.id].StatusMsg = player:send("...")
 	end
 	state.PlayerList = players
+	updateStatusForEveryone(state)
 end
 
 return whoami
