@@ -6,7 +6,7 @@ whoami.desc = "TODO"
 whoami.rules = "TODO"
 whoami.startInDMs = "vcOnly"
 
-local quitGame, setupPlayers, getCategories, setupCounters, pickCharacter, handleRejection, confirmPick, playerFinished
+local quitGame, setupPlayers, getCategories, setupCounters, pickCharacter, handleRejection, confirmPick, playerFinished, playerResigned
 
 -- Uncomment this if you want to import server-specific data
 -- local SERVER_LIST = {}
@@ -40,7 +40,9 @@ end
 function whoami.dmHandler(message, state)
 	local args = message.content:split(" ")
 	if args[1] == "!quit" then quitGame(state)
-	elseif args[1] == "!pick" then pickCharacter(state, message) end
+	elseif args[1] == "!pick" then pickCharacter(state, message) 
+	elseif args[1] == "!success" then playerFinished(state, message.author) 
+	elseif args[1] == "!failure" then playerResigned(state, message.author) end
 end
 
 function whoami.buttonHandler(interId, user, channel, state, interaction)
@@ -50,8 +52,6 @@ function whoami.buttonHandler(interId, user, channel, state, interaction)
 	elseif interId == "counter_down" then
 		state.PlayerList[user.id].Counter = state.PlayerList[user.id].Counter - 1
 		interaction:update("Counter: " .. tostring(state.PlayerList[user.id].Counter))
-	elseif interId == "counter_finished" then
-		playerFinished(state, user)
 	elseif interId == "reject" then
 		handleRejection(state, user)
 	elseif interId == "confirm" then
@@ -69,6 +69,21 @@ function playerFinished(state, user)
 	player.Finished = true
 	for id,otherPlayer in pairs(state.PlayerList) do
 		otherPlayer.PlayerObj:send(player.Name .. " guessed their character in " .. tostring(player.Counter) .. " questions! (" .. player.Character .. ")")
+	end
+	-- Check if everyone is finished
+	for id,thisPlayer in pairs(state.PlayerList) do
+		if not thisPlayer.Finished then return end
+	end
+	-- If we get to this point, everyone is finished
+	quitGame(state)
+end
+
+function playerFinished(state, user)
+	local player = state.PlayerList[user.id]
+	player.StatusMsg:setComponents(nil)
+	player.Finished = true
+	for id,otherPlayer in pairs(state.PlayerList) do
+		otherPlayer.PlayerObj:send(player.Name .. " gave up guessing their character after " .. tostring(player.Counter) .. " questions... (" .. player.Character .. ")")
 	end
 	-- Check if everyone is finished
 	for id,thisPlayer in pairs(state.PlayerList) do
@@ -150,7 +165,6 @@ function setupCounters(state)
 		local components = misc.createComponents {
 			misc.createButton { id = "counter_down", emoji = "➖", style = "primary" },
 			misc.createButton { id = "counter_up", emoji = "➕", style = "primary" },
-			misc.createButton { id = "counter_finished", emoji = "⭐", style = "success" }
 		}
 		player.StatusMsg:setContent("Counter: 0")
 		player.StatusMsg:setComponents(components)
