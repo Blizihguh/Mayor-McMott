@@ -64,7 +64,7 @@ end
 --#############################################################################################################################################
 
 function playerFinished(state, user)
-	player = state.PlayerList[user.id]
+	local player = state.PlayerList[user.id]
 	player.StatusMsg:setComponents(nil)
 	player.Finished = true
 	for id,otherPlayer in pairs(state.PlayerList) do
@@ -79,16 +79,16 @@ function playerFinished(state, user)
 end
 
 function handleRejection(state, user)
-	player = state.PlayerList[user.id]
-	targetPlayer = state.PlayerList[player.GivingTo]
+	local player = state.PlayerList[user.id]
+	local targetPlayer = state.PlayerList[player.GivingTo]
 	targetPlayer.Character = nil
 	player.StatusMsg:update("You are giving a character to " .. targetPlayer.Name .. "!")
 	player.StatusMsg:setComponents(nil)
 end
 
 function confirmPick(state, user)
-	player = state.PlayerList[user.id]
-	targetPlayer = state.PlayerList[player.GivingTo]
+	local player = state.PlayerList[user.id]
+	local targetPlayer = state.PlayerList[player.GivingTo]
 	targetPlayer.Confirmed = true
 	--player.StatusMsg:update(player.StatusMsg.content) -- Send an empty update to remove the "interaction failed" message
 	player.StatusMsg:setComponents(nil)
@@ -101,9 +101,9 @@ function confirmPick(state, user)
 end
 
 function pickCharacter(state, message)
-	player = state.PlayerList[message.author.id]
-	targetPlayer = state.PlayerList[player.GivingTo]
-	character = message.content:sub(7)
+	local player = state.PlayerList[message.author.id]
+	local targetPlayer = state.PlayerList[player.GivingTo]
+	local character = message.content:sub(7)
 	local components = misc.createComponents {
 		misc.createButton { id = "reject", emoji = "✖️", style = "primary" },
 		misc.createButton { id = "confirm", emoji = "✔️", style = "primary" }
@@ -122,12 +122,12 @@ end
 
 function getCategories(state)
 	-- Randomize player order
-	players = misc.indexifyTable(state.PlayerList)
+	local players = misc.indexifyTable(state.PlayerList)
 	--misc.shuffleTable(players)
 	-- Tell each player to pick a character
 	for idx,player in pairs(players) do
 		-- Get next player
-		nextPlayer = players[idx+1]
+		local nextPlayer = players[idx+1]
 		if nextPlayer == nil then nextPlayer = players[1] end
 		-- Assign the association info
 		nextPlayer.GivenBy = player.PlayerObj.id
@@ -160,7 +160,7 @@ end
 function setupPlayers(state, playerList)
 	local players = {}
 	for idx, player in pairs(playerList) do
-		players[player.id] = { Name = player.name, StatusMsg = nil, Counter = 0, PlayerObj = player, Character = nil, Confirmed = false, GivenBy = nil, GivingTo = nil, Finished = false }
+		players[player.id] = { Name = player.name, StatusMsg = nil, StatusMsg2 = nil, Counter = 0, PlayerObj = player, Character = nil, Confirmed = false, GivenBy = nil, GivingTo = nil, Finished = false }
 
 
 		players[player.id].StatusMsg = player:send("...")
