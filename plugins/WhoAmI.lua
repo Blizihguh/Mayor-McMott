@@ -28,7 +28,7 @@ function whoami.startGame(message, playerList)
 	}
 	
 	setupPlayers(state, playerList)
-	getCategories(state)
+	getCategories(state, playerList)
 
 	state.GameID = games.registerGame(message.channel, "WhoAmI", state, playerList)
 end
@@ -163,15 +163,18 @@ function pickCharacter(state, message)
 	end
 end
 
-function getCategories(state)
-	-- Randomize player order
-	local players = misc.indexifyTable(state.PlayerList)
-	--misc.shuffleTable(players)
+function getCategories(state, playerList)
+	-- This needs to take the original playerList variable, not the state PlayerList table
+	-- The original playerList may be ordered, or randomized by !vcr; the state PlayerList is ordered by user id
 	-- Tell each player to pick a character
-	for idx,player in pairs(players) do
+	for idx,user in pairs(playerList) do
 		-- Get next player
-		local nextPlayer = players[idx+1]
-		if nextPlayer == nil then nextPlayer = players[1] end
+		local nextPlayer = playerList[idx+1]
+		if nextPlayer == nil then nextPlayer = playerList[1] end
+
+		local player = state.PlayerList[user.id]
+		local nextPlayer = state.PlayerList[nextPlayer.id]
+
 		-- Assign the association info
 		nextPlayer.GivenBy = player.PlayerObj.id
 		player.GivingTo = nextPlayer.PlayerObj.id
