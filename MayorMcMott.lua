@@ -3,6 +3,7 @@ local fs = require("fs")
 local games = require("Games")
 local misc = require("Misc")
 local client = discordia.Client()
+local settings = require("Settings")
 require("discordia-components")
 
 discordia.extensions()
@@ -18,11 +19,6 @@ discordia.extensions()
 --#############################################################################################################################################
 --# Globals                                                                                                                                   #
 --#############################################################################################################################################
-
--- Settings
-LOG_MOTTBOT_MESSAGES = true  -- If true, all messages in the bot's DMs will be printed to console.
-ECHO_ALLOWED_USERS = nil     -- List of allowed users for !setchannel and !echo. Leave nil to allow anyone to use them.
-DEBUG_ALLOWED_USERS = nil    -- List of allowed users for !reload and !debug. Leave nil to allow anyone to use them.
 
 -- You don't need to touch these, they're set by the bot automatically when appropriate
 local currentGhostChannel = nil
@@ -138,6 +134,26 @@ function gameCommands(message)
 	local args = content:split(" ")
 
 	if (args[1] == "!start") or (args[1] == "!vc") or (args[1] == "!vcr") then -- Are we trying to start a new game?
+		-- Check if the user is authed to use the command
+		if args[1] == "!start" and not (START_AUTH_TYPE == nil) then
+			local isAuth = misc.valueInList(message.author.id, START_AUTH_USERS)
+			if isAuth and (START_AUTH_TYPE == "blacklist") then
+				channel:send("Sorry, your buns are banned from the !start command :sob:")
+				return
+			elseif (not isAuth) and (START_AUTH_TYPE == "whitelist") then
+				channel:send("Sorry, your buns aren't allowed to use !start, homie! :sob:")
+				return
+			end
+		elseif (args[1] == "!vc" or args[1] == "!vcr") and not (VC_AUTH_TYPE == nil) then
+			local isAuth = misc.valueInList(message.author.id, VC_AUTH_USERS)
+			if isAuth and (VC_AUTH_TYPE == "blacklist") then
+				channel:send("Sorry, your buns are banned from the !vc command :sob:")
+				return
+			elseif (not isAuth) and (VC_AUTH_TYPE == "whitelist") then
+				channel:send("Sorry, your buns aren't allowed to use !vc or !vcr, homie! :sob:")
+				return
+			end
+		end
 		-- args[2] should be the game name; if it's nonexistant or invalid, that's an error
 		if #args == 1 then 
 			channel:send("You need to tell me what game you want to play, homie...")
@@ -184,8 +200,10 @@ function gameCommands(message)
 			end
 		else -- !vc/!vcr
 			for key,val in pairs(authorvc.connectedMembers) do
-				-- Skip users that are already in the table (eg message author who @ed themselves)
-				if not misc.valueInList(val.user, playerList) then table.insert(playerList, val.user) end
+				-- Skip users that are already in the table (eg message author who @ed themselves) and users who are on the ignore list
+				misc.printTable(VC_IGNORE_USERS)
+				print(val.user.id)
+				if ( not misc.valueInList(val.user, playerList) ) and ( not misc.valueInList(val.user.id, VC_IGNORE_USERS)) then table.insert(playerList, val.user) end
 			end
 		end
 		-- Randomize player order for !vcr only
